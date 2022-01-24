@@ -39,7 +39,7 @@ internal func credentialsCallback(
 	url: UnsafePointer<CChar>?,
 	username: UnsafePointer<CChar>?,
 	_: UInt32,
-	payload: UnsafeMutableRawPointer? ) -> Int32 {
+	payload: UnsafeMutableRawPointer?) -> Int32 {
 
 	let result: Int32
 
