@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "swift-cgit2",
+        "repositoryURL": "https://github.com/linhay/swift-cgit2",
+        "state": {
+          "branch": "main",
+          "revision": "f1c5e899dd8cbd3199ceffc4cae22447890ca284",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
