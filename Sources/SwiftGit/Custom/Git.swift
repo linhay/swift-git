@@ -23,4 +23,9 @@ public extension Git {
         try Repository.init(path: path)
     }
     
+    /// https://git-scm.com/docs/git-clone
+//    static func clone(url: String, options: [CloneOptions] = [], to dir: String? = nil) throws -> Repository {
+//
+//    }
+    
 }
