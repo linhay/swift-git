@@ -6,16 +6,21 @@
 //
 
 import Foundation
-import Cgit2
 
-public class Git {
+public struct Git {
     
-    public static let shared = Git()
+
     
-    let pointer = git_libgit2_init()
+}
+
+public extension Git {
     
-    deinit {
-        git_libgit2_shutdown()
+    static func create(at url: URL) throws -> Repository {
+        try Repository.init(url: url)
+    }
+    
+    static func create(at path: String) throws -> Repository {
+        try Repository.init(path: path)
     }
     
 }
