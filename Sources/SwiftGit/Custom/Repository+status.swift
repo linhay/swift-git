@@ -28,16 +28,6 @@ public extension Repository {
     }
     
     func status() throws -> Status {
-        //        # branch.oid 51c83f49f6cb155b5cafcbfa0e7aac4c5ffd6a02
-        //        # branch.head main
-        //        # branch.upstream origin/main
-        //        # branch.ab +0 -0
-        //        1 .D N... 100644 100644 000000 241aad8e31114e09c320bf4201c6e44600ea6d21 241aad8e31114e09c320bf4201c6e44600ea6d21 Package.swift
-        //        1 .D N... 100644 100644 000000 6eafc343d4f983dfbad2a0550c2b11209a9d2688 6eafc343d4f983dfbad2a0550c2b11209a9d2688 README.md
-        //        1 .M N... 100644 100644 100644 ba71f66320d7c6fb88d4dd2e5d5b3e039328c48c ba71f66320d7c6fb88d4dd2e5d5b3e039328c48c Tests/SwiftGitTests/SwiftGitTests.swift
-        //        ? Package2.swift
-        //        ? aaa
-        
         let string = try statusOutput(.porcelain(.v2), .branch)
         var branch = Status.Branch(oid: "", head: "", upstream: "")
         var changes = Status.Changes(modified: [], deleted: [])
