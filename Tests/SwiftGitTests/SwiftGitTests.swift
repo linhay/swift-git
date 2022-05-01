@@ -6,6 +6,17 @@ final class SwiftGitTests: XCTestCase {
     func testExample() throws {
         print(try Git.create(at: "/Users/linhey/Desktop/asset-template").run("log"))
     }
+    
+    func testClone() throws {
+      try Git
+            .clone(repo: "git@github.com:linhay/SwiftGit.git", parentFolder: "/Users/linhey/Downloads/", options: [])
+    }
+    
+    func testStatus() throws {
+       let result = try Git.create(at: "/Users/linhey/Downloads/SwiftGit")
+            .status()
+        print(result)
+    }
 
     func testCloneDoc() {
         let doc = """
@@ -47,7 +58,6 @@ final class SwiftGitTests: XCTestCase {
 
         var opts = [String]()
         for line in doc.split(separator: "\n").map(\.description) {
-            print(line)
             let list = line.split(separator: "#").map(\.description)
             guard let opt = list.first?.split(separator: ",").last?.trimmingCharacters(in: .whitespacesAndNewlines),
                   let mark = list.last?.description else {
@@ -56,16 +66,20 @@ final class SwiftGitTests: XCTestCase {
 
             if opt.contains(" <") {
                 let list2 = opt.split(separator: " ")
-                let name = list.first!
+                let name = list2.first!
                     .replacingOccurrences(of: "--", with: "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
-                let args = list.last?
+                let args = list2.last?
                     .replacingOccurrences(of: "<", with: "")
                     .replacingOccurrences(of: ">", with: "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 opts.append(#"/// "# + mark)
                 opts.append("\n")
-                opts.append("static func \(name)" + #"(_ value: String) -> CloneOptions { .init(stringLiteral: "--\(name) \(value)") }"# )
+                opts.append("static func \(name)"
+                            + #"(_ value: String) -> CloneOptions { .init(stringLiteral: "--"#
+                            + name
+                            + #" \(value)") }"# )
+                opts.append("\n")
             } else {
                 let name = opt
                     .replacingOccurrences(of: "--", with: "")
@@ -73,10 +87,10 @@ final class SwiftGitTests: XCTestCase {
                 opts.append(#"/// "# + mark)
                 opts.append("\n")
                 opts.append("static let \(name): CloneOptions = \"--\(name)\"")
-            }
-            
-            print(opt)
+                opts.append("\n")
+            }            
         }
+        print(opts.joined())
 
 
     }

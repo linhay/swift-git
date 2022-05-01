@@ -23,22 +23,24 @@ public struct Repository {
 
 public extension Repository {
 
+    @discardableResult
     func run(_ commands: [String]) throws -> String {
         let process = Process()
-         process.executableURL = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git")
-         process.currentDirectoryURL = localURL
-         process.arguments = commands
-
-         let pipe = Pipe()
-         process.standardOutput = pipe
-         try process.run()
-         process.waitUntilExit()
-         let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.executableURL = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git")
+        process.currentDirectoryURL = localURL
+        process.arguments = commands
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        try process.run()
+        process.waitUntilExit()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
         return String(data: data, encoding: .utf8) ?? ""
     }
     
+    @discardableResult
     func run(_ commands: String) throws -> String {
-        return try run(commands.split(separator: "\n").map(String.init))
+        return try run(commands.split(separator: " ").map(String.init))
     }
     
 }
