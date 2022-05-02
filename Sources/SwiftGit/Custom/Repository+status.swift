@@ -180,11 +180,6 @@ public extension StatusOptions {
         .init(stringLiteral: "--ignored=\(when.rawValue)")
     }
     
-    enum Porcelain: String {
-        case v1
-        case v2
-    }
-    
     /**
      以易于解析的格式给出脚本的输出。 这类似于简短的输出，但在不同的Git版本中，无论用户配置如何，都会保持稳定。
      版本参数用于指定格式版本。 这是可选的，默认为原始版本的 "v1 "格式。
@@ -192,14 +187,8 @@ public extension StatusOptions {
      configuration. See below for details.
      The version parameter is used to specify the format version. This is optional and defaults to the original version v1 format.
      */
-    static func porcelain(_ version: Porcelain) -> StatusOptions {
+    static func porcelain(_ version: PorcelainMode) -> StatusOptions {
         .init(stringLiteral: "--porcelain=\(version.rawValue)")
-    }
-    
-    enum UntrackedFilesMode: String {
-        case all
-        case normal
-        case no
     }
     
     /**
