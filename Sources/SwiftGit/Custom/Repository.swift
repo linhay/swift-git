@@ -24,7 +24,7 @@ public struct Repository {
 public extension Repository {
 
     @discardableResult
-    func run(_ commands: [String]) throws -> String {
+    func _run(_ commands: [String]) throws -> Data {
         let process = Process()
         process.executableURL = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git")
         process.currentDirectoryURL = localURL
@@ -34,7 +34,17 @@ public extension Repository {
         process.standardOutput = pipe
         try process.run()
         process.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return pipe.fileHandleForReading.readDataToEndOfFile()
+    }
+    
+    @discardableResult
+    func _run(_ commands: String) throws -> Data {
+        return try _run(commands.split(separator: " ").map(String.init))
+    }
+    
+    @discardableResult
+    func run(_ commands: [String]) throws -> String {
+        let data = try _run(commands)
         return String(data: data, encoding: .utf8) ?? ""
     }
     
