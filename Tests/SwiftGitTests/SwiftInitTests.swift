@@ -11,8 +11,8 @@ import SwiftGit
 
 class SwiftInitTests: XCTestCase {
     
-    lazy var workFolder = try! FilePath.Folder(sanbox: .temporary)
-    lazy var target = try! workFolder.folder(name: "test")
+    lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
+    lazy var target = workFolder.folder(name: "test-init")
 
     func testTemplate() throws {
         try? target.delete()

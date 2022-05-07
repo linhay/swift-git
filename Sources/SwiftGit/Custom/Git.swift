@@ -10,14 +10,18 @@ import Foundation
 public struct Git {
 
    public static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
-                                                           
+                   
+    @discardableResult
     static func run(_ options: [GitOptions]) throws -> String {
         try run(options.map(\.rawValue))
     }
     
-    static func run(_ commands: [String], processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
+    @discardableResult
+    static func run(_ commands: [String],
+                    executableURL: URL? = bundle.url(forAuxiliaryExecutable: "bin/git"),
+                    processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
         let process = Process()        
-        process.executableURL = bundle.url(forAuxiliaryExecutable: "bin/git")
+        process.executableURL = executableURL
         process.arguments = commands
         processBuilder?(process)
         
