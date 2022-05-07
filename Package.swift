@@ -7,15 +7,22 @@ let package = Package(
     name: "SwiftGit",
     platforms: [.macOS(.v12), .iOS(.v11)],
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(name: "SwiftGit", targets: ["SwiftGit"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/linhay/Stem.git", .upToNextMajor(from: "1.0.9")),
     ],
     targets: [
         .target(
             name: "SwiftGit",
-            resources: [.process("Resource/git")]),
+            resources: [
+                .process("Resource/git-instance.bundle")
+            ]),
         .testTarget(
             name: "SwiftGitTests",
-            dependencies: ["SwiftGit"]),
+            dependencies: [
+                "SwiftGit",
+                .product(name: "Stem", package: "Stem")
+            ]),
     ]
 )

@@ -404,9 +404,9 @@ enum \(funcname.capitalized): String {
         let ivars = [
             (`enum`.1.isEmpty ? [] : ["_ \(funcname): \(funcname.capitalized)"]),
             ivar.1
-                .map({ name($0) + ": String" }),
+                .map({ "_ \(name($0)): String" }),
             list.1
-                .map({ name($0) + ": [String]" })
+                .map({ "_ \(name($0)): [String]" })
         ]
             .filter({ $0.isEmpty == false })
             .map({ $0.joined(separator: ", ") })

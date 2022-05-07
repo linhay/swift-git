@@ -20,17 +20,17 @@ static let alsoFilterSubmodules: Self = "--also-filter-submodules"
     ///  --bare
 static let bare: Self = "--bare"
     ///  --branch <name>
-    static func branch(name: String) -> Self { .init("--branch \(name)") }
+    static func branch(_ name: String) -> Self { .init("--branch \(name)") }
     ///  --config <key>=<value>
-    static func configKey(value: String) -> Self { .init("--config <key>=\(value)") }
+    static func configKey(_ value: String) -> Self { .init("--config <key>=\(value)") }
     ///  --depth <depth>
-    static func depth(depth: String) -> Self { .init("--depth \(depth)") }
+    static func depth(_ depth: String) -> Self { .init("--depth \(depth)") }
     ///  --dissociate
 static let dissociate: Self = "--dissociate"
     ///  --filter=<filter-spec>
-    static func filter(filterSpec: String) -> Self { .init("--filter=\(filterSpec)") }
+    static func filter(_ filterSpec: String) -> Self { .init("--filter=\(filterSpec)") }
     ///  --jobs <n>
-    static func jobs(n: String) -> Self { .init("--jobs \(n)") }
+    static func jobs(_ n: String) -> Self { .init("--jobs \(n)") }
     ///  --local
 static let local: Self = "--local"
     ///  --mirror
@@ -50,29 +50,29 @@ static let noSingleBranch: Self = "--no-single-branch"
     ///  --no-tags
 static let noTags: Self = "--no-tags"
     ///  --origin <name>
-    static func origin(name: String) -> Self { .init("--origin \(name)") }
+    static func origin(_ name: String) -> Self { .init("--origin \(name)") }
     ///  --progress
 static let progress: Self = "--progress"
     ///  --quiet
 static let quiet: Self = "--quiet"
     ///  --recurse-submodules[=<pathspec>]
-    static func recurseSubmodules(pathspec: [String]) -> Self { .init("--recurse-submodules=\(pathspec.joined(separator: ","))") }
+    static func recurseSubmodules(_ pathspec: [String]) -> Self { .init("--recurse-submodules=\(pathspec.joined(separator: ","))") }
     ///  --reference <repository>
-    static func reference(repository: String) -> Self { .init("--reference \(repository)") }
+    static func reference(_ repository: String) -> Self { .init("--reference \(repository)") }
     ///  --reference-if-able <repository>
-    static func referenceIfAble(repository: String) -> Self { .init("--reference-if-able \(repository)") }
+    static func referenceIfAble(_ repository: String) -> Self { .init("--reference-if-able \(repository)") }
     ///  --reject-shallow
 static let rejectShallow: Self = "--reject-shallow"
     ///  --remote-submodules
 static let remoteSubmodules: Self = "--remote-submodules"
     ///  --separate-git-dir=<git-dir>
-    static func separateGitDir(gitDir: String) -> Self { .init("--separate-git-dir=\(gitDir)") }
+    static func separateGitDir(_ gitDir: String) -> Self { .init("--separate-git-dir=\(gitDir)") }
     ///  --server-option=<option>
-    static func serverOption(option: String) -> Self { .init("--server-option=\(option)") }
+    static func serverOption(_ option: String) -> Self { .init("--server-option=\(option)") }
     ///  --shallow-exclude=<revision>
-    static func shallowExclude(revision: String) -> Self { .init("--shallow-exclude=\(revision)") }
+    static func shallowExclude(_ revision: String) -> Self { .init("--shallow-exclude=\(revision)") }
     ///  --shallow-since=<date>
-    static func shallowSince(date: String) -> Self { .init("--shallow-since=\(date)") }
+    static func shallowSince(_ date: String) -> Self { .init("--shallow-since=\(date)") }
     ///  --shallow-submodules
 static let shallowSubmodules: Self = "--shallow-submodules"
     ///  --shared
@@ -82,9 +82,9 @@ static let singleBranch: Self = "--single-branch"
     ///  --sparse
 static let sparse: Self = "--sparse"
     ///  --template=<template-directory>
-    static func template(templateDirectory: String) -> Self { .init("--template=\(templateDirectory)") }
+    static func template(_ templateDirectory: String) -> Self { .init("--template=\(templateDirectory)") }
     ///  --upload-pack <upload-pack>
-    static func uploadPack(uploadPack: String) -> Self { .init("--upload-pack \(uploadPack)") }
+    static func uploadPack(_ uploadPack: String) -> Self { .init("--upload-pack \(uploadPack)") }
     ///  --verbose
 static let verbose: Self = "--verbose"
 

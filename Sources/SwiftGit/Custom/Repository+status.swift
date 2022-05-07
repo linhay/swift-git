@@ -79,41 +79,7 @@ public extension Repository {
     
 }
 
-public struct StatusOptions: ExpressibleByStringLiteral {
-    
-    public typealias StringLiteralType = String
-    public let rawValue: String
-    
-    public init(stringLiteral value: String) {
-        self.rawValue = value
-    }
-    
-}
-
 public extension StatusOptions {
-    /**
-     除了显示被修改的文件名外，还显示被分阶段提交的文本修改（即，像`git diff --cached`的输出）。如果`-v`被指定了两次，那么也会显示工作树中尚未分阶段的变化（即，像`git diff`的输出）。
-     In addition to the names of files that have been changed, also show the textual changes that are staged to be committed (i.e., like the output of git diff --cached).
-     If -v is specified twice, then also show the changes in the working tree that have not yet been staged (i.e., like the output of git diff).
-     */
-    static let verbose: StatusOptions = "--verbose"
-    
-    /// 以简短的形式给出输出。
-    /// Give the output in the short-format.
-    static let short: StatusOptions = "--short"
-    
-    /// 给出长格式的输出。这是默认的。
-    /// Give the output in the long-format. This is the default.
-    static let long: StatusOptions = "--long"
-    
-    /// 即使在短文中也要显示分支和跟踪信息。
-    /// Show the branch and tracking info even in short-format.
-    static let branch: StatusOptions = "--branch"
-    
-    /// 显示目前藏匿的条目数量。
-    /// Show the number of entries currently stashed away.
-    static let showStash: StatusOptions = "--show-stash"
-    
     /// 显示或不显示该分支相对于其上游分支的详细超前/滞后计数。 默认为true。
     /// compute full ahead/behind values
     static func aheadBehind(_ flag: Bool) -> StatusOptions { flag ? "--ahead-behind" : "--no-ahead-behind" }

@@ -2,97 +2,17 @@ import XCTest
 @testable import SwiftGit
 
 final class SwiftGitTests: XCTestCase {
-
-    func testExample() throws {
-        print(try Git.create(at: "/Users/linhey/Desktop/asset-template").run("log"))
+    
+    func testVersion() throws {
+        let output = try Git.version
+        assert(output == "2.31.1")
     }
     
-    func testClone() throws {
-      try Git
-            .clone(repo: "git@github.com:linhay/SwiftGit.git", parentFolder: "/Users/linhey/Downloads/", options: [])
+    func testHelp() throws {
+        let output = try Git.help
+        let text = "usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]\n           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n           [--super-prefix=<path>] [--config-env=<name>=<envvar>]\n           <command> [<args>]\n\nThese are common Git commands used in various situations:\n\nstart a working area (see also: git help tutorial)\n   clone             Clone a repository into a new directory\n   init              Create an empty Git repository or reinitialize an existing one\n\nwork on the current change (see also: git help everyday)\n   add               Add file contents to the index\n   mv                Move or rename a file, a directory, or a symlink\n   restore           Restore working tree files\n   rm                Remove files from the working tree and from the index\n   sparse-checkout   Initialize and modify the sparse-checkout\n\nexamine the history and state (see also: git help revisions)\n   bisect            Use binary search to find the commit that introduced a bug\n   diff              Show changes between commits, commit and working tree, etc\n   grep              Print lines matching a pattern\n   log               Show commit logs\n   show              Show various types of objects\n   status            Show the working tree status\n\ngrow, mark and tweak your common history\n   branch            List, create, or delete branches\n   commit            Record changes to the repository\n   merge             Join two or more development histories together\n   rebase            Reapply commits on top of another base tip\n   reset             Reset current HEAD to the specified state\n   switch            Switch branches\n   tag               Create, list, delete or verify a tag object signed with GPG\n\ncollaborate (see also: git help workflows)\n   fetch             Download objects and refs from another repository\n   pull              Fetch from and integrate with another repository or a local branch\n   push              Update remote refs along with associated objects\n\n\'git help -a\' and \'git help -g\' list available subcommands and some\nconcept guides. See \'git help <command>\' or \'git help <concept>\'\nto read about a specific subcommand or concept.\nSee \'git help git\' for an overview of the system.\n"
+        assert(output == text)
     }
     
-    func testStatus() throws {
-       let result = try Git.create(at: "/Users/linhey/Downloads/SwiftGit")
-            .status()
-        print(result)
-    }
-
-    func testCloneDoc() {
-        let doc = """
-    -v, --verbose         #be more verbose
-    -q, --quiet           #be more quiet
-    --progress            #force progress reporting
-    --reject-shallow      #don't clone shallow repository
-    -n, --no-checkout     #don't create a checkout
-    --bare                #create a bare repository
-    --mirror              #create a mirror repository (implies bare)
-    -l, --local           #to clone from a local repository
-    --no-hardlinks        #don't use local hardlinks, always copy
-    -s, --shared          #setup as shared repository
-    --recurse-submodules[=<pathspec>] #initialize submodules in the clone
-    --recursive ...       #alias of --recurse-submodules
-    -j, --jobs <n>        #number of submodules cloned in parallel
-    --template <template-directory> #directory from which templates will be used
-    --reference <repo>    #reference repository
-    --reference-if-able <repo> #reference repository
-    --dissociate          #use --reference only while cloning
-    -o, --origin <name>   #use <name> instead of 'origin' to track upstream
-    -b, --branch <branch> #checkout <branch> instead of the remote's HEAD
-    -u, --upload-pack <path> #path to git-upload-pack on the remote
-    --depth <depth>       #create a shallow clone of that depth
-    --shallow-since <time> #create a shallow clone since a specific time
-    --shallow-exclude <revision> #deepen history of shallow clone, excluding rev
-    --single-branch       #clone only one branch, HEAD or --branch
-    --no-tags             #don't clone any tags, and make later fetches not to follow them
-    --shallow-submodules  #any cloned submodules will be shallow
-    --separate-git-dir <gitdir> #separate git dir from working tree
-    -c, --config <key=value> #set config inside the new repository
-    --server-option <server-specific> #option to transmit
-    -4, --ipv4            #use IPv4 addresses only
-    -6, --ipv6            #use IPv6 addresses only
-    --filter <args>       #object filtering
-    --remote-submodules   #any cloned submodules will use their remote-tracking branch
-    --sparse              #initialize sparse-checkout file to include only files at root
-"""
-
-        var opts = [String]()
-        for line in doc.split(separator: "\n").map(\.description) {
-            let list = line.split(separator: "#").map(\.description)
-            guard let opt = list.first?.split(separator: ",").last?.trimmingCharacters(in: .whitespacesAndNewlines),
-                  let mark = list.last?.description else {
-                continue
-            }
-
-            if opt.contains(" <") {
-                let list2 = opt.split(separator: " ")
-                let name = list2.first!
-                    .replacingOccurrences(of: "--", with: "")
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                let args = list2.last?
-                    .replacingOccurrences(of: "<", with: "")
-                    .replacingOccurrences(of: ">", with: "")
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                opts.append(#"/// "# + mark)
-                opts.append("\n")
-                opts.append("static func \(name)"
-                            + #"(_ value: String) -> CloneOptions { .init(stringLiteral: "--"#
-                            + name
-                            + #" \(value)") }"# )
-                opts.append("\n")
-            } else {
-                let name = opt
-                    .replacingOccurrences(of: "--", with: "")
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                opts.append(#"/// "# + mark)
-                opts.append("\n")
-                opts.append("static let \(name): CloneOptions = \"--\(name)\"")
-                opts.append("\n")
-            }            
-        }
-        print(opts.joined())
-
-
-    }
-
+    
 }
