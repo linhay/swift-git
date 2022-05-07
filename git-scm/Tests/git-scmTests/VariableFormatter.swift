@@ -29,12 +29,17 @@ struct VariableFormatter {
     
     let style: Style
     /// 分割字符
-    let splitChars: [String] = ["_", " "]
+    let splitChars: [String] = ["_", " ", "-"]
 }
 
 extension VariableFormatter {
     
+    func firstUppercased(_ string: String) -> String {
+        string.prefix(1).uppercased() + string.dropFirst()
+    }
+    
     func string(_ name: String) -> String {
+        
         var result = ""
         switch self.style {
         case .camelCased:
@@ -45,12 +50,12 @@ extension VariableFormatter {
         case .snakeCased:
             result = split(words: name).joined(separator: "_")
         }
-        
+    
         if reservedWords.contains(result) {
             return "`\(result)`"
         }
         
-        if Int(result) != nil {
+        if result.first?.isNumber ?? false {
             return "_" + result
         }
         

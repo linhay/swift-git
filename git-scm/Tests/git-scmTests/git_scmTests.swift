@@ -19,6 +19,55 @@ for (let item of document.getElementsByClassName('hdlist1')) {
 """
     }
     
+    func testDocPatching() throws {
+        let dict = [
+            "apply": ["--stat", "--numstat", "--summary", "--check", "--index", "--cached", "--intent-to-add", "--3way", "--build-fake-ancestor=<file>", "--reverse", "--reject", "--unidiff-zero", "--apply", "--no-add", "--allow-binary-replacement", "--binary", "--exclude=<path-pattern>", "--include=<path-pattern>", "--ignore-space-change", "--ignore-whitespace", "--whitespace=<action>", "--inaccurate-eof", "--verbose", "--quiet", "--recount", "--directory=<root>", "--unsafe-paths", "--allow-empty"],
+            "cherry-pick": ["--edit", "--cleanup=<mode>", "--mainline <parent-number>", "--no-commit", "--signoff", "--gpg-sign[=<keyid>]", "--no-gpg-sign", "--ff", "--allow-empty", "--allow-empty-message", "--keep-redundant-commits", "--strategy=<strategy>", "--strategy-option=<option>", "--rerere-autoupdate", "--no-rerere-autoupdate", "--continue", "--skip", "--quit", "--abort"],
+            "rebase": ["--onto <newbase>", "--keep-base", "--continue", "--abort", "--quit", "--apply", "--empty={drop,keep,ask}", "--no-keep-empty", "--keep-empty", "--reapply-cherry-picks", "--no-reapply-cherry-picks", "--allow-empty-message", "--skip", "--edit-todo", "--show-current-patch", "--merge", "--strategy=<strategy>", "--strategy-option=<strategy-option>", "--rerere-autoupdate", "--no-rerere-autoupdate", "--gpg-sign[=<keyid>]", "--no-gpg-sign", "--quiet", "--verbose", "--stat", "--no-stat", "--no-verify", "--verify", "--no-ff", "--force-rebase", "--fork-point", "--no-fork-point", "--ignore-whitespace", "--whitespace=<option>", "--committer-date-is-author-date", "--ignore-date", "--reset-author-date", "--signoff", "--interactive", "--rebase-merges[=(rebase-cousins|no-rebase-cousins)]", "--exec <cmd>", "--root", "--autosquash", "--no-autosquash", "--autostash", "--no-autostash", "--reschedule-failed-exec", "--no-reschedule-failed-exec"],
+            "revert": ["--edit", "--mainline parent-number", "--no-edit", "--cleanup=<mode>", "--no-commit", "--gpg-sign[=<keyid>]", "--no-gpg-sign", "--signoff", "--strategy=<strategy>", "--strategy-option=<option>", "--rerere-autoupdate", "--no-rerere-autoupdate", "--continue", "--skip", "--quit", "--abort"]
+        ]
+        
+        try dict.forEach { (key, value) in
+            try createFile(key: key, value: value)
+        }
+    }
+    
+    func testDocInspectionAndComparison() throws {
+        let dict = [
+            "show": ["--pretty[=<format>]", "--format=<format>", "--abbrev-commit", "--no-abbrev-commit", "--oneline", "--encoding=<encoding>", "--expand-tabs=<n>", "--expand-tabs", "--no-expand-tabs", "--notes[=<ref>]", "--no-notes", "--show-notes[=<ref>]", "--[no-]standard-notes", "--show-signature", "--patch", "--no-patch", "--diff-merges=(off|none|on|first-parent|1|separate|m|combined|c|dense-combined|cc|remerge|r)", "--no-diff-merges", 
+                     "--cc", "--combined-all-paths", "--unified=<n>", "--output=<file>", "--output-indicator-new=<char>", "--output-indicator-old=<char>", "--output-indicator-context=<char>", "--raw", "--patch-with-raw", "--indent-heuristic", "--no-indent-heuristic", "--minimal", "--patience", "--histogram", "--anchored=<text>", "--diff-algorithm={patience|minimal|histogram|myers}", "--stat[=<width>[,<name-width>[,<count>]]]", "--compact-summary", "--numstat", "--shortstat", "--dirstat[=<param1,param2,…​>]", "--cumulative", "--dirstat-by-file[=<param1,param2>…​]", "--summary", "--patch-with-stat", "--name-only", "--name-status", "--submodule[=<format>]", "--color[=<when>]", "--no-color", "--color-moved[=<mode>]", "--no-color-moved", "--color-moved-ws=<modes>", "--no-color-moved-ws", "--word-diff[=<mode>]", "--word-diff-regex=<regex>", "--color-words[=<regex>]", "--no-renames", "--[no-]rename-empty", "--check", "--ws-error-highlight=<kind>", "--full-index", "--binary", "--abbrev[=<n>]", "--break-rewrites[=[<n>][/<m>]]", "--find-renames[=<n>]", "--find-copies[=<n>]", "--find-copies-harder", "--irreversible-delete", "--diff-filter=[(A|C|D|M|R|T|U|X|B)…​[*]]", "--find-object=<object-id>", "--pickaxe-all", "--pickaxe-regex", "--skip-to=<file>", "--rotate-to=<file>", "--relative[=<path>]", "--no-relative", "--text", "--ignore-cr-at-eol", "--ignore-space-at-eol", "--ignore-space-change", "--ignore-all-space", "--ignore-blank-lines", "--ignore-matching-lines=<regex>", "--inter-hunk-context=<lines>", "--function-context", "--ext-diff", "--no-ext-diff", "--textconv", "--no-textconv", "--ignore-submodules[=<when>]", "--src-prefix=<prefix>", "--dst-prefix=<prefix>", "--no-prefix", "--line-prefix=<prefix>", "--ita-invisible-in-index", "git show -s --format=%s v1.0.0^{commit}"],
+            "difftool": ["--dir-diff", "--no-prompt", "--prompt", "--rotate-to=<file>", "--skip-to=<file>", "--tool=<tool>", "--tool-help", "--[no-]symlinks", "--extcmd=<command>", "--[no-]gui", "--[no-]trust-exit-code"],
+            "range-diff": ["--no-dual-color", "--creation-factor=<percent>", "--left-only", "--right-only", "--[no-]notes[=<ref>]"],
+            "shortlog": ["--numbered", "--summary", "--email", "--format[=<format>]", "--group=<type>", "--committer",
+//                         "[--] <path>…​",
+                         "--max-count=<number>", "--skip=<number>", "--since=<date>", "--after=<date>", "--until=<date>", "--before=<date>", "--author=<pattern>", "--committer=<pattern>", "--grep-reflog=<pattern>", "--grep=<pattern>", "--all-match", "--invert-grep", "--regexp-ignore-case", "--basic-regexp", "--extended-regexp", "--fixed-strings", "--perl-regexp", "--remove-empty", "--merges", "--no-merges", "--min-parents=<number>", "--max-parents=<number>", "--no-min-parents", "--no-max-parents", "--first-parent", "--exclude-first-parent-only", "--not", "--all", "--branches[=<pattern>]", "--tags[=<pattern>]", "--remotes[=<pattern>]", "--glob=<glob-pattern>", "--exclude=<glob-pattern>", "--reflog", "--alternate-refs", "--single-worktree", "--ignore-missing", "--bisect", "--stdin", "--cherry-mark", "--cherry-pick", "--left-only", "--right-only", "--cherry", "--walk-reflogs", "--merge", "--boundary", "--simplify-by-decoration", "--show-pulls", "--full-history", "--dense", "--sparse", "--ancestry-path", "--full-history without parent rewriting", "--full-history with parent rewriting", "--simplify-merges"],
+            "describe": ["--dirty[=<mark>]", "--broken[=<mark>]", "--all", "--tags", "--contains", "--abbrev=<n>", "--candidates=<n>", "--exact-match", "--debug", "--long", "--match <pattern>", "--exclude <pattern>", "--always", "--first-parent"]
+        ]
+        
+        try dict.forEach { (key, value) in
+            try createFile(key: key, value: value)
+        }
+    }
+    
+    func testDocSharingAndUpdatingProjects() throws {
+        let dict = [
+            "fetch": ["--all", "--append", "--atomic", "--depth=<depth>", "--deepen=<depth>", "--shallow-since=<date>", "--shallow-exclude=<revision>", "--unshallow", "--update-shallow", "--negotiation-tip=<commit|glob>", "--negotiate-only", "--dry-run", "--[no-]write-fetch-head", "--force", "--keep", "--multiple", "--[no-]auto-maintenance", "--[no-]auto-gc", "--[no-]write-commit-graph", "--prefetch", "--prune", "--prune-tags", "--no-tags", "--refetch", "--refmap=<refspec>", "--tags", "--recurse-submodules[=yes|on-demand|no]", "--jobs=<n>", "--no-recurse-submodules", "--set-upstream", "--submodule-prefix=<path>", "--recurse-submodules-default=[yes|on-demand]", "--update-head-ok", "--upload-pack <upload-pack>", "--quiet", "--verbose", "--progress", "--server-option=<option>", "--show-forced-updates", "--no-show-forced-updates", "--ipv4", "--ipv6", "--stdin"],
+            
+            "pull": ["--quiet", "--verbose", "--[no-]recurse-submodules[=yes|on-demand|no]", "--commit", "--no-commit", "--edit", "--no-edit", "--cleanup=<mode>", "--ff-only", "--ff", "--no-ff", "--gpg-sign[=<keyid>]", "--no-gpg-sign", "--log[=<n>]", "--no-log", "--signoff", "--no-signoff", "--stat", "--no-stat", "--squash", "--no-squash", "--[no-]verify", "--strategy=<strategy>", "--strategy-option=<option>", "--verify-signatures", "--no-verify-signatures", "--summary", "--no-summary", "--autostash", "--no-autostash", "--allow-unrelated-histories", "--rebase[=false|true|merges|interactive]", "--no-rebase", "--all", "--append", "--atomic", "--depth=<depth>", "--deepen=<depth>", "--shallow-since=<date>", "--shallow-exclude=<revision>", "--unshallow", "--update-shallow", "--negotiation-tip=<commit|glob>", "--negotiate-only", "--dry-run", "--force", "--keep", "--prefetch", "--prune", "--no-tags", "--refmap=<refspec>", "--tags", "--jobs=<n>", "--set-upstream", "--upload-pack <upload-pack>", "--progress", "--server-option=<option>", "--show-forced-updates", "--no-show-forced-updates", "--ipv4", "--ipv6"],
+            
+            "push": ["--all", "--prune", "--mirror", "--dry-run", "--porcelain", "--delete", "--tags", "--follow-tags", "--[no-]signed", "--signed=(true|false|if-asked)", "--[no-]atomic", "--push-option=<option>", "--receive-pack=<git-receive-pack>", "--exec=<git-receive-pack>", "--[no-]force-with-lease", "--force-with-lease=<refname>", "--force-with-lease=<refname>:<expect>", "--force", "--[no-]force-if-includes", "--repo=<repository>", "--set-upstream", "--[no-]thin", "--quiet", "--verbose", "--progress", "--no-recurse-submodules", "--recurse-submodules=check|on-demand|only|no", "--[no-]verify", "--ipv4", "--ipv6"],
+            
+            "remote": ["--verbose"],
+            
+            "submodule": [
+                "--quiet", "--progress", "--all", "--branch <branch>", "--force", "--cached", "--files", "--summary-limit", "--remote", "--no-fetch", "--checkout", "--merge", "--rebase", "--init", "--name", "--reference <repository>", "--dissociate", "--recursive", "--depth", "--[no-]recommend-shallow", "--jobs <n>", "--[no-]single-branch"],
+        ]
+        
+        try dict.forEach { (key, value) in
+            try createFile(key: key, value: value)
+        }
+    }
+    
     func testDocBranchingAndMerging() throws {
         let dict = [
             "branch": ["--delete", "--create-reflog", "--force", "--move", "--copy", "--color[=<when>]", "--no-color", "--ignore-case", "--column[=<options>]", "--no-column", "--remotes", "--all", "--list", "--show-current", "--verbose", "--quiet", "--abbrev=<n>", "--no-abbrev", "--track[=(direct|inherit)]", "--no-track", "--recurse-submodules", "--set-upstream", "--set-upstream-to=<upstream>", "--unset-upstream", "--edit-description", "--contains [<commit>]", "--no-contains [<commit>]", "--merged [<commit>]", "--no-merged [<commit>]", "--sort=<key>", "--points-at <object>", "--format <format>"],
@@ -244,7 +293,7 @@ for (let item of document.getElementsByClassName('hdlist1')) {
         
         let content =
 """
-public struct \(key.capitalized)Options: ExpressibleByStringLiteral {
+public struct \(name(key+"_options", firstUppercased: true)): ExpressibleByStringLiteral {
     
     public typealias StringLiteralType = String
     public let rawValue: String
@@ -259,18 +308,21 @@ public struct \(key.capitalized)Options: ExpressibleByStringLiteral {
     
 }
 
-public extension \(key.capitalized)Options {
+public extension \(name(key+"_options", firstUppercased: true)) {
 
 \(try value.map(genFunc(_:)).sorted().joined(separator: "\n"))
 
 }
 """
-        try folder.open(name: "git-\(key).swift")
+        try folder.open(name: "git-\(key)-options.swift")
             .write(content.data(using: .utf8) ?? .init())
     }
     
-    func name(_ string: String) -> String {
+    func name(_ string: String, firstUppercased: Bool = false) -> String {
         let formatter = VariableFormatter(style: .camelCased)
+        if firstUppercased {
+            return formatter.firstUppercased(formatter.string(string))
+        }
         return formatter.string(string)
     }
     

@@ -14,18 +14,18 @@ public struct MergetoolOptions: ExpressibleByStringLiteral {
 }
 
 public extension MergetoolOptions {
-    
+
     ///  --gui
-    static let gui: Self = "--gui"
+static let gui: Self = "--gui"
     ///  --no-gui
-    static let noGui: Self = "--no-gui"
+static let noGui: Self = "--no-gui"
     ///  --no-prompt
-    static let noPrompt: Self = "--no-prompt"
+static let noPrompt: Self = "--no-prompt"
     ///  --prompt
-    static let prompt: Self = "--prompt"
+static let prompt: Self = "--prompt"
     ///  --tool-help
-    static let toolHelp: Self = "--tool-help"
+static let toolHelp: Self = "--tool-help"
     ///  --tool=<tool>
     static func tool(tool: String) -> Self { .init("--tool=\(tool)") }
-    
+
 }
