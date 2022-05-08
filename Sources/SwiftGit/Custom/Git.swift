@@ -19,10 +19,12 @@ public struct Git {
     @discardableResult
     static func run(_ commands: [String],
                     executableURL: URL? = bundle.url(forAuxiliaryExecutable: "bin/git"),
+                    currentDirectoryURL: URL? = nil,
                     processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
         let process = Process()        
         process.executableURL = executableURL
         process.arguments = commands
+        process.currentDirectoryURL = currentDirectoryURL
         processBuilder?(process)
         
         let pipe = Pipe()

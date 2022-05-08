@@ -7,74 +7,129 @@
 
 import Foundation
 
-public extension Repository {
+public extension Git {
     
-    struct Status {
-        
-        struct Changes {
-            var modified: [String]
-            var deleted: [String]
-        }
-        
-        struct Branch {
-            var oid: String
-            var head: String
-            var upstream: String
-        }
-        
-        var branch: Branch
-        let changes: Changes
-        let untracked: [String]
+    struct StatusChangedEntry {
+        let XY: String
+        let sub: String
+        let mH: String
+        let mI: String
+        let mW: String
+        let hH: String
+        let hI: String
+        let X: String
+        let path: String
     }
     
-    func status() throws -> Status {
-        let string = try statusOutput(.porcelain(.v2), .branch)
-        var branch = Status.Branch(oid: "", head: "", upstream: "")
-        var changes = Status.Changes(modified: [], deleted: [])
-        var untracked: [String] = []
+    struct StatusUntrackedItem {
+        let path: String
+    }
+    
+    struct StatusRenamedCopiedEntry {
+        let XY: String
+        let sub: String
+        let mH: String
+        let mI: String
+        let mW: String
+        let hH: String
+        let hI: String
+        let X: String
+        let path: String
+        let score: String
+        let sep: String
+        let origPath: String
+    }
+    
+    struct StatusUnmergedEntry {
+        let XY: String
+        let sub: String
+        let m1: String
+        let m2: String
+        let m3: String
+        let mW: String
+        let h1: String
+        let h2: String
+        let h3: String
+        let path: String
+    }
+    
+    struct StatusBranch {
+        
+        struct Ab {
+            let ahead: String
+            let behind: String
+            
+        }
+        
+        var ab: Ab?
+        var oid: String = ""
+        var head: String = ""
+        var upstream: String = ""
+    }
+    
+    struct Status {
+        var branch: StatusBranch = .init()
+        var changed: [StatusChangedEntry] = []
+        var renamedCopied: [StatusRenamedCopiedEntry] = []
+        var unmerged: [StatusUnmergedEntry] = []
+        var untracked: [StatusUntrackedItem] = []
+    }
+    
+    static func status(_ pathspec: String) throws -> Status {
+        let string = try status([.porcelain(.v2), .branch], pathspec: pathspec)
+        var status = Status()
         
         for line in string.split(separator: "\n").map(\.description) {
             
             if line.hasPrefix("# ") {
                 let list = line.split(separator: " ").dropFirst().map(\.description)
-                switch list.first! {
-                case "branch.oid": branch.oid = list.last ?? ""
-                case "branch.head": branch.head = list.last ?? ""
-                case "branch.upstream": branch.upstream = list.last ?? ""
+                switch list[0] {
+                case "branch.oid": status.branch.oid = list.last ?? ""
+                case "branch.head": status.branch.head = list.last ?? ""
+                case "branch.upstream": status.branch.upstream = list.last ?? ""
+                case "branch.ab": status.branch.ab = .init(ahead: list[1], behind: list[2])
                 default:
                     continue
                 }
                 continue
             }
             
-            if line.hasPrefix("1 .M ") {
+            if line.hasPrefix("1 ") {
                 let list = line.split(separator: " ").dropFirst().map(\.description)
-                changes.modified.append(list.last!)
+                status.changed.append(.init(XY: list[0],
+                                            sub: list[1],
+                                            mH: list[2],
+                                            mI: list[3],
+                                            mW: list[4],
+                                            hH: list[5],
+                                            hI: list[6],
+                                            X: list[7],
+                                            path: list.dropFirst(8).joined(separator: " ")))
                 continue
             }
             
-            if line.hasPrefix("1 .D ") {
-                let list = line.split(separator: " ").dropFirst().map(\.description)
-                changes.deleted.append(list.last!)
+            if line.hasPrefix("2 ") {
+                assertionFailure(line)
+                continue
+            }
+            
+            if line.hasPrefix("u ") {
+                assertionFailure(line)
                 continue
             }
             
             if line.hasPrefix("? ") {
-                let list = line.split(separator: " ").dropFirst().map(\.description)
-                untracked.append(list.last!)
+                status.untracked.append(.init(path: String(line.dropFirst("? ".count))))
                 continue
             }
         }
         
-        return .init(branch: branch, changes: changes, untracked: untracked)
+        return status
     }
     
-    func statusOutput(_ options: [StatusOptions] = []) throws -> String {
-        return try run((["status"] + options.map(\.rawValue)))
-    }
     
-    func statusOutput(_ options: StatusOptions...) throws -> String {
-        return try statusOutput(options)
+    static func status(_ options: [StatusOptions], pathspec: String) throws -> String {
+        return try run(["status"] + options.map(\.rawValue), currentDirectoryURL: .init(fileURLWithPath: pathspec))
     }
     
 }
