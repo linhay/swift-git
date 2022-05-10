@@ -7,7 +7,30 @@
 
 import Foundation
 
+public struct StatusIndex: Equatable {
+    
+    public enum Style: Character, Equatable {
+        case unmodified = "."
+        case modified = "M"
+        /// file type changed (regular file, symbolic link or submodule)
+        case fileTypeChanged = "T"
+        case added = "A"
+        case deleted = "D"
+        case renamed = "R"
+        /// copied (if config option status.renames is set to "copies")
+        case copied = "C"
+        case updatedButUnmerged = "U"
+    }
+    
+    public let staged: Style
+    public let unStaged: Style
+    
+}
+
 public struct StatusChangedEntry {
+    
+    public var index: StatusIndex { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
+    
     public let XY: String
     public let sub: String
     public let mH: String
@@ -24,6 +47,9 @@ public struct StatusUntrackedItem {
 }
 
 public struct StatusRenamedCopiedEntry {
+    
+    public var index: StatusIndex { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
+    
     public let XY: String
     public let sub: String
     public let mH: String
@@ -39,6 +65,9 @@ public struct StatusRenamedCopiedEntry {
 }
 
 public struct StatusUnmergedEntry {
+    
+    public var index: StatusIndex { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
+    
     public let XY: String
     public let sub: String
     public let m1: String

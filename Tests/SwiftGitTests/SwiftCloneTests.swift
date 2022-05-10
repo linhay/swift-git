@@ -13,10 +13,9 @@ class SwiftCloneTests: XCTestCase {
     
     lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
     lazy var directory = workFolder.folder(name: "test-clone")
-    lazy var repository = "https://github.com/linhay/SwiftGit"
+    lazy var repository = "https://github.com/linhay/Arctic"
 
     func test() throws {
-        print(directory.path)
         try? directory.delete()
         _ = try Git.clone(.defaultTemplate, repository: repository, directory: directory.path)
         assert(directory.isExist)
