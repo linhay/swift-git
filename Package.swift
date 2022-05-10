@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftGit",
-    platforms: [.macOS(.v12), .iOS(.v11)],
+    platforms: [.macOS(.v12)],
     products: [
         .library(name: "SwiftGit", targets: ["SwiftGit"]),
     ],

@@ -7,13 +7,6 @@
 
 import Foundation
 
-public extension Repository {
-
-    func diff(options: [DiffOptions] = [], commands: [String]) throws -> String {
-        return try run(["diff"] + options.map(\.rawValue) + commands)
-    }
-    
-}
 
 
 public extension DiffOptions {

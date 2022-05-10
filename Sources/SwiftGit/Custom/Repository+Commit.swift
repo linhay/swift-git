@@ -7,17 +7,6 @@
 
 import Foundation
 
-public extension Repository {
-    
-    func commit(options: [AddOptions] = [], _ paths: [String]) throws {
-        try run(["add"] + options.map(\.rawValue) + paths)
-    }
-    
-    func commit(options: [AddOptions] = [], _ paths: String...) throws {
-        try add(options: options, paths)
-    }
-    
-}
 
 public extension CommitOptions {
 

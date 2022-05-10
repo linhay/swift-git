@@ -20,7 +20,9 @@ class SwiftStatusTests: XCTestCase {
     }
     
     func testStatus() throws {
-        try directory.create(file: "test-111")
+        let file = directory.file(name: "test-111")
+        try? file.delete()
+        try? file.create()
         print(try Git.status(directory.path))
     }
     

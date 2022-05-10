@@ -9,72 +9,6 @@ import Foundation
 
 public extension Git {
     
-    struct StatusChangedEntry {
-        let XY: String
-        let sub: String
-        let mH: String
-        let mI: String
-        let mW: String
-        let hH: String
-        let hI: String
-        let X: String
-        let path: String
-    }
-    
-    struct StatusUntrackedItem {
-        let path: String
-    }
-    
-    struct StatusRenamedCopiedEntry {
-        let XY: String
-        let sub: String
-        let mH: String
-        let mI: String
-        let mW: String
-        let hH: String
-        let hI: String
-        let X: String
-        let path: String
-        let score: String
-        let sep: String
-        let origPath: String
-    }
-    
-    struct StatusUnmergedEntry {
-        let XY: String
-        let sub: String
-        let m1: String
-        let m2: String
-        let m3: String
-        let mW: String
-        let h1: String
-        let h2: String
-        let h3: String
-        let path: String
-    }
-    
-    struct StatusBranch {
-        
-        struct Ab {
-            let ahead: String
-            let behind: String
-            
-        }
-        
-        var ab: Ab?
-        var oid: String = ""
-        var head: String = ""
-        var upstream: String = ""
-    }
-    
-    struct Status {
-        var branch: StatusBranch = .init()
-        var changed: [StatusChangedEntry] = []
-        var renamedCopied: [StatusRenamedCopiedEntry] = []
-        var unmerged: [StatusUnmergedEntry] = []
-        var untracked: [StatusUntrackedItem] = []
-    }
-    
     static func status(_ pathspec: String) throws -> Status {
         let string = try status([.porcelain(.v2), .branch], pathspec: pathspec)
         var status = Status()
@@ -127,9 +61,20 @@ public extension Git {
         return status
     }
     
-    
     static func status(_ options: [StatusOptions], pathspec: String) throws -> String {
         return try run(["status"] + options.map(\.rawValue), currentDirectoryURL: .init(fileURLWithPath: pathspec))
+    }
+    
+}
+
+public extension Repository {
+
+     func status() throws -> Status {
+         try Git.status(localURL.path)
+    }
+    
+     func status(_ options: [StatusOptions]) throws -> String {
+         try Git.status(options, pathspec: localURL.path)
     }
     
 }
