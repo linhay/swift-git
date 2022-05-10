@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 public extension Repository {
 
     func add(_ options: [AddOptions], paths: [String]) throws {

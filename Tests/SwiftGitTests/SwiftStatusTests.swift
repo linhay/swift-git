@@ -33,7 +33,6 @@ class SwiftStatusTests: XCTestCase {
         
         try repo.add([], paths: [add.path, modify.path])
         let status = try repo.status()
-        print(status)
     }
     
 }
