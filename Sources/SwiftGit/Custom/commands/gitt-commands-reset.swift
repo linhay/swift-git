@@ -39,4 +39,11 @@ public extension Repository {
                     currentDirectoryURL: localURL)
     }
     
+    func reset(_ options: [ResetOptions], commit: Commit) throws {
+        try Git.run(["reset"]
+                    + options.map(\.rawValue)
+                    + [commit.name],
+                    currentDirectoryURL: localURL)
+    }
+    
 }
