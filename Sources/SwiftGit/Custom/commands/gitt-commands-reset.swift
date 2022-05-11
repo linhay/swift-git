@@ -23,21 +23,6 @@ public extension Repository {
         
     }
     
-    struct Pathspec: ExpressibleByStringLiteral {
-        
-        public static let all: Pathspec = "."
-        
-        public let value: String
-        
-        public init(stringLiteral value: StringLiteralType) {
-            self.value = value
-        }
-        
-        public init(_ value: StringLiteralType) {
-            self.value = value
-        }
-    }
-    
     /// https://git-scm.com/docs/git-reset/zh_HANS-CN
     func reset(_ options: [ResetOptions], paths: [Pathspec]) throws {
         try Git.run(["reset"]
