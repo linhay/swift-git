@@ -8,16 +8,47 @@
 import Foundation
 
 public struct GitStatus {
+    
     public var branch: Branch = .init()
     public var changed: [ChangedEntry] = []
     public var renamedCopied: [RenamedCopiedEntry] = []
     public var unmerged: [UnmergedEntry] = []
     public var untracked: [UntrackedItem] = []
+    
 }
 
-extension GitStatus {
+public extension GitStatus {
     
-    public struct Index: Equatable {
+    /// 在特定类型中是否存在记录
+    /// - Parameter types: 记录类型
+    /// - Returns: 是否存在记录
+    public func hasEntry(in types: [EntryType] = EntryType.allCases) -> Bool {
+        types.contains { type in
+            switch type {
+            case .changed:
+                return !self.changed.isEmpty
+            case .renamedCopied:
+                return !self.renamedCopied.isEmpty
+            case .unmerged:
+                return !self.unmerged.isEmpty
+            case .untracked:
+                return !self.untracked.isEmpty
+            }
+        }
+    }
+    
+}
+
+public extension GitStatus {
+    
+    enum EntryType: Int, CaseIterable {
+        case changed
+        case renamedCopied
+        case unmerged
+        case untracked
+    }
+    
+    struct Index: Equatable {
         
         public enum Style: Character, Equatable {
             case unmodified = "."
@@ -37,8 +68,9 @@ extension GitStatus {
         
     }
     
-    public struct ChangedEntry {
+    struct ChangedEntry {
         
+        public let type: EntryType = .changed
         public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
         
         public let XY: String
@@ -52,12 +84,14 @@ extension GitStatus {
         public let path: String
     }
     
-    public struct UntrackedItem {
+    struct UntrackedItem {
+        public let type: EntryType = .untracked
         public let path: String
     }
     
-    public struct RenamedCopiedEntry {
+    struct RenamedCopiedEntry {
         
+        public let type: EntryType = .renamedCopied
         public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
         
         public let XY: String
@@ -74,8 +108,9 @@ extension GitStatus {
         public let origPath: String
     }
     
-    public struct UnmergedEntry {
+    struct UnmergedEntry {
         
+        public let type: EntryType = .unmerged
         public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
         
         public let XY: String
@@ -90,7 +125,7 @@ extension GitStatus {
         public let path: String
     }
     
-    public struct Branch {
+    struct Branch {
         
         public struct Ab {
             public let ahead: String
