@@ -11,7 +11,7 @@ public extension Git {
     
     @discardableResult
     static func clone(_ options: [CloneOptions] = [.defaultTemplate], repository: String, directory: String) throws -> Repository {
-        try run((options.map(\.rawValue) + [repository, directory]), executable: .clone)
+        try run((options.map(\.rawValue) + [repository, directory]), executable: .clone, currentDirectoryURL: .init(string: repository))
         return try Repository(path: directory)
     }
 
