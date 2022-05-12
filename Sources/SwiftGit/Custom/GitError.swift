@@ -10,5 +10,6 @@ import Foundation
 public struct GitError: LocalizedError {
     
     let message: String
+    public var errorDescription: String? { message }
     
 }
