@@ -28,9 +28,7 @@ public extension Repository {
         
         public var hash: String { ID }
     }
-    
-    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-log") }
-    
+        
     func log(options: [LogOptions] = []) throws -> [LogResult] {
         return try log(options + [.pretty(.fuller)])
             .split(separator: "\n")

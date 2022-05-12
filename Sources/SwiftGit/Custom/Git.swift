@@ -7,26 +7,17 @@
 
 import Foundation
 
-public struct Git {
-    
-    static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
+public struct Git { }
 
-    enum Executable: String {
+public extension Git {
+    
+    struct Resource {
+        static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
         
-        case git = ""
-        case show
-        case fetch
-        case commit
-        case status
-        case push
-        case reset
-        case clone
-        case log
-        case add
-        case `init`
+        public let url: URL
         
-        var url: URL {
-            return bundle.url(forAuxiliaryExecutable: "libexec/git-core/git\(rawValue.isEmpty ? "" : "-\(rawValue)")")!
+        public init(_ pathInBundle: String) {
+            self.url = Resource.bundle.url(forAuxiliaryExecutable: pathInBundle)!
         }
     }
     
@@ -37,7 +28,7 @@ public struct Git {
     
     @discardableResult
     static func data(_ commands: [String],
-                     executable: Executable = .git,
+                     executable: Resource = .git,
                      currentDirectoryURL: URL? = nil) throws -> Data {
         let process = Process()
         process.executableURL = executable.url
@@ -63,7 +54,7 @@ public struct Git {
     
     @discardableResult
     static func run(_ commands: [String],
-                    executable: Executable = .git,
+                    executable: Resource = .git,
                     currentDirectoryURL: URL? = nil) throws -> String {
         let data = try data(commands,
                             executable: executable,
@@ -73,14 +64,32 @@ public struct Git {
     
 }
 
+public extension Git.Resource {
+    
+    static let git    = Git.Resource("libexec/git-core/git")
+    static let show   = Git.Resource("libexec/git-core/show")
+    static let fetch  = Git.Resource("libexec/git-core/fetch")
+    static let commit = Git.Resource("libexec/git-core/commit")
+    static let status = Git.Resource("libexec/git-core/status")
+    static let push   = Git.Resource("libexec/git-core/push")
+    static let reset  = Git.Resource("libexec/git-core/reset")
+    static let clone  = Git.Resource("libexec/git-core/clone")
+    static let log    = Git.Resource("libexec/git-core/log")
+    static let add    = Git.Resource("libexec/git-core/add")
+    static let `init` = Git.Resource("libexec/git-core/init")
+    
+    static let templates = Git.Resource("share/git-core/templates")
+    
+}
+
 public extension Git {
     
-    static func create(at url: URL) throws -> Repository {
-        try Repository.init(url: url)
+    static func repository(at url: URL) throws -> Repository {
+        try Repository(url: url)
     }
     
-    static func create(at path: String) throws -> Repository {
-        try Repository.init(path: path)
+    static func repository(at path: String) throws -> Repository {
+        try Repository(path: path)
     }
     
 }

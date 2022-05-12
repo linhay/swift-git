@@ -18,14 +18,17 @@ public struct Repository {
     public init(path: String) throws {
         self.localURL = .init(fileURLWithPath: path)
     }
+}
+
+public extension Repository {
     
     @discardableResult
-    func data(_ commands: [String], executable: Git.Executable = .git) throws -> Data {
+    func data(_ commands: [String], executable: Git.Resource = .git) throws -> Data {
        try Git.data(commands, executable: executable, currentDirectoryURL: localURL)
     }
     
     @discardableResult
-    func run(_ commands: [String], executable: Git.Executable = .git) throws -> String {
+    func run(_ commands: [String], executable: Git.Resource = .git) throws -> String {
         try Git.run(commands, executable: executable, currentDirectoryURL: localURL)
     }
     

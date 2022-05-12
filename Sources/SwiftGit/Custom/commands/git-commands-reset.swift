@@ -8,9 +8,7 @@
 import Foundation
 
 public extension Repository {
-    
-    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-reset") }
-    
+        
     struct TreeIsh: ExpressibleByStringLiteral {
         
         public let value: String

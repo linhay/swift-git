@@ -24,6 +24,6 @@ public extension Git {
 
 public extension InitOptions {
     
-    static let defaultTemplate = template(Git.bundle.bundlePath + "/share/git-core/templates")
-    
+    static let defaultTemplate = template(Git.Resource.templates.url.absoluteString)
+
 }
