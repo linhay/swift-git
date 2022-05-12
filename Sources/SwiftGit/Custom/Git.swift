@@ -33,7 +33,7 @@ public extension Git {
         let process = Process()
         process.executableURL = executable.url
         process.arguments = commands
-        process.currentDirectoryURL = currentDirectoryURL
+        process.currentDirectoryURL = currentDirectoryURL ?? URL(fileURLWithPath: NSHomeDirectory())
         
         let outputPip = Pipe()
         let errorPip = Pipe()
