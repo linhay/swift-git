@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct GitStatus {
+public struct GitStatus: Equatable {
     
     public var branch: Branch = .init()
     public var changed: [ChangedEntry] = []
@@ -22,7 +22,7 @@ public extension GitStatus {
     /// 在特定类型中是否存在记录
     /// - Parameter types: 记录类型
     /// - Returns: 是否存在记录
-    public func hasEntry(in types: [EntryType] = EntryType.allCases) -> Bool {
+    func hasEntry(in types: [EntryType] = EntryType.allCases) -> Bool {
         types.contains { type in
             switch type {
             case .changed:
@@ -41,7 +41,7 @@ public extension GitStatus {
 
 public extension GitStatus {
     
-    enum EntryType: Int, CaseIterable {
+    enum EntryType: Int, CaseIterable, Equatable {
         case changed
         case renamedCopied
         case unmerged
@@ -68,7 +68,7 @@ public extension GitStatus {
         
     }
     
-    struct ChangedEntry {
+    struct ChangedEntry: Equatable {
         
         public let type: EntryType = .changed
         public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
@@ -84,12 +84,12 @@ public extension GitStatus {
         public let path: String
     }
     
-    struct UntrackedItem {
+    struct UntrackedItem: Equatable {
         public let type: EntryType = .untracked
         public let path: String
     }
     
-    struct RenamedCopiedEntry {
+    struct RenamedCopiedEntry: Equatable {
         
         public let type: EntryType = .renamedCopied
         public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
@@ -108,7 +108,7 @@ public extension GitStatus {
         public let origPath: String
     }
     
-    struct UnmergedEntry {
+    struct UnmergedEntry: Equatable {
         
         public let type: EntryType = .unmerged
         public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
@@ -125,9 +125,9 @@ public extension GitStatus {
         public let path: String
     }
     
-    struct Branch {
+    struct Branch: Equatable {
         
-        public struct Ab {
+        public struct Ab: Equatable {
             public let ahead: String
             public let behind: String
             
