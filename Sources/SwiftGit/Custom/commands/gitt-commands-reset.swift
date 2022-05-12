@@ -28,34 +28,22 @@ public extension Repository {
     /// https://git-scm.com/docs/git-reset
     @discardableResult
     func reset(_ options: [ResetOptions], paths: [Pathspec]) throws -> String {
-        try Git.run(options.map(\.rawValue)
-                    + ["--"]
-                    + paths.map(\.value),
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try Git.run(options.map(\.rawValue) + ["--"] + paths.map(\.value), executable: .reset)
     }
     
     @discardableResult
     func reset(_ options: [ResetOptions], treeIsh: TreeIsh) throws -> String {
-        try Git.run(options.map(\.rawValue)
-                    + [treeIsh.value],
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try Git.run(options.map(\.rawValue) + [treeIsh.value], executable: .reset)
     }
     
     @discardableResult
     func reset(_ options: [ResetOptions], commit: Commit) throws -> String {
-        try Git.run(options.map(\.rawValue)
-                    + [commit.name],
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try Git.run(options.map(\.rawValue) + [commit.name], executable: .reset)
     }
     
     @discardableResult
     func reset(_ cmd: String) throws -> String {
-        try Git.run(cmd.split(separator: " ").map(\.description),
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try run(cmd.split(separator: " ").map(\.description), executable: .reset)
     }
     
 }

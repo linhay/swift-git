@@ -8,21 +8,41 @@
 import Foundation
 
 public struct Git {
+    
+    static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
 
-   public static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
-                   
+    
+    enum Executable: String {
+        
+        case git = ""
+        case show
+        case fetch
+        case commit
+        case status
+        case push
+        case reset
+        case clone
+        case log
+        case add
+        case `init`
+        
+        var url: URL {
+            return bundle.url(forAuxiliaryExecutable: "libexec/git-core/git\(rawValue.isEmpty ? "" : "-\(rawValue)")")!
+        }
+    }
+    
     @discardableResult
     static func run(_ options: [GitOptions]) throws -> String {
         try run(options.map(\.rawValue))
     }
     
     @discardableResult
-    static func run(_ commands: [String],
-                    executableURL: URL? = bundle.url(forAuxiliaryExecutable: "bin/git"),
-                    currentDirectoryURL: URL? = nil,
-                    processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
-        let process = Process()        
-        process.executableURL = executableURL
+    static func data(_ commands: [String],
+                     executable: Executable = .git,
+                     currentDirectoryURL: URL? = nil,
+                     processBuilder: ((_ process: Process) -> Void)? = nil) throws -> Data {
+        let process = Process()
+        process.executableURL = executable.url
         process.arguments = commands
         process.currentDirectoryURL = currentDirectoryURL
         processBuilder?(process)
@@ -31,7 +51,18 @@ public struct Git {
         process.standardOutput = pipe
         try process.run()
         process.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return pipe.fileHandleForReading.readDataToEndOfFile()
+    }
+    
+    @discardableResult
+    static func run(_ commands: [String],
+                    executable: Executable = .git,
+                    currentDirectoryURL: URL? = nil,
+                    processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
+        let data = try data(commands,
+                            executable: executable,
+                            currentDirectoryURL: currentDirectoryURL,
+                            processBuilder: processBuilder)
         return String(data: data, encoding: .utf8) ?? ""
     }
     

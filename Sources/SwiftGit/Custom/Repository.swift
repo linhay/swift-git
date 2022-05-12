@@ -19,4 +19,31 @@ public struct Repository {
         self.localURL = .init(fileURLWithPath: path)
     }
     
+    @discardableResult
+    func data(_ commands: [String],
+              executable: Git.Executable = .git,
+              processBuilder: ((_ process: Process) -> Void)? = nil) throws -> Data {
+        let process = Process()
+        process.executableURL = executable.url
+        process.arguments = commands
+        process.currentDirectoryURL = localURL
+        processBuilder?(process)
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        try process.run()
+        process.waitUntilExit()
+        return pipe.fileHandleForReading.readDataToEndOfFile()
+    }
+    
+    @discardableResult
+    func run(_ commands: [String],
+             executable: Git.Executable = .git,
+             processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
+        let data = try data(commands,
+                            executable: executable,
+                            processBuilder: processBuilder)
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+    
 }

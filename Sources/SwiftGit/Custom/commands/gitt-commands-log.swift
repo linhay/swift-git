@@ -80,17 +80,12 @@ public extension Repository {
     
     /// https://git-scm.com/docs/git-log
     func log(_ options: [LogOptions] = [], refspecs: [Reference] = []) throws -> String {
-        try Git.run(options.map(\.rawValue)
-                    + refspecs.map(\.name),
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try run(options.map(\.rawValue) + refspecs.map(\.name), executable: .log)
     }
     
     @discardableResult
     func log(_ cmd: String) throws -> String {
-        try Git.run(cmd.split(separator: " ").map(\.description),
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try run(cmd.split(separator: " ").map(\.description), executable: .log)
     }
     
 }

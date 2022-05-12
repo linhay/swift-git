@@ -12,7 +12,7 @@ public extension Git {
     @discardableResult
     static func clone(_ options: [CloneOptions] = [], repository: String, directory: String) throws -> Repository {
         try run((options.map(\.rawValue) + [repository, directory]),
-                executableURL: bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-clone"))
+                executable: .clone)
         return try Repository(path: directory)
     }
 

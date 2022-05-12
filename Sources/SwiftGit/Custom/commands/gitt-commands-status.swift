@@ -8,9 +8,7 @@
 import Foundation
 
 public extension Git {
-    
-    private static var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-status") }
-    
+        
     static func status(_ pathspec: String) throws -> Status {
         let string = try status([.porcelain(.v2), .branch], pathspec: pathspec)
         var status = Status()
@@ -65,7 +63,7 @@ public extension Git {
     
     static func status(_ options: [StatusOptions], pathspec: String) throws -> String {
         return try run(options.map(\.rawValue),
-                       executableURL: executableURL,
+                       executable: .status,
                        currentDirectoryURL: .init(fileURLWithPath: pathspec))
     }
     
@@ -74,9 +72,7 @@ public extension Git {
 }
 
 public extension Repository {
-    
-    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-status") }
-    
+        
     func status() throws -> Status {
         try Git.status(localURL.path)
     }
@@ -88,9 +84,7 @@ public extension Repository {
     
     @discardableResult
     func status(_ cmd: String) throws -> String {
-        try Git.run(cmd.split(separator: " ").map(\.description),
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try run(cmd.split(separator: " ").map(\.description), executable: .status)
     }
     
 }

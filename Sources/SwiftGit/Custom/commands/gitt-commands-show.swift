@@ -8,23 +8,26 @@
 import Foundation
 
 public extension Repository {
-    
-    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-show") }
-    
+        
     /// https://git-scm.com/docs/git-show
     @discardableResult
     func show(_ options: [ShowOptions] = [], objects: [String] = []) throws -> String {
-        try Git.run(options.map(\.rawValue)
-                    + objects,
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try run(options.map(\.rawValue) + objects, executable: .show)
     }
     
     @discardableResult
     func show(_ cmd: String) throws -> String {
-        try Git.run(cmd.split(separator: " ").map(\.description),
-                    executableURL: executableURL,
-                    currentDirectoryURL: localURL)
+        try run(cmd.split(separator: " ").map(\.description), executable: .show)
+    }
+    
+    @discardableResult
+    func show(_ options: [ShowOptions] = [], objects: [String] = []) throws -> Data {
+        try data(options.map(\.rawValue) + objects, executable: .show)
+    }
+    
+    @discardableResult
+    func show(data cmd: String) throws -> Data {
+        try data(cmd.split(separator: " ").map(\.description), executable: .show)
     }
     
 }

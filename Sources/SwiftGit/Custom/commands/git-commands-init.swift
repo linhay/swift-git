@@ -16,7 +16,7 @@ public extension Git {
     
     @discardableResult
     static func `init`(_ options: [InitOptions] = [], directory: String) throws -> String {
-        try run(["init"] + options.map(\.rawValue) + [directory])
+        try run(options.map(\.rawValue) + [directory], executable: .`init`)
     }
     
 }

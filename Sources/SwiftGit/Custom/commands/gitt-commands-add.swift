@@ -11,8 +11,7 @@ public extension Repository {
 
     @discardableResult
     func add(_ options: [AddOptions], paths: [String]) throws -> String {
-        try Git.run(["add"] + options.map(\.rawValue) + ["--"] + paths,
-                    currentDirectoryURL: localURL)
+        try run(options.map(\.rawValue) + ["--"] + paths, executable: .add)
     }
     
 }

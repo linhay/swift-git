@@ -38,7 +38,7 @@ class SwiftStatusTests: XCTestCase {
     func testLog() throws {
         let repo = try Repository(path: directory.path)
         let result = try repo.log(options: [.limit(3)])
-        assert(result.isEmpty)
+        assert(!result.isEmpty)
     }
     
 }
