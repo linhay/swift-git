@@ -9,7 +9,8 @@ import Foundation
 
 public extension Repository {
 
-    func add(_ options: [AddOptions], paths: [String]) throws {
+    @discardableResult
+    func add(_ options: [AddOptions], paths: [String]) throws -> String {
         try Git.run(["add"] + options.map(\.rawValue) + ["--"] + paths,
                     currentDirectoryURL: localURL)
     }

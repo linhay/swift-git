@@ -12,7 +12,8 @@ public extension Repository {
     private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-push") }
     
     /// https://git-scm.com/docs/git-push
-    func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) throws {
+    @discardableResult
+    func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) throws -> String {
         try Git.run(options.map(\.rawValue)
                     + refspecs.map(\.name),
                     executableURL: executableURL,
