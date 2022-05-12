@@ -9,9 +9,9 @@ import Foundation
 
 public extension Git {
         
-    static func status(_ pathspec: String) throws -> Status {
+    static func status(_ pathspec: String) throws -> GitStatus {
         let string = try status([.porcelain(.v2), .branch], pathspec: pathspec)
-        var status = Status()
+        var status = GitStatus()
         
         for line in string.split(separator: "\n").map(\.description) {
             
@@ -73,7 +73,7 @@ public extension Git {
 
 public extension Repository {
         
-    func status() throws -> Status {
+    func status() throws -> GitStatus {
         try Git.status(localURL.path)
     }
     
