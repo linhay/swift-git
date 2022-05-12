@@ -24,7 +24,7 @@ public extension Git {
 
 public extension CloneOptions {
     
-    static let defaultTemplate = template(Git.Resource.templates.url.absoluteString)
+    static let defaultTemplate = template(Git.Resource.templates.url.path)
 
     /// use IPv4 addresses only
     static let ipv4: CloneOptions = "--ipv4"
