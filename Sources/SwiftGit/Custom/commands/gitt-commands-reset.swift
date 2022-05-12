@@ -8,9 +8,11 @@
 import Foundation
 
 public extension Repository {
-
+    
+    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-reset") }
+    
     struct TreeIsh: ExpressibleByStringLiteral {
-                
+        
         public let value: String
         
         public init(stringLiteral value: StringLiteralType) {
@@ -23,26 +25,33 @@ public extension Repository {
         
     }
     
-    /// https://git-scm.com/docs/git-reset/zh_HANS-CN
+    /// https://git-scm.com/docs/git-reset
     func reset(_ options: [ResetOptions], paths: [Pathspec]) throws {
-        try Git.run(["reset"]
-                    + options.map(\.rawValue)
+        try Git.run(options.map(\.rawValue)
                     + ["--"]
                     + paths.map(\.value),
+                    executableURL: executableURL,
                     currentDirectoryURL: localURL)
     }
     
     func reset(_ options: [ResetOptions], treeIsh: TreeIsh) throws {
-        try Git.run(["reset"]
-                    + options.map(\.rawValue)
+        try Git.run(options.map(\.rawValue)
                     + [treeIsh.value],
+                    executableURL: executableURL,
                     currentDirectoryURL: localURL)
     }
     
     func reset(_ options: [ResetOptions], commit: Commit) throws {
-        try Git.run(["reset"]
-                    + options.map(\.rawValue)
+        try Git.run(options.map(\.rawValue)
                     + [commit.name],
+                    executableURL: executableURL,
+                    currentDirectoryURL: localURL)
+    }
+    
+    @discardableResult
+    func reset(_ cmd: String) throws -> String {
+        try Git.run(cmd.split(separator: " ").map(\.description),
+                    executableURL: executableURL,
                     currentDirectoryURL: localURL)
     }
     

@@ -9,18 +9,18 @@ import Foundation
 
 public extension Repository {
     
-    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-fetch") }
+    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-show") }
     
-    /// https://git-scm.com/docs/git-fetch
-    func fetch(_ options: [FetchOptions] = [], refspecs: [Reference] = []) throws {
+    /// https://git-scm.com/docs/git-show
+    func show(_ options: [ShowOptions] = [], objects: [String] = []) throws {
         try Git.run(options.map(\.rawValue)
-                    + refspecs.map(\.name),
+                    + objects,
                     executableURL: executableURL,
                     currentDirectoryURL: localURL)
     }
     
     @discardableResult
-    func fetch(_ cmd: String) throws -> String {
+    func show(_ cmd: String) throws -> String {
         try Git.run(cmd.split(separator: " ").map(\.description),
                     executableURL: executableURL,
                     currentDirectoryURL: localURL)

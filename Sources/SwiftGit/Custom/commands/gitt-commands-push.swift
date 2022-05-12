@@ -8,11 +8,21 @@
 import Foundation
 
 public extension Repository {
-
-    func push(_ options: [PushOptions], refs: [Reference]) throws {
-        try Git.run(["push"]
-                    + options.map(\.rawValue)
-                    + refs.map(\.name),
+    
+    private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-push") }
+    
+    /// https://git-scm.com/docs/git-push
+    func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) throws {
+        try Git.run(options.map(\.rawValue)
+                    + refspecs.map(\.name),
+                    executableURL: executableURL,
+                    currentDirectoryURL: localURL)
+    }
+    
+    @discardableResult
+    func push(_ cmd: String) throws -> String {
+        try Git.run(cmd.split(separator: " ").map(\.description),
+                    executableURL: executableURL,
                     currentDirectoryURL: localURL)
     }
     
