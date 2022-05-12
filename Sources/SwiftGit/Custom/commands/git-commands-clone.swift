@@ -10,9 +10,8 @@ import Foundation
 public extension Git {
     
     @discardableResult
-    static func clone(_ options: [CloneOptions] = [], repository: String, directory: String) throws -> Repository {
-        try run((options.map(\.rawValue) + [repository, directory]),
-                executable: .clone)
+    static func clone(_ options: [CloneOptions] = [.defaultTemplate], repository: String, directory: String) throws -> Repository {
+        try run((options.map(\.rawValue) + [repository, directory]), executable: .clone)
         return try Repository(path: directory)
     }
 

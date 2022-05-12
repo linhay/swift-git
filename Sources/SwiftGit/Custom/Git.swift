@@ -51,9 +51,11 @@ public struct Git {
         try process.run()
         process.waitUntilExit()
         
-        let error = errorPip.fileHandleForReading.readDataToEndOfFile()
-        if !error.isEmpty, let message = String(data: error, encoding: .utf8) {
-            throw GitError.init(message: message)
+        if process.terminationStatus != .zero {
+            if let message = String(data: errorPip.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) {
+                throw GitError(message: message)
+            }
+            throw GitError(message: "code: \(process.terminationReason.rawValue)")
         }
         
         return outputPip.fileHandleForReading.readDataToEndOfFile()
