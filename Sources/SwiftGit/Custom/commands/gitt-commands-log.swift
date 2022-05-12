@@ -10,23 +10,23 @@ import Foundation
 public extension Repository {
     
     struct User {
-        var name: String = ""
-        var email: String = ""
+        public var name: String = ""
+        public var email: String = ""
     }
     
     struct UserRecord {
-        var user: User = .init()
-        var date: String = .init()
+        public var user: User = .init()
+        public var date: String = .init()
     }
     
     struct LogResult {
-        var ID: String
-        var message: String = ""
+        public var ID: String
+        public var message: String = ""
         
-        var author: UserRecord = .init()
-        var commit: UserRecord = .init()
+        public var author: UserRecord = .init()
+        public var commit: UserRecord = .init()
         
-        var hash: String { ID }
+        public var hash: String { ID }
     }
     
     private var executableURL: URL? { Git.bundle.url(forAuxiliaryExecutable: "libexec/git-core/git-log") }
