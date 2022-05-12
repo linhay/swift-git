@@ -10,6 +10,7 @@ import Foundation
 public extension Repository {
         
     /// https://git-scm.com/docs/git-fetch
+    @discardableResult
     func fetch(_ options: [FetchOptions] = [], refspecs: [Reference] = []) throws  -> String {
         try run(options.map(\.rawValue) + refspecs.map(\.name), executable: .fetch)
     }

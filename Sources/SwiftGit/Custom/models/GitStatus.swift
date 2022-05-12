@@ -174,6 +174,23 @@ public extension GitStatus {
         }
     }
     
+    /**
+     Field       Meaning
+     --------------------------------------------------------
+     <XY>        A 2 character field describing the conflict type
+             as described in the short format.
+     <sub>       A 4 character field describing the submodule state
+             as described above.
+     <m1>        The octal file mode in stage 1.
+     <m2>        The octal file mode in stage 2.
+     <m3>        The octal file mode in stage 3.
+     <mW>        The octal file mode in the worktree.
+     <h1>        The object name in stage 1.
+     <h2>        The object name in stage 2.
+     <h3>        The object name in stage 3.
+     <path>      The pathname.
+     --------------------------------------------------------
+     */
     struct UnmergedEntry: Equatable, Identifiable, Hashable {
         
         public var id: Int { hashValue }
