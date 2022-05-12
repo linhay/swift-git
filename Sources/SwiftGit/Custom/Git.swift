@@ -11,7 +11,6 @@ public struct Git {
     
     static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
 
-    
     enum Executable: String {
         
         case git = ""
@@ -39,30 +38,34 @@ public struct Git {
     @discardableResult
     static func data(_ commands: [String],
                      executable: Executable = .git,
-                     currentDirectoryURL: URL? = nil,
-                     processBuilder: ((_ process: Process) -> Void)? = nil) throws -> Data {
+                     currentDirectoryURL: URL? = nil) throws -> Data {
         let process = Process()
         process.executableURL = executable.url
         process.arguments = commands
         process.currentDirectoryURL = currentDirectoryURL
-        processBuilder?(process)
         
-        let pipe = Pipe()
-        process.standardOutput = pipe
+        let outputPip = Pipe()
+        let errorPip = Pipe()
+        process.standardOutput = outputPip
+        process.standardError = errorPip
         try process.run()
         process.waitUntilExit()
-        return pipe.fileHandleForReading.readDataToEndOfFile()
+        
+        let error = errorPip.fileHandleForReading.readDataToEndOfFile()
+        if !error.isEmpty, let message = String(data: error, encoding: .utf8) {
+            throw GitError.init(message: message)
+        }
+        
+        return outputPip.fileHandleForReading.readDataToEndOfFile()
     }
     
     @discardableResult
     static func run(_ commands: [String],
                     executable: Executable = .git,
-                    currentDirectoryURL: URL? = nil,
-                    processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
+                    currentDirectoryURL: URL? = nil) throws -> String {
         let data = try data(commands,
                             executable: executable,
-                            currentDirectoryURL: currentDirectoryURL,
-                            processBuilder: processBuilder)
+                            currentDirectoryURL: currentDirectoryURL)
         return String(data: data, encoding: .utf8) ?? ""
     }
     

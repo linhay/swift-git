@@ -20,30 +20,13 @@ public struct Repository {
     }
     
     @discardableResult
-    func data(_ commands: [String],
-              executable: Git.Executable = .git,
-              processBuilder: ((_ process: Process) -> Void)? = nil) throws -> Data {
-        let process = Process()
-        process.executableURL = executable.url
-        process.arguments = commands
-        process.currentDirectoryURL = localURL
-        processBuilder?(process)
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        try process.run()
-        process.waitUntilExit()
-        return pipe.fileHandleForReading.readDataToEndOfFile()
+    func data(_ commands: [String], executable: Git.Executable = .git) throws -> Data {
+       try Git.data(commands, executable: executable, currentDirectoryURL: localURL)
     }
     
     @discardableResult
-    func run(_ commands: [String],
-             executable: Git.Executable = .git,
-             processBuilder: ((_ process: Process) -> Void)? = nil) throws -> String {
-        let data = try data(commands,
-                            executable: executable,
-                            processBuilder: processBuilder)
-        return String(data: data, encoding: .utf8) ?? ""
+    func run(_ commands: [String], executable: Git.Executable = .git) throws -> String {
+        try Git.run(commands, executable: executable, currentDirectoryURL: localURL)
     }
     
 }
