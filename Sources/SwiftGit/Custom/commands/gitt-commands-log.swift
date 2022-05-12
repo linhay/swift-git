@@ -9,17 +9,17 @@ import Foundation
 
 public extension Repository {
     
-    struct User {
+    struct User: Equatable {
         public var name: String = ""
         public var email: String = ""
     }
     
-    struct UserRecord {
+    struct UserRecord: Equatable {
         public var user: User = .init()
         public var date: String = .init()
     }
     
-    struct LogResult {
+    struct LogResult: Equatable {
         public var ID: String
         public var message: String = ""
         
