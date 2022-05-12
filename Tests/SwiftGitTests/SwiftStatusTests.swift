@@ -13,10 +13,10 @@ class SwiftStatusTests: XCTestCase {
     
     lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
     lazy var directory = workFolder.folder(name: "test-clone")
-    lazy var repository = "https://github.com/linhay/Arctic"
+    lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
     
     func test() throws {
-        _ = try Git.clone(.defaultTemplate, repository: repository, directory: directory.path)
+        _ = try Git.clone([.defaultTemplate], repository: repository, directory: directory.path)
     }
     
     func testStatus() throws {
@@ -33,6 +33,7 @@ class SwiftStatusTests: XCTestCase {
         
         try repo.add([], paths: [add.path, modify.path])
         let status = try repo.status()
+        print(status)
     }
     
     func testLog() throws {

@@ -30,6 +30,7 @@ public extension Git {
     static func data(_ commands: [String],
                      executable: Resource = .git,
                      currentDirectoryURL: URL? = nil) throws -> Data {
+        
         let process = Process()
         process.executableURL = executable.url
         process.arguments = commands

@@ -24,7 +24,7 @@ public extension CloneOptions {
     ///  --config <key>=<value>
     static func configKey(_ value: String) -> Self { .init("--config <key>=\(value)") }
     ///  --depth <depth>
-    static func depth(_ depth: String) -> Self { .init("--depth \(depth)") }
+    static func depth(_ depth: String) -> Self { .init("--depth=\(depth)") }
     ///  --dissociate
     static let dissociate: Self = "--dissociate"
     ///  --filter=<filter-spec>

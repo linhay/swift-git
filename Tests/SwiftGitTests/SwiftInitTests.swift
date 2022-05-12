@@ -16,7 +16,7 @@ class SwiftInitTests: XCTestCase {
 
     func testTemplate() throws {
         try? target.delete()
-        try Git.`init`(.quiet, .defaultTemplate, directory: target.path)
+        try Git.`init`([.quiet, .defaultTemplate], directory: target.path)
         let items = try target
             .subFilePaths(predicates: [])
             .map(\.url.lastPathComponent)
@@ -26,7 +26,7 @@ class SwiftInitTests: XCTestCase {
     
     func testBare() throws {
         try? target.delete()
-        try Git.`init`(.quiet, .defaultTemplate, .bare, directory: target.path)
+        try Git.`init`([.quiet, .defaultTemplate, .bare], directory: target.path)
         let items = try target
             .subFilePaths(predicates: [])
             .map(\.url.lastPathComponent)
@@ -36,7 +36,7 @@ class SwiftInitTests: XCTestCase {
     
     func testBranch() throws {
         try? target.delete()
-        try Git.`init`(.quiet, .defaultTemplate, .initialBranch("testBranch"), directory: target.path)
+        try Git.`init`([.quiet, .defaultTemplate, .initialBranch("testBranch")], directory: target.path)
         /// TODO
     }
     

@@ -10,11 +10,6 @@ import Foundation
 public extension Git {
     
     @discardableResult
-    static func `init`(_ options: InitOptions..., directory: String) throws -> String {
-        try self.`init`(options, directory: directory)
-    }
-    
-    @discardableResult
     static func `init`(_ options: [InitOptions] = [], directory: String) throws -> String {
         try run(options.map(\.rawValue) + [directory], executable: .`init`)
     }
