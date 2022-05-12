@@ -67,16 +67,16 @@ public extension Git {
 public extension Git.Resource {
     
     static let git    = Git.Resource("libexec/git-core/git")
-    static let show   = Git.Resource("libexec/git-core/show")
-    static let fetch  = Git.Resource("libexec/git-core/fetch")
-    static let commit = Git.Resource("libexec/git-core/commit")
-    static let status = Git.Resource("libexec/git-core/status")
-    static let push   = Git.Resource("libexec/git-core/push")
-    static let reset  = Git.Resource("libexec/git-core/reset")
-    static let clone  = Git.Resource("libexec/git-core/clone")
-    static let log    = Git.Resource("libexec/git-core/log")
-    static let add    = Git.Resource("libexec/git-core/add")
-    static let `init` = Git.Resource("libexec/git-core/init")
+    static let show   = Git.Resource("libexec/git-core/git-show")
+    static let fetch  = Git.Resource("libexec/git-core/git-fetch")
+    static let commit = Git.Resource("libexec/git-core/git-commit")
+    static let status = Git.Resource("libexec/git-core/git-status")
+    static let push   = Git.Resource("libexec/git-core/git-push")
+    static let reset  = Git.Resource("libexec/git-core/git-reset")
+    static let clone  = Git.Resource("libexec/git-core/git-clone")
+    static let log    = Git.Resource("libexec/git-core/git-log")
+    static let add    = Git.Resource("libexec/git-core/git-add")
+    static let `init` = Git.Resource("libexec/git-core/git-init")
     
     static let templates = Git.Resource("share/git-core/templates")
     
