@@ -16,7 +16,8 @@ class SwiftStatusTests: XCTestCase {
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
     
     func test() throws {
-        _ = try Git.clone([.defaultTemplate], repository: repository, directory: directory.path)
+        _ = try? directory.delete()
+        try Git.clone([.defaultTemplate], repository: repository, directory: directory.path)
     }
     
     func testStatus() throws {

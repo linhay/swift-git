@@ -12,26 +12,25 @@ import SwiftGit
 class SwiftCloneTests: XCTestCase {
     
     lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
-    lazy var directory = workFolder.folder(name: "test-clone")
+    lazy var testClone = workFolder.folder(name: "test-clone")
+    lazy var arctic = workFolder.folder(name: "Arctic")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
     
     func testWithDirectory() throws {
-        try? directory.delete()
-        _ = try Git.clone([.defaultTemplate, .depth(1)], repository: repository, directory: directory.path)
-        assert(directory.isExist)
+        try? testClone.delete()
+        try Git.clone([.defaultTemplate, .depth(1)], repository: repository, directory: testClone.path)
+        assert(testClone.isExist)
     }
     
     func testWithInFolder() throws {
-        lazy var directory = workFolder.folder(name: "Arctic")
-        try? directory.delete()
+        try? arctic.delete()
         let result = try Git.clone([.defaultTemplate, .depth(1)], repository: repository, workDirectoryURL: workFolder.url)
-        assert(directory.isExist)
-        assert(result.localURL == directory.url)
+        assert(arctic.isExist)
+        assert(result.localURL.path == arctic.url.path)
     }
     
     func testWithLocalExistsDirectory() throws {
-        lazy var directory = workFolder.folder(name: "Arctic")
-        _ = try? directory.create()
+        _ = try? arctic.create()
         do {
             try Git.clone([.defaultTemplate, .depth(1)], repository: repository, workDirectoryURL: workFolder.url)
         } catch {

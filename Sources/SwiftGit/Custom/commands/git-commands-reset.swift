@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Repository {
-        
+    
     struct TreeIsh: ExpressibleByStringLiteral {
         
         public let value: String
@@ -26,17 +26,17 @@ public extension Repository {
     /// https://git-scm.com/docs/git-reset
     @discardableResult
     func reset(_ options: [ResetOptions] = [], paths: [Pathspec]) throws -> String {
-        try Git.run(options.map(\.rawValue) + ["--"] + paths.map(\.value), executable: .reset)
+        try run(options.map(\.rawValue) + ["--"] + paths.map(\.value), executable: .reset)
     }
     
     @discardableResult
     func reset(_ options: [ResetOptions] = [], treeIsh: TreeIsh) throws -> String {
-        try Git.run(options.map(\.rawValue) + [treeIsh.value], executable: .reset)
+        try run(options.map(\.rawValue) + [treeIsh.value], executable: .reset)
     }
     
     @discardableResult
     func reset(_ options: [ResetOptions] = [], commit: Commit) throws -> String {
-        try Git.run(options.map(\.rawValue) + [commit.name], executable: .reset)
+        try run(options.map(\.rawValue) + [commit.name], executable: .reset)
     }
     
     @discardableResult

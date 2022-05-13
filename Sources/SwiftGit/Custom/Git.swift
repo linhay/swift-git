@@ -47,7 +47,14 @@ public extension Git {
             if let message = String(data: errorPip.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) {
                 throw GitError.processFatal(message)
             }
-            throw GitError.processFatal("code: \(process.terminationReason.rawValue)")
+            
+            var message = [String]()
+            if let currentDirectory = process.currentDirectoryURL?.path {
+                message.append("currentDirectory: \(currentDirectory)")
+            }
+            message.append("reason: \(process.terminationReason)")
+            message.append("code: \(process.terminationReason.rawValue)")
+            throw GitError.processFatal(message.joined(separator: "\n"))
         }
         
         return outputPip.fileHandleForReading.readDataToEndOfFile()
