@@ -37,7 +37,7 @@ public extension Git {
                                             mW: list[4],
                                             hH: list[5],
                                             hI: list[6],
-                                            path: list.dropFirst(8).joined(separator: " ")))
+                                            path: list.dropFirst(7).joined(separator: " ")))
                 continue
             }
             
