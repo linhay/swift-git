@@ -59,7 +59,17 @@ public extension Git {
             }
             
             if line.hasPrefix("u ") {
-                assertionFailure(line)
+                let list = line.split(separator: " ").dropFirst().map(\.description)
+                status.unmerged.append(.init(XY: list[0],
+                                             sub: list[1],
+                                             m1: list[2],
+                                             m2: list[3],
+                                             m3: list[4],
+                                             mW: list[5],
+                                             h1: list[6],
+                                             h2: list[7],
+                                             h3: list[8],
+                                             path: list.dropFirst(10).joined(separator: " ")))
                 continue
             }
             
