@@ -45,9 +45,9 @@ public extension Git {
         
         if process.terminationStatus != .zero {
             if let message = String(data: errorPip.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) {
-                throw GitError(message: message)
+                throw GitError.processFatal(message)
             }
-            throw GitError(message: "code: \(process.terminationReason.rawValue)")
+            throw GitError.processFatal("code: \(process.terminationReason.rawValue)")
         }
         
         return outputPip.fileHandleForReading.readDataToEndOfFile()

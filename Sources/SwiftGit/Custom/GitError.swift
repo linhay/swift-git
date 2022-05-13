@@ -7,9 +7,32 @@
 
 import Foundation
 
-public struct GitError: LocalizedError {
+public enum GitError: Error, LocalizedError {
     
-    let message: String
-    public var errorDescription: String? { message }
+    case existsDirectory(String)
+    case processFatal(String)
+    case unknown
+    
+    public var errorDescription: String? {
+        switch self {
+        case .existsDirectory(let string):
+            return "destination path '\(string)' already exists and is not an empty directory."
+        case .processFatal(let string):
+            return string
+        case .unknown:
+            return "unkonwn"
+        }
+    }
+    
+    public var code: Int {
+        switch self {
+        case .existsDirectory(let string):
+            return 401
+        case .processFatal(let string):
+            return 402
+        case .unknown:
+            return 403
+        }
+    }
     
 }

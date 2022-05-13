@@ -14,6 +14,9 @@ public extension Git {
                       repository: URL,
                       credentials: GitCredentials = .default,
                       directory: String) throws -> Repository {
+        if FileManager.default.fileExists(atPath: directory) {
+           throw GitError.existsDirectory(directory)
+        }
         try run((options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]),
                 executable: .clone)
         return try Repository(path: directory)
@@ -24,10 +27,9 @@ public extension Git {
                       repository: URL,
                       credentials: GitCredentials = .default,
                       workDirectoryURL: URL) throws -> Repository {
-        let result = try run((options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials)]),
-                             executable: .clone,
-                             currentDirectoryURL: workDirectoryURL)
-        return try Repository(url: workDirectoryURL.appendingPathComponent(repository.pathComponents.last!))
+        let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
+        try clone(options, repository: repository, credentials: credentials, directory: directory.path)
+        return try Repository(url: directory)
     }
     
     private static func repository(url: URL, credentials: GitCredentials) throws -> String {
@@ -37,7 +39,7 @@ public extension Git {
             break
         case .plaintext(let username, let password):
             guard var components = URLComponents(url: repository, resolvingAgainstBaseURL: true) else {
-                throw GitError(message: "Failure")
+                throw GitError.unknown
             }
             components.user = username
             components.password = password
