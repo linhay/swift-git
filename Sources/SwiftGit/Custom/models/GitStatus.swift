@@ -99,6 +99,7 @@ public extension GitStatus {
         
     }
     
+    /// 1 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <path>
     struct ChangedEntry: Equatable, Identifiable, Hashable {
         
         public var id: Int { hashValue }
@@ -126,6 +127,7 @@ public extension GitStatus {
         }
     }
     
+    /// ? <path>
     struct UntrackedItem: Equatable, Identifiable, Hashable {
         
         public var id: Int { hashValue }
@@ -137,6 +139,7 @@ public extension GitStatus {
         }
     }
     
+    /// 2 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <X><score> <path><sep><origPath>
     struct RenamedCopiedEntry: Equatable, Identifiable, Hashable {
         
         public var id: Int { hashValue }
@@ -189,6 +192,7 @@ public extension GitStatus {
      <path>      The pathname.
      --------------------------------------------------------
      */
+    /// u <XY> <sub> <m1> <m2> <m3> <mW> <h1> <h2> <h3> <path>
     struct UnmergedEntry: Equatable, Identifiable, Hashable {
         
         public var id: Int { hashValue }
