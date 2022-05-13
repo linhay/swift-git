@@ -112,7 +112,6 @@ public extension GitStatus {
         public let mW: String
         public let hH: String
         public let hI: String
-        public let X: String
         public let path: String
         
         public func hash(into hasher: inout Hasher) {
@@ -123,7 +122,6 @@ public extension GitStatus {
             hasher.combine(mW)
             hasher.combine(hH)
             hasher.combine(hI)
-            hasher.combine(X)
             hasher.combine(path)
         }
     }

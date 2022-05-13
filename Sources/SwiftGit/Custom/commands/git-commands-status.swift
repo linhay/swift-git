@@ -37,13 +37,24 @@ public extension Git {
                                             mW: list[4],
                                             hH: list[5],
                                             hI: list[6],
-                                            X: list[7],
                                             path: list.dropFirst(8).joined(separator: " ")))
                 continue
             }
             
             if line.hasPrefix("2 ") {
-                assertionFailure(line)
+                let list = line.split(separator: " ").dropFirst().map(\.description)
+                status.renamedCopied.append(.init(XY: list[0],
+                                                  sub: list[1],
+                                                  mH: list[2],
+                                                  mI: list[3],
+                                                  mW: list[4],
+                                                  hH: list[5],
+                                                  hI: list[6],
+                                                  X: list[7],
+                                                  path: list[8],
+                                                  score: list[9],
+                                                  sep: list[10],
+                                                  origPath: list.dropFirst(11).joined(separator: " ")))
                 continue
             }
             
