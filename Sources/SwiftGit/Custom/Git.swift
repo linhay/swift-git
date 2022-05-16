@@ -79,6 +79,8 @@ public extension Git.Resource {
     static let fetch  = Git.Resource("libexec/git-core/git-fetch")
     static let commit = Git.Resource("libexec/git-core/git-commit")
     static let status = Git.Resource("libexec/git-core/git-status")
+    static let stash = Git.Resource("libexec/git-core/git-stash")
+    static let pull = Git.Resource("libexec/git-core/git-pull")
     static let push   = Git.Resource("libexec/git-core/git-push")
     static let reset  = Git.Resource("libexec/git-core/git-reset")
     static let clone  = Git.Resource("libexec/git-core/git-clone")
