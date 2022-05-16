@@ -16,7 +16,7 @@ public extension Repository {
     
     @discardableResult
     func commit(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .commit)
+        try run(cmd, executable: .commit)
     }
     
 }

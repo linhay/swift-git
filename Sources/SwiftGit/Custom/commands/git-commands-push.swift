@@ -12,12 +12,12 @@ public extension Repository {
     /// https://git-scm.com/docs/git-push
     @discardableResult
     func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) throws -> String {
-        try Git.run(options.map(\.rawValue) + refspecs.map(\.name), executable: .push)
+        try run(options.map(\.rawValue) + refspecs.map(\.name), executable: .push)
     }
     
     @discardableResult
     func push(_ cmd: String) throws -> String {
-        try Git.run(cmd.split(separator: " ").map(\.description), executable: .push)
+        try run(cmd.split(separator: " ").map(\.description), executable: .push)
     }
     
 }

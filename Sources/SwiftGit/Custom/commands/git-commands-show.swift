@@ -27,7 +27,7 @@ public extension Repository {
     
     @discardableResult
     func show(data cmd: String) throws -> Data {
-        try data(cmd.split(separator: " ").map(\.description), executable: .show)
+        try data(cmd, executable: .show)
     }
     
 }

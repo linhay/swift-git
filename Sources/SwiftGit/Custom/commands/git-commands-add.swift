@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Repository {
-
+    
     @discardableResult
     func add(_ options: [AddOptions], paths: [String]) throws -> String {
         try run(options.map(\.rawValue) + ["--"] + paths, executable: .add)

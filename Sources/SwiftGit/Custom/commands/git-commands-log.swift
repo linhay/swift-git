@@ -83,7 +83,7 @@ public extension Repository {
     
     @discardableResult
     func log(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .log)
+        try run(cmd, executable: .log)
     }
     
 }

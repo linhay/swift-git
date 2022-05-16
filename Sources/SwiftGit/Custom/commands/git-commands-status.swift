@@ -105,7 +105,7 @@ public extension Repository {
     
     @discardableResult
     func status(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .status)
+        try run(cmd, executable: .status)
     }
     
 }

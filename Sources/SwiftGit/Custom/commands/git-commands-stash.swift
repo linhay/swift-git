@@ -80,7 +80,7 @@ public extension Repository {
     
     @discardableResult
     func stash(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .stash)
+        try run(cmd, executable: .stash)
     }
     
 }

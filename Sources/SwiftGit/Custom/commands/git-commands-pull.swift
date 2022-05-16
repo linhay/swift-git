@@ -23,7 +23,7 @@ public extension Repository {
     
     @discardableResult
     func pull(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .pull)
+        try run(cmd, executable: .pull)
     }
     
 }

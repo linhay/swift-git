@@ -17,7 +17,7 @@ public extension Repository {
     
     @discardableResult
     func fetch(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .fetch)
+        try run(cmd, executable: .fetch)
     }
     
 }
