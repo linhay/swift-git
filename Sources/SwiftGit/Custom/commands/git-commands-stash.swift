@@ -68,6 +68,11 @@ public extension Repository {
         public func store(_ options: [StashOptions.StoreSet] = [], commit: String) throws -> String {
             try repository.run(["store"] + options.map(\.options.rawValue) + [commit], executable: .stash)
         }
+        
+        @discardableResult
+        public func save(message: String? = nil) throws -> String {
+            try repository.run(["save"] + [message].compactMap({ $0 }), executable: .stash)
+        }
                 
     }
     
