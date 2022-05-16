@@ -9,60 +9,73 @@ import Foundation
 
 /// https://git-scm.com/docs/git-stash
 public extension Repository {
+    
+    struct Stash {
         
-    @discardableResult
-    func stash(list options: [LogOptions]) throws -> String {
-        try Git.run(["list"] + options.map(\.rawValue), executable: .stash)
+        let repository: Repository
+        
+        @discardableResult
+        public func list(_ options: [LogOptions] = []) throws -> String {
+            try repository.run(["list"] + options.map(\.rawValue), executable: .stash)
+        }
+        
+        @discardableResult
+        public func show(_ options: [StashOptions.ShowSet] = [], diff: [DiffOptions] = [], stash: String? = nil) throws -> String {
+            try repository.run(options.map(\.options.rawValue) + diff.map(\.rawValue) + [stash].compactMap({ $0 }), executable: .stash)
+        }
+        
+        @discardableResult
+        public func drop(_ options: [StashOptions.DropSet] = [], stash: String? = nil) throws -> String {
+            try repository.run(["drop"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }), executable: .stash)
+        }
+        
+        @discardableResult
+        public func pop(_ options: [StashOptions.PopSet], stash: String? = nil) throws -> String {
+            try repository.run(["pop"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }), executable: .stash)
+        }
+        
+        @discardableResult
+        public func apply(_ options: [StashOptions.PopSet], stash: String? = nil) throws -> String {
+            try repository.run(["apply"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }), executable: .stash)
+        }
+        
+        @discardableResult
+        public func branch(_ branchname: String, stash: String? = nil) throws -> String {
+            try repository.run(["branch", "branchname"] + [stash].compactMap({ $0 }), executable: .stash)
+        }
+        
+        @discardableResult
+        public func push(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) throws -> String {
+            try repository.run(options.map(\.options.rawValue) + pathspec.map(\.value), executable: .stash)
+        }
+        
+        @discardableResult
+        public func callAsFunction(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) throws -> String {
+            try repository.run(options.map(\.options.rawValue) + pathspec.map(\.value), executable: .stash)
+        }
+        
+        @discardableResult
+        public func clear() throws -> String {
+            try repository.run(["clear"], executable: .stash)
+        }
+        
+        @discardableResult
+        public func create(_ message: String) throws -> String {
+            try repository.run(["create", message], executable: .stash)
+        }
+        
+        @discardableResult
+        public func store(_ options: [StashOptions.StoreSet], commit: String) throws -> String {
+            try repository.run(["store"] + options.map(\.options.rawValue) + [commit], executable: .stash)
+        }
+                
     }
     
-    @discardableResult
-    func stash(show options: [StashOptions.ShowSet], diff: [DiffOptions], stash: String) throws -> String {
-        try Git.run(options.map(\.options.rawValue) + diff.map(\.rawValue) + [stash], executable: .stash)
-    }
-    
-    @discardableResult
-    func stash(drop options: [StashOptions.DropSet], stash: String) throws -> String {
-        try Git.run(["drop"] + options.map(\.options.rawValue) + [stash], executable: .stash)
-    }
-    
-    @discardableResult
-    func stash(pop options: [StashOptions.PopSet], stash: String) throws -> String {
-        try Git.run(["pop"] + options.map(\.options.rawValue) + [stash], executable: .stash)
-    }
-    
-    @discardableResult
-    func stash(apply options: [StashOptions.PopSet], stash: String) throws -> String {
-        try Git.run(["apply"] + options.map(\.options.rawValue) + [stash], executable: .stash)
-    }
-    
-    @discardableResult
-    func stash(branch branchname: String, stash: String) throws -> String {
-        try Git.run(["branch", "branchname"] + [stash], executable: .stash)
-    }
-    
-    @discardableResult
-    func stash(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) throws -> String {
-        try Git.run(options.map(\.options.rawValue) + pathspec.map(\.value), executable: .stash)
-    }
-    
-    @discardableResult
-    func clear() throws -> String {
-        try Git.run(["clear"], executable: .stash)
-    }
-    
-    @discardableResult
-    func create(_ message: String) throws -> String {
-        try Git.run(["create", message], executable: .stash)
-    }
-    
-    @discardableResult
-    func store(_ options: [StashOptions.StoreSet], commit: String) throws -> String {
-        try Git.run(["store"] + options.map(\.options.rawValue) + [commit], executable: .stash)
-    }
+    var stash: Stash { .init(repository: self) }
     
     @discardableResult
     func stash(_ cmd: String) throws -> String {
-        try Git.run(cmd.split(separator: " ").map(\.description), executable: .stash)
+        try run(cmd.split(separator: " ").map(\.description), executable: .stash)
     }
     
 }
