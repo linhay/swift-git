@@ -30,12 +30,12 @@ public extension Repository {
         }
         
         @discardableResult
-        public func pop(_ options: [StashOptions.PopSet], stash: String? = nil) throws -> String {
+        public func pop(_ options: [StashOptions.PopSet] = [], stash: String? = nil) throws -> String {
             try repository.run(["pop"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }), executable: .stash)
         }
         
         @discardableResult
-        public func apply(_ options: [StashOptions.PopSet], stash: String? = nil) throws -> String {
+        public func apply(_ options: [StashOptions.PopSet] = [], stash: String? = nil) throws -> String {
             try repository.run(["apply"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }), executable: .stash)
         }
         
@@ -65,7 +65,7 @@ public extension Repository {
         }
         
         @discardableResult
-        public func store(_ options: [StashOptions.StoreSet], commit: String) throws -> String {
+        public func store(_ options: [StashOptions.StoreSet] = [], commit: String) throws -> String {
             try repository.run(["store"] + options.map(\.options.rawValue) + [commit], executable: .stash)
         }
                 
