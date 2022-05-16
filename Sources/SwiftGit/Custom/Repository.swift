@@ -34,12 +34,12 @@ public extension Repository {
     
     @discardableResult
     func data(_ cmd: String, executable: Git.Resource = .git) throws -> Data {
-       try Git.data(cmd.split(separator: " ").map(\.description), executable: executable, currentDirectoryURL: localURL)
+       try data(cmd.split(separator: " ").map(\.description), executable: executable)
     }
     
     @discardableResult
     func run(_ cmd: String, executable: Git.Resource = .git) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .commit)
+        try run(cmd.split(separator: " ").map(\.description), executable: executable)
     }
     
 }

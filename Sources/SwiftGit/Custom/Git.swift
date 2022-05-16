@@ -61,13 +61,16 @@ public extension Git {
     }
     
     @discardableResult
-    static func run(_ commands: [String],
-                    executable: Resource = .git,
-                    currentDirectoryURL: URL? = nil) throws -> String {
+    static func run(_ commands: [String], executable: Resource = .git, currentDirectoryURL: URL? = nil) throws -> String {
         let data = try data(commands,
                             executable: executable,
                             currentDirectoryURL: currentDirectoryURL)
         return String(data: data, encoding: .utf8) ?? ""
+    }
+    
+    @discardableResult
+    static func run(_ cmd: String, executable: Resource = .git, currentDirectoryURL: URL? = nil) throws -> String {
+        try run(cmd.split(separator: " ").map(\.description), executable: executable, currentDirectoryURL: currentDirectoryURL)
     }
     
 }
