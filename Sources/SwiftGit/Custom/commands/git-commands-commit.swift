@@ -10,6 +10,7 @@ import Foundation
 public extension Repository {
     
     /// https://git-scm.com/docs/git-commit
+    @discardableResult
     func commit(_ options: [CommitOptions] = [], pathspecs: [Pathspec] = []) throws  -> String {
         try run(["commit"] + options.map(\.rawValue) + pathspecs.map(\.value))
     }

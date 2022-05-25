@@ -41,7 +41,7 @@ public extension Repository {
     
     @discardableResult
     func reset(_ cmd: String) throws -> String {
-        try run("reset" + cmd)
+        try run("reset " + cmd)
     }
     
 }
