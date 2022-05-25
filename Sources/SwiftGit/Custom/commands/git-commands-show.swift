@@ -12,22 +12,22 @@ public extension Repository {
     /// https://git-scm.com/docs/git-show
     @discardableResult
     func show(_ options: [ShowOptions] = [], objects: [String] = []) throws -> String {
-        try run(options.map(\.rawValue) + objects, executable: .show)
+        try run(["show"] + options.map(\.rawValue) + objects)
     }
     
     @discardableResult
     func show(_ cmd: String) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: .show)
+        try run(["show"] + cmd.split(separator: " ").map(\.description))
     }
     
     @discardableResult
     func show(_ options: [ShowOptions] = [], objects: [String] = []) throws -> Data {
-        try data(options.map(\.rawValue) + objects, executable: .show)
+        try data(["show"] + options.map(\.rawValue) + objects)
     }
     
     @discardableResult
     func show(data cmd: String) throws -> Data {
-        try data(cmd, executable: .show)
+        try data("show " + cmd)
     }
     
 }

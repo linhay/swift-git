@@ -83,8 +83,7 @@ public extension Git {
     }
     
     static func status(_ options: [StatusOptions], pathspec: String) throws -> String {
-        return try run(options.map(\.rawValue),
-                       executable: .status,
+        return try run(["status"] + options.map(\.rawValue),
                        currentDirectoryURL: .init(fileURLWithPath: pathspec))
     }
     
@@ -105,7 +104,7 @@ public extension Repository {
     
     @discardableResult
     func status(_ cmd: String) throws -> String {
-        try run(cmd, executable: .status)
+        try run("status" + cmd)
     }
     
 }

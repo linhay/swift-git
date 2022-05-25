@@ -17,8 +17,7 @@ public extension Git {
         if FileManager.default.fileExists(atPath: directory) {
            throw GitError.existsDirectory(directory)
         }
-        try run((options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]),
-                executable: .clone)
+        try run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
         return try Repository(path: directory)
     }
     
@@ -52,7 +51,7 @@ public extension Git {
 
 public extension CloneOptions {
     
-    static let defaultTemplate = template(Git.Resource.templates.url.path)
+    static let defaultTemplate = template(Git.Resource.templates.path)
     static func depth(_ depth: Int) -> Self { .init("--depth=\(depth)") }
     
     /// use IPv4 addresses only

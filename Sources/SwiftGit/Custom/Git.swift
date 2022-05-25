@@ -14,11 +14,9 @@ public extension Git {
     struct Resource {
         static let bundle = Bundle(url: Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle")!)!
         
-        public let url: URL
-        
-        public init(_ pathInBundle: String) {
-            self.url = Resource.bundle.url(forAuxiliaryExecutable: pathInBundle)!
-        }
+        static let executableURL = Resource.bundle.url(forAuxiliaryExecutable: "bin/git")!
+        static let envExecPath = Resource.bundle.url(forAuxiliaryExecutable: "libexec/git-core")!.path
+        static let templates = Resource.bundle.url(forAuxiliaryExecutable: "share/git-core/templates")!
     }
     
     @discardableResult
@@ -28,13 +26,24 @@ public extension Git {
     
     @discardableResult
     static func data(_ commands: [String],
-                     executable: Resource = .git,
+                     env: [String: String]? = nil,
                      currentDirectoryURL: URL? = nil) throws -> Data {
         
         let process = Process()
-        process.executableURL = executable.url
+        process.executableURL = Resource.executableURL
         process.arguments = commands
         process.currentDirectoryURL = currentDirectoryURL ?? URL(fileURLWithPath: NSHomeDirectory())
+        
+        var defaultEnv = [
+            "GIT_CONFIG_NOSYSTEM": "true",
+            "GIT_EXEC_PATH": Resource.envExecPath
+        ]
+
+        if let env = env {
+            defaultEnv = env.merging(defaultEnv) { $1 }
+        }
+
+        process.environment = defaultEnv
         
         let outputPip = Pipe()
         let errorPip = Pipe()
@@ -61,37 +70,17 @@ public extension Git {
     }
     
     @discardableResult
-    static func run(_ commands: [String], executable: Resource = .git, currentDirectoryURL: URL? = nil) throws -> String {
+    static func run(_ commands: [String], env: [String: String]? = nil, currentDirectoryURL: URL? = nil) throws -> String {
         let data = try data(commands,
-                            executable: executable,
+                            env: env,
                             currentDirectoryURL: currentDirectoryURL)
         return String(data: data, encoding: .utf8) ?? ""
     }
     
     @discardableResult
-    static func run(_ cmd: String, executable: Resource = .git, currentDirectoryURL: URL? = nil) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: executable, currentDirectoryURL: currentDirectoryURL)
+    static func run(_ cmd: String, env: [String: String]? = nil, currentDirectoryURL: URL? = nil) throws -> String {
+        try run(cmd.split(separator: " ").map(\.description), env: env, currentDirectoryURL: currentDirectoryURL)
     }
-    
-}
-
-public extension Git.Resource {
-    
-    static let git    = Git.Resource("libexec/git-core/git")
-    static let show   = Git.Resource("libexec/git-core/git-show")
-    static let fetch  = Git.Resource("libexec/git-core/git-fetch")
-    static let commit = Git.Resource("libexec/git-core/git-commit")
-    static let status = Git.Resource("libexec/git-core/git-status")
-    static let stash = Git.Resource("libexec/git-core/git-stash")
-    static let pull = Git.Resource("libexec/git-core/git-pull")
-    static let push   = Git.Resource("libexec/git-core/git-push")
-    static let reset  = Git.Resource("libexec/git-core/git-reset")
-    static let clone  = Git.Resource("libexec/git-core/git-clone")
-    static let log    = Git.Resource("libexec/git-core/git-log")
-    static let add    = Git.Resource("libexec/git-core/git-add")
-    static let `init` = Git.Resource("libexec/git-core/git-init")
-    
-    static let templates = Git.Resource("share/git-core/templates")
     
 }
 

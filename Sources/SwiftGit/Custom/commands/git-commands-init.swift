@@ -11,7 +11,7 @@ public extension Git {
     
     @discardableResult
     static func `init`(_ options: [InitOptions] = [], directory: String) throws -> String {
-        try run(options.map(\.rawValue) + [directory], executable: .`init`)
+        try run(["init"] + options.map(\.rawValue) + [directory])
     }
     
 }
@@ -19,6 +19,6 @@ public extension Git {
 
 public extension InitOptions {
     
-    static let defaultTemplate = template(Git.Resource.templates.url.path)
+    static let defaultTemplate = template(Git.Resource.templates.path)
 
 }

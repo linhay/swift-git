@@ -11,12 +11,12 @@ public extension Repository {
     
     /// https://git-scm.com/docs/git-commit
     func commit(_ options: [CommitOptions] = [], pathspecs: [Pathspec] = []) throws  -> String {
-        try run(options.map(\.rawValue) + pathspecs.map(\.value), executable: .commit)
+        try run(["commit"] + options.map(\.rawValue) + pathspecs.map(\.value))
     }
     
     @discardableResult
     func commit(_ cmd: String) throws -> String {
-        try run(cmd, executable: .commit)
+        try run("commit " + cmd)
     }
     
 }

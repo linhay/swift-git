@@ -23,23 +23,23 @@ public struct Repository {
 public extension Repository {
     
     @discardableResult
-    func data(_ commands: [String], executable: Git.Resource = .git) throws -> Data {
-       try Git.data(commands, executable: executable, currentDirectoryURL: localURL)
+    func data(_ commands: [String]) throws -> Data {
+       try Git.data(commands, currentDirectoryURL: localURL)
     }
     
     @discardableResult
-    func run(_ commands: [String], executable: Git.Resource = .git) throws -> String {
-        try Git.run(commands, executable: executable, currentDirectoryURL: localURL)
+    func run(_ commands: [String]) throws -> String {
+        try Git.run(commands, currentDirectoryURL: localURL)
     }
     
     @discardableResult
-    func data(_ cmd: String, executable: Git.Resource = .git) throws -> Data {
-       try data(cmd.split(separator: " ").map(\.description), executable: executable)
+    func data(_ cmd: String) throws -> Data {
+       try data(cmd.split(separator: " ").map(\.description))
     }
     
     @discardableResult
-    func run(_ cmd: String, executable: Git.Resource = .git) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), executable: executable)
+    func run(_ cmd: String) throws -> String {
+        try run(cmd.split(separator: " ").map(\.description))
     }
     
 }

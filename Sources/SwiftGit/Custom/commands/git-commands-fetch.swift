@@ -12,12 +12,12 @@ public extension Repository {
     /// https://git-scm.com/docs/git-fetch
     @discardableResult
     func fetch(_ options: [FetchOptions] = [], refspecs: [Reference] = []) throws  -> String {
-        try run(options.map(\.rawValue) + refspecs.map(\.name), executable: .fetch)
+        try run(["fetch"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
     @discardableResult
     func fetch(_ cmd: String) throws -> String {
-        try run(cmd, executable: .fetch)
+        try run("fetch " + cmd)
     }
     
 }
