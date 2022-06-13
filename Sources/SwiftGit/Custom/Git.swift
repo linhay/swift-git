@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import Logging
+
+let logger = Logger(label: "com.SwiftGit")
 
 public struct Git { }
 
@@ -63,10 +66,17 @@ public extension Git {
             }
             message.append("reason: \(process.terminationReason)")
             message.append("code: \(process.terminationReason.rawValue)")
+            logger.error("{\"command\":\"\(commands.joined(separator: " "))\", \"errorMessage\":\"\(message.joined(separator: "\n"))\"}")
             throw GitError.processFatal(message.joined(separator: "\n"))
         }
         
-        return outputPip.fileHandleForReading.readDataToEndOfFile()
+        let data = outputPip.fileHandleForReading.readDataToEndOfFile()
+        
+        if let result = String(data: data, encoding: .utf8) {
+            logger.info("{\"command\":\"\(commands.joined(separator: " "))\", \"result\":\"\(result)\"}")
+        }
+        
+        return data
     }
     
     @discardableResult
