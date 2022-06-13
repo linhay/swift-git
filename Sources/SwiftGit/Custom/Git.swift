@@ -66,14 +66,14 @@ public extension Git {
             }
             message.append("reason: \(process.terminationReason)")
             message.append("code: \(process.terminationReason.rawValue)")
-            logger.error("{\"command\":\"\(commands.joined(separator: " "))\", \"errorMessage\":\"\(message.joined(separator: "\n"))\"}")
+            logger.error(log(commands: commands, result: result))
             throw GitError.processFatal(message.joined(separator: "\n"))
         }
         
         let data = outputPip.fileHandleForReading.readDataToEndOfFile()
         
         if let result = String(data: data, encoding: .utf8) {
-            logger.info("{\"command\":\"\(commands.joined(separator: " "))\", \"result\":\"\(result)\"}")
+            logger.info(log(commands: commands, result: result))
         }
         
         return data
@@ -104,4 +104,20 @@ public extension Git {
         try Repository(path: path)
     }
     
+}
+
+private extension Git {
+    
+    func log(commands: [String], result: String) -> String {
+        var dict: [String : String] = [:]
+        dict["command"] = commands.joined(separator: " ")
+        dict["result"] = result
+        do {
+            let data = try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys, .withoutEscapingSlashes])
+            return String(data: data, encoding: .utf8) ?? ""
+        } catch {
+            debugPrint(error.localizedDescription)
+            return ""
+        }
+    }
 }
