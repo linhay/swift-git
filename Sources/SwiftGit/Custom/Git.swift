@@ -66,14 +66,14 @@ public extension Git {
             }
             message.append("reason: \(process.terminationReason)")
             message.append("code: \(process.terminationReason.rawValue)")
-            logger.error(log(commands: commands, result: result))
+            logger.error(.init(stringLiteral: log(commands: commands, result: message.joined(separator: "\n"))))
             throw GitError.processFatal(message.joined(separator: "\n"))
         }
         
         let data = outputPip.fileHandleForReading.readDataToEndOfFile()
         
         if let result = String(data: data, encoding: .utf8) {
-            logger.info(log(commands: commands, result: result))
+            logger.info(.init(stringLiteral: log(commands: commands, result: result)))
         }
         
         return data
@@ -108,7 +108,7 @@ public extension Git {
 
 private extension Git {
     
-    func log(commands: [String], result: String) -> String {
+    static func log(commands: [String], result: String) -> String {
         var dict: [String : String] = [:]
         dict["command"] = commands.joined(separator: " ")
         dict["result"] = result
