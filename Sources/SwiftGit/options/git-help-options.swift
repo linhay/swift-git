@@ -14,24 +14,24 @@ public struct HelpOptions: ExpressibleByStringLiteral {
 }
 
 public extension HelpOptions {
-
+    
     ///  --all
-static let all: Self = "--all"
+    static let all: Self = "--all"
     ///  --config
-static let config: Self = "--config"
+    static let config: Self = "--config"
     ///  --guides
-static let guides: Self = "--guides"
+    static let guides: Self = "--guides"
     ///  --info
-static let info: Self = "--info"
+    static let info: Self = "--info"
     ///  --man
-static let man: Self = "--man"
+    static let man: Self = "--man"
     ///  --no-aliases
-static let noAliases: Self = "--no-aliases"
+    static let noAliases: Self = "--no-aliases"
     ///  --no-external-commands
-static let noExternalCommands: Self = "--no-external-commands"
+    static let noExternalCommands: Self = "--no-external-commands"
     ///  --verbose
-static let verbose: Self = "--verbose"
+    static let verbose: Self = "--verbose"
     ///  --web
-static let web: Self = "--web"
-
+    static let web: Self = "--web"
+    
 }

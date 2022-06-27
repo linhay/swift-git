@@ -14,12 +14,12 @@ public struct MvOptions: ExpressibleByStringLiteral {
 }
 
 public extension MvOptions {
-
+    
     ///  --dry-run
-static let dryRun: Self = "--dry-run"
+    static let dryRun: Self = "--dry-run"
     ///  --force
-static let force: Self = "--force"
+    static let force: Self = "--force"
     ///  --verbose
-static let verbose: Self = "--verbose"
-
+    static let verbose: Self = "--verbose"
+    
 }

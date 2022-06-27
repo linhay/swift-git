@@ -14,12 +14,12 @@ public struct SwitchOptions: ExpressibleByStringLiteral {
 }
 
 public extension SwitchOptions {
-
+    
     ///  --create <new-branch>
     static func create(_ newBranch: String) -> Self { .init("--create \(newBranch)") }
     ///  --detach
-static let detach: Self = "--detach"
+    static let detach: Self = "--detach"
     ///  --force-create <new-branch>
     static func forceCreate(_ newBranch: String) -> Self { .init("--force-create \(newBranch)") }
-
+    
 }

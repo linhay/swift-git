@@ -14,8 +14,8 @@ public struct RemoteOptions: ExpressibleByStringLiteral {
 }
 
 public extension RemoteOptions {
-
+    
     ///  --verbose
-static let verbose: Self = "--verbose"
-
+    static let verbose: Self = "--verbose"
+    
 }

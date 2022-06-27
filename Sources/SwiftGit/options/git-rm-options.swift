@@ -14,22 +14,22 @@ public struct RmOptions: ExpressibleByStringLiteral {
 }
 
 public extension RmOptions {
-
+    
     ///  --cached
-static let cached: Self = "--cached"
+    static let cached: Self = "--cached"
     ///  --dry-run
-static let dryRun: Self = "--dry-run"
+    static let dryRun: Self = "--dry-run"
     ///  --force
-static let force: Self = "--force"
+    static let force: Self = "--force"
     ///  --ignore-unmatch
-static let ignoreUnmatch: Self = "--ignore-unmatch"
+    static let ignoreUnmatch: Self = "--ignore-unmatch"
     ///  --pathspec-file-nul
-static let pathspecFileNul: Self = "--pathspec-file-nul"
+    static let pathspecFileNul: Self = "--pathspec-file-nul"
     ///  --pathspec-from-file=<file>
     static func pathspecFromFile(_ file: String) -> Self { .init("--pathspec-from-file=\(file)") }
     ///  --quiet
-static let quiet: Self = "--quiet"
+    static let quiet: Self = "--quiet"
     ///  --sparse
-static let sparse: Self = "--sparse"
-
+    static let sparse: Self = "--sparse"
+    
 }

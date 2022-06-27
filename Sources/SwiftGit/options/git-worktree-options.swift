@@ -14,36 +14,36 @@ public struct WorktreeOptions: ExpressibleByStringLiteral {
 }
 
 public extension WorktreeOptions {
-
+    
     ///  --checkout
-static let checkout: Self = "--checkout"
+    static let checkout: Self = "--checkout"
     ///  --detach
-static let detach: Self = "--detach"
+    static let detach: Self = "--detach"
     ///  --dry-run
-static let dryRun: Self = "--dry-run"
+    static let dryRun: Self = "--dry-run"
     ///  --expire <time>
     static func expire(_ time: String) -> Self { .init("--expire \(time)") }
     ///  --force
-static let force: Self = "--force"
+    static let force: Self = "--force"
     ///  --guess-remote
-static let guessRemote: Self = "--guess-remote"
+    static let guessRemote: Self = "--guess-remote"
     ///  --lock
-static let lock: Self = "--lock"
+    static let lock: Self = "--lock"
     ///  --no-checkout
-static let noCheckout: Self = "--no-checkout"
+    static let noCheckout: Self = "--no-checkout"
     ///  --no-guess-remote
-static let noGuessRemote: Self = "--no-guess-remote"
+    static let noGuessRemote: Self = "--no-guess-remote"
     ///  --no-track
-static let noTrack: Self = "--no-track"
+    static let noTrack: Self = "--no-track"
     ///  --porcelain
-static let porcelain: Self = "--porcelain"
+    static let porcelain: Self = "--porcelain"
     ///  --quiet
-static let quiet: Self = "--quiet"
+    static let quiet: Self = "--quiet"
     ///  --reason <string>
     static func reason(_ string: String) -> Self { .init("--reason \(string)") }
     ///  --track
-static let track: Self = "--track"
+    static let track: Self = "--track"
     ///  --verbose
-static let verbose: Self = "--verbose"
-
+    static let verbose: Self = "--verbose"
+    
 }

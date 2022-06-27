@@ -14,10 +14,10 @@ public struct BugreportOptions: ExpressibleByStringLiteral {
 }
 
 public extension BugreportOptions {
-
+    
     ///  --output-directory <path>
     static func outputDirectory(_ path: String) -> Self { .init("--output-directory \(path)") }
     ///  --suffix <format>
     static func suffix(_ format: String) -> Self { .init("--suffix \(format)") }
-
+    
 }

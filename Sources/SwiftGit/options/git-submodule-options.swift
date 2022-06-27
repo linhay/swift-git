@@ -14,54 +14,54 @@ public struct SubmoduleOptions: ExpressibleByStringLiteral {
 }
 
 public extension SubmoduleOptions {
-
+    
     ///  --all
-static let all: Self = "--all"
+    static let all: Self = "--all"
     ///  --branch <branch>
     static func branch(_ branch: String) -> Self { .init("--branch \(branch)") }
     ///  --cached
-static let cached: Self = "--cached"
+    static let cached: Self = "--cached"
     ///  --checkout
-static let checkout: Self = "--checkout"
+    static let checkout: Self = "--checkout"
     ///  --depth
-static let depth: Self = "--depth"
+    static let depth: Self = "--depth"
     ///  --dissociate
-static let dissociate: Self = "--dissociate"
+    static let dissociate: Self = "--dissociate"
     ///  --files
-static let files: Self = "--files"
+    static let files: Self = "--files"
     ///  --force
-static let force: Self = "--force"
+    static let force: Self = "--force"
     ///  --init
-static let `init`: Self = "--init"
+    static let `init`: Self = "--init"
     ///  --jobs <n>
     static func jobs(_ n: String) -> Self { .init("--jobs \(n)") }
     ///  --merge
-static let merge: Self = "--merge"
+    static let merge: Self = "--merge"
     ///  --name
-static let name: Self = "--name"
+    static let name: Self = "--name"
     ///  --no-fetch
-static let noFetch: Self = "--no-fetch"
+    static let noFetch: Self = "--no-fetch"
     ///  --no-recommend-shallow
-static let noRecommendShallow: Self = "--no-recommend-shallow"
+    static let noRecommendShallow: Self = "--no-recommend-shallow"
     ///  --no-single-branch
-static let noSingleBranch: Self = "--no-single-branch"
+    static let noSingleBranch: Self = "--no-single-branch"
     ///  --progress
-static let progress: Self = "--progress"
+    static let progress: Self = "--progress"
     ///  --quiet
-static let quiet: Self = "--quiet"
+    static let quiet: Self = "--quiet"
     ///  --rebase
-static let rebase: Self = "--rebase"
+    static let rebase: Self = "--rebase"
     ///  --recommend-shallow
-static let recommendShallow: Self = "--recommend-shallow"
+    static let recommendShallow: Self = "--recommend-shallow"
     ///  --recursive
-static let recursive: Self = "--recursive"
+    static let recursive: Self = "--recursive"
     ///  --reference <repository>
     static func reference(_ repository: String) -> Self { .init("--reference \(repository)") }
     ///  --remote
-static let remote: Self = "--remote"
+    static let remote: Self = "--remote"
     ///  --single-branch
-static let singleBranch: Self = "--single-branch"
+    static let singleBranch: Self = "--single-branch"
     ///  --summary-limit
-static let summaryLimit: Self = "--summary-limit"
-
+    static let summaryLimit: Self = "--summary-limit"
+    
 }
