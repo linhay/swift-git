@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct GitEnvironment {
+public class GitEnvironment {
     
     public let resource: Resource
     public var variables: [Variable]
@@ -56,7 +56,7 @@ extension GitEnvironment {
         case auto
     }
     
-    public init(type: Style, variables: [Variable], triggers: [GitTrigger]) throws {
+    public convenience init(type: Style, variables: [Variable], triggers: [GitTrigger]) throws {
         switch type {
         case .embedd:
             guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
@@ -85,10 +85,10 @@ extension GitEnvironment {
             }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
-            if let item = try? Self.init(type: .embedd, variables: variables, triggers: triggers) {
-                self = item
+            if let item = try? GitEnvironment(type: .embedd, variables: variables, triggers: triggers) {
+                self.init(resource: item.resource, variables: item.variables, triggers: item.triggers)
             } else {
-                self = try Self.init(type: .system, variables: variables, triggers: triggers)
+                try self.init(type: .system, variables: variables, triggers: triggers)
             }
         }
     }
