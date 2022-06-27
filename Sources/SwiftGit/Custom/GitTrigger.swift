@@ -33,7 +33,7 @@ public struct GitTrigger {
     }
     
     
-    public func failure(on event: Event, action: @escaping (_ error: Error) -> Void) -> GitTrigger {
+    public static func failure(on event: Event, action: @escaping (_ error: Error) -> Void) -> GitTrigger {
         .init(on: event) { result in
             switch result {
             case .success:
@@ -44,7 +44,7 @@ public struct GitTrigger {
         }
     }
     
-    public func success(on event: Event, action: @escaping (_ error: Content) -> Void) -> GitTrigger {
+    public static func success(on event: Event, action: @escaping (_ error: Content) -> Void) -> GitTrigger {
         .init(on: event) { result in
             switch result {
             case .success(let value):
