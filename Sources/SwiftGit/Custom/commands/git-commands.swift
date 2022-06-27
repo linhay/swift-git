@@ -9,18 +9,19 @@ import Foundation
 
 extension Git {
     
-    static var version: String {
+    var version: String {
         get throws {
-            return try Git.run([.version])
-                .split(separator: " ")
-                .last!
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let items = try run([.version]).split(separator: " ").filter({ !$0.isEmpty })
+            guard let index = items.firstIndex(where: { $0 == "version" }) else {
+                return ""
+            }
+            return String(items[index + 1]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
     }
     
-    static var help: String {
+    var help: String {
         get throws {
-            return try Git.run([.help])
+            return try run([.help])
         }
     }
     

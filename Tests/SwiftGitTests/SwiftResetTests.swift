@@ -16,7 +16,7 @@ class SwiftResetTests: XCTestCase {
     lazy var repository = "https://github.com/linhay/Arctic"
     
     func testReset() throws {
-        let repository = try Repository(path: directory.path)
+        let repository = try Repository(path: directory.path, environment: .shared)
         try repository.reset([], paths: [.all])
     }
     

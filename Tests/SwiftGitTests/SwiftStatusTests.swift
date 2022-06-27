@@ -14,14 +14,14 @@ class SwiftStatusTests: XCTestCase {
     lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
     lazy var directory = workFolder.folder(name: "test-clone")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
-    
+
     func test() throws {
         _ = try? directory.delete()
-        try Git.clone([.defaultTemplate], repository: repository, directory: directory.path)
+        try Git.shared.clone([], repository: repository, directory: directory.path)
     }
     
     func testStatus() throws {
-        let repo = try Repository(path: directory.path)
+        let repo = try Repository(path: directory.path, environment: .shared)
         
         let untracked = directory.file(name: "test-untracked")
         let add = directory.file(name: "test-add")
@@ -38,7 +38,7 @@ class SwiftStatusTests: XCTestCase {
     }
     
     func testLog() throws {
-        let repo = try Repository(path: directory.path)
+        let repo = try Repository(path: directory.path, environment: .shared)
         let result = try repo.log(options: [.limit(3)])
         assert(!result.isEmpty)
     }

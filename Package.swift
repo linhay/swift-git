@@ -11,14 +11,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/linhay/Stem.git", .upToNextMajor(from: "1.0.9")),
-        .package(url: "https://github.com/apple/swift-log", .upToNextMajor(from: "1.4.2"))
     ],
     targets: [
         .target(
             name: "SwiftGit",
-            dependencies: [
-                .product(name: "Logging", package: "swift-log")
-            ],
             resources: [
                 .process("Resource/git-instance.bundle")
             ]),

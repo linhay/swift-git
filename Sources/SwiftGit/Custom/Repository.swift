@@ -10,31 +10,36 @@ import Foundation
 public struct Repository {
     
     public let localURL: URL
+    public let environment: GitEnvironment
+    public let git: Git
     
-    public init(url: URL) throws {
+    public init(url: URL, environment: GitEnvironment) throws {
         self.localURL = url
+        self.environment = environment
+        self.git = .init(environment: environment)
     }
     
-    public init(path: String) throws {
-        self.localURL = .init(fileURLWithPath: path)
+    public init(path: String, environment: GitEnvironment) throws {
+        try self.init(url: .init(fileURLWithPath: path), environment: environment)
     }
+    
 }
 
 public extension Repository {
     
     @discardableResult
     func data(_ commands: [String]) throws -> Data {
-       try Git.data(commands, currentDirectoryURL: localURL)
+        try git.data(commands, currentDirectoryURL: localURL)
     }
     
     @discardableResult
     func run(_ commands: [String]) throws -> String {
-        try Git.run(commands, currentDirectoryURL: localURL)
+        try git.run(commands, currentDirectoryURL: localURL)
     }
     
     @discardableResult
     func data(_ cmd: String) throws -> Data {
-       try data(cmd.split(separator: " ").map(\.description))
+        try data(cmd.split(separator: " ").map(\.description))
     }
     
     @discardableResult

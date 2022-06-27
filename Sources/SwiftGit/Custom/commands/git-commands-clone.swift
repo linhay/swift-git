@@ -10,28 +10,28 @@ import Foundation
 public extension Git {
     
     @discardableResult
-    static func clone(_ options: [CloneOptions] = [.defaultTemplate],
-                      repository: URL,
-                      credentials: GitCredentials = .default,
-                      directory: String) throws -> Repository {
+    func clone(_ options: [CloneOptions],
+               repository: URL,
+               credentials: GitCredentials = .default,
+               directory: String) throws -> Repository {
         if FileManager.default.fileExists(atPath: directory) {
-           throw GitError.existsDirectory(directory)
+            throw GitError.existsDirectory(directory)
         }
         try run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
-        return try Repository(path: directory)
+        return try Repository(path: directory, environment: environment)
     }
     
     @discardableResult
-    static func clone(_ options: [CloneOptions] = [.defaultTemplate],
-                      repository: URL,
-                      credentials: GitCredentials = .default,
-                      workDirectoryURL: URL) throws -> Repository {
+    func clone(_ options: [CloneOptions],
+               repository: URL,
+               credentials: GitCredentials = .default,
+               workDirectoryURL: URL) throws -> Repository {
         let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
         try clone(options, repository: repository, credentials: credentials, directory: directory.path)
-        return try Repository(url: directory)
+        return try Repository(url: directory, environment: environment)
     }
     
-    private static func repository(url: URL, credentials: GitCredentials) throws -> String {
+    private func repository(url: URL, credentials: GitCredentials) throws -> String {
         var repository = url
         switch credentials {
         case .default:
@@ -51,7 +51,6 @@ public extension Git {
 
 public extension CloneOptions {
     
-    static let defaultTemplate = template(Git.Resource.templates.path)
     static func depth(_ depth: Int) -> Self { .init("--depth=\(depth)") }
     
     /// use IPv4 addresses only

@@ -8,8 +8,8 @@
 import Foundation
 
 public extension Git {
-        
-    static func status(_ pathspec: String) throws -> GitStatus {
+    
+    func status(_ pathspec: String) throws -> GitStatus {
         let string = try status([.porcelain(.v2), .branch], pathspec: pathspec)
         var status = GitStatus()
         
@@ -82,7 +82,7 @@ public extension Git {
         return status
     }
     
-    static func status(_ options: [StatusOptions], pathspec: String) throws -> String {
+    func status(_ options: [StatusOptions], pathspec: String) throws -> String {
         return try run(["status"] + options.map(\.rawValue),
                        currentDirectoryURL: .init(fileURLWithPath: pathspec))
     }
@@ -92,13 +92,13 @@ public extension Git {
 }
 
 public extension Repository {
-        
+    
     func status() throws -> GitStatus {
-        try Git.status(localURL.path)
+        try git.status(localURL.path)
     }
     
     func status(_ options: [StatusOptions]) throws -> String {
-        try Git.status(options, pathspec: localURL.path)
+        try git.status(options, pathspec: localURL.path)
     }
     
     
