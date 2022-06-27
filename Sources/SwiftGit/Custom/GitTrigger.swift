@@ -15,13 +15,13 @@ public struct GitTrigger {
     }
     
     public struct Content {
-        let commands: [String]
-        let data: Data
+        public let commands: [String]
+        public let data: Data
     }
     
     public struct Error: Swift.Error {
-        let commands: [String]
-        let message: String
+        public let commands: [String]
+        public let message: String
     }
     
     public let event: Event
