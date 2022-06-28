@@ -16,7 +16,7 @@ public class GitEnvironment {
             var dict: [GitTrigger.Event: [GitTrigger]] = [:]
             triggers.forEach { item in
                 if dict[item.event] == nil {
-                    dict[item.event] = [item]
+                    dict[item.event] = []
                 }
                 dict[item.event]?.append(item)
             }
