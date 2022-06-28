@@ -42,6 +42,13 @@ public extension Git {
                 environmentDict[item.key] = item.value
             }
             
+            if let triggers = environment.triggersMap[.beforeRun] {
+                let content = GitTrigger.Content(commands: commands, data: Data())
+                triggers.forEach({ item in
+                    item.action(.success(content))
+                })
+            }
+            
             let data = try GitShell.data(commands,
                                          environment: environmentDict,
                                          executableURL: environment.resource.executableURL,
