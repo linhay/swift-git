@@ -11,9 +11,9 @@ public struct Git {
     
     private static var _shared: Git?
     public static var shared: Git {
-        get async throws {
+        get throws {
             if let git = _shared { return git }
-            let git = try await Git(environment: .shared)
+            let git = try Git(environment: .shared)
             _shared = git
             return git
         }
@@ -23,6 +23,17 @@ public struct Git {
     
     public init(environment: GitEnvironment) {
         self.environment = environment
+    }
+    
+    
+    
+}
+
+public extension Git {
+    
+    static func useSystemGit() async throws {
+        _shared = await .init(environment: try .system(variables: shared.environment.variables,
+                                                       triggers: shared.environment.triggers))
     }
     
 }

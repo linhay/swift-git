@@ -35,58 +35,79 @@ public class GitEnvironment {
     
 }
 
-extension GitEnvironment {
-
+public extension GitEnvironment {
+    
     private static var _shared: GitEnvironment?
-    public static var shared: GitEnvironment {
-        get async throws {
+    
+    static var shared: GitEnvironment {
+        get throws {
             if let item = _shared {
                 return item
             }
-            let item = try await GitEnvironment(type: .auto, variables: [], triggers: [])
+            
+            let item = try GitEnvironment.embedd(variables: [], triggers: [])
             _shared = item
             return item
         }
     }
     
-    public enum Style {
+    enum Style {
         case embedd
         case system
         case custom(_ url: URL)
         case auto
     }
     
-    public convenience init(type: Style, variables: [Variable], triggers: [GitTrigger]) async throws {
+    static func embedd(variables: [Variable], triggers: [GitTrigger]) throws -> GitEnvironment {
+        guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
+              let bundle = Bundle(url: url) else {
+            throw GitError.unableLoadEmbeddGitInstance
+        }
+        let resource = Resource(bundle: bundle)
+        var variables = variables
+        variables.append(contentsOf: [.execPath(resource.envExecPath), .configNoSysyem(true)])
+        return .init(resource: resource, variables: variables, triggers: triggers)
+    }
+    
+    static func system(variables: [Variable], triggers: [GitTrigger]) async throws -> GitEnvironment {
+        guard let resource = try await GitShell.zsh(string: "where git")?
+            .split(separator: "\n")
+            .map(String.init)
+            .filter({ FileManager.default.isExecutableFile(atPath: $0) })
+            .compactMap({ URL(fileURLWithPath:$0) })
+            .map({ $0.deletingLastPathComponent().deletingLastPathComponent() })
+            .compactMap(Resource.init(folder:))
+            .first else {
+            throw GitError.noGitInstanceFoundOnSystem
+        }
+        return .init(resource: resource, variables: variables, triggers: triggers)
+    }
+    
+    static func custom(folder: URL, variables: [Variable], triggers: [GitTrigger]) async throws -> GitEnvironment {
+        guard let resource = Resource(folder: folder) else {
+            throw GitError.unableLoadCustomGitInstance
+        }
+        return .init(resource: resource, variables: variables, triggers: triggers)
+    }
+    
+    convenience init(_ item: GitEnvironment) throws {
+        self.init(resource: item.resource, variables: item.variables, triggers: item.triggers)
+    }
+    
+    convenience init(type: Style, variables: [Variable], triggers: [GitTrigger]) async throws {
         switch type {
         case .embedd:
-            guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
-                  let bundle = Bundle(url: url) else {
-                throw GitError.unableLoadEmbeddGitInstance
-            }
-            let resource = Resource(bundle: bundle)
-            var variables = variables
-            variables.append(contentsOf: [.execPath(resource.envExecPath), .configNoSysyem(true)])
-            self.init(resource: resource, variables: variables, triggers: triggers)
+            let item = try GitEnvironment.embedd(variables: variables, triggers: triggers)
+            try self.init(item)
         case .system:
-            guard let resource = try await GitShell.zsh(string: "where git")?
-                .split(separator: "\n")
-                .map(String.init)
-                .filter({ FileManager.default.isExecutableFile(atPath: $0) })
-                .compactMap({ URL(fileURLWithPath:$0) })
-                .map({ $0.deletingLastPathComponent().deletingLastPathComponent() })
-                .compactMap(Resource.init(folder:))
-                .first else {
-                throw GitError.noGitInstanceFoundOnSystem
-            }
-            self.init(resource: resource, variables: variables, triggers: triggers)
+            let item = try await GitEnvironment.system(variables: variables, triggers: triggers)
+            try self.init(item)
         case .custom(let folder):
-            guard let resource = Resource(folder: folder) else {
-                throw GitError.unableLoadCustomGitInstance
-            }
-            self.init(resource: resource, variables: variables, triggers: triggers)
+            let item = try await GitEnvironment.custom(folder: folder, variables: variables, triggers: triggers)
+            try self.init(item)
         case .auto:
-            if let item = try? await GitEnvironment(type: .embedd, variables: variables, triggers: triggers) {
-                self.init(resource: item.resource, variables: item.variables, triggers: item.triggers)
+            if let item = try? GitEnvironment.embedd(variables: variables, triggers: triggers) {
+                try self.init(item)
             } else {
                 try await self.init(type: .system, variables: variables, triggers: triggers)
             }

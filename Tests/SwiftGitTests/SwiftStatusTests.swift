@@ -21,7 +21,7 @@ class SwiftStatusTests: XCTestCase {
     }
     
     func testStatus() async throws {
-        let repo = try await Repository(path: directory.path, environment: .shared)
+        let repo = try Repository(path: directory.path, environment: .shared)
         
         let untracked = directory.file(name: "test-untracked")
         let add = directory.file(name: "test-add")
@@ -38,7 +38,7 @@ class SwiftStatusTests: XCTestCase {
     }
     
     func testLog() async throws {
-        let repo = try await Repository(path: directory.path, environment: .shared)
+        let repo = try Repository(path: directory.path, environment: .shared)
         let result = try await repo.log(options: [.limit(3)])
         assert(!result.isEmpty)
     }
