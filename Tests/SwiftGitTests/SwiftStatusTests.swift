@@ -15,13 +15,13 @@ class SwiftStatusTests: XCTestCase {
     lazy var directory = workFolder.folder(name: "test-clone")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
 
-    func test() throws {
+    func test() async throws {
         _ = try? directory.delete()
-        try Git.shared.clone([], repository: repository, directory: directory.path)
+        try await Git.shared.clone([], repository: repository, directory: directory.path)
     }
     
-    func testStatus() throws {
-        let repo = try Repository(path: directory.path, environment: .shared)
+    func testStatus() async throws {
+        let repo = try await Repository(path: directory.path, environment: .shared)
         
         let untracked = directory.file(name: "test-untracked")
         let add = directory.file(name: "test-add")
@@ -32,14 +32,14 @@ class SwiftStatusTests: XCTestCase {
             try file.create(with: Data([UInt8](repeating: .random(in: 0...100), count: 50)))
         }
         
-        try repo.add([], paths: [add.path, modify.path])
-        let status = try repo.status()
+        try await repo.add([], paths: [add.path, modify.path])
+        let status = try await repo.status()
         print(status)
     }
     
-    func testLog() throws {
-        let repo = try Repository(path: directory.path, environment: .shared)
-        let result = try repo.log(options: [.limit(3)])
+    func testLog() async throws {
+        let repo = try await Repository(path: directory.path, environment: .shared)
+        let result = try await repo.log(options: [.limit(3)])
         assert(!result.isEmpty)
     }
     

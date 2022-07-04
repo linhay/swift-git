@@ -11,8 +11,9 @@ import SwiftGit
 
 class GitShellTests: XCTestCase {
 
-    func testfindGit() throws {
-        print(String(data: try GitShell.data(["-c" , "where git"]), encoding: .utf8)!)
+    func testfindGit() async throws {
+        let item = await String(data: try GitShell.zsh("where git"), encoding: .utf8)!
+        print(item)
     }
 
 }

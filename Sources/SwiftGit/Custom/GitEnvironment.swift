@@ -39,11 +39,11 @@ extension GitEnvironment {
 
     private static var _shared: GitEnvironment?
     public static var shared: GitEnvironment {
-        get throws {
+        get async throws {
             if let item = _shared {
                 return item
             }
-            let item = try GitEnvironment(type: .auto, variables: [], triggers: [])
+            let item = try await GitEnvironment(type: .auto, variables: [], triggers: [])
             _shared = item
             return item
         }
@@ -56,7 +56,7 @@ extension GitEnvironment {
         case auto
     }
     
-    public convenience init(type: Style, variables: [Variable], triggers: [GitTrigger]) throws {
+    public convenience init(type: Style, variables: [Variable], triggers: [GitTrigger]) async throws {
         switch type {
         case .embedd:
             guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
@@ -68,7 +68,7 @@ extension GitEnvironment {
             variables.append(contentsOf: [.execPath(resource.envExecPath), .configNoSysyem(true)])
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
-            guard let resource = try GitShell.string(["-c" , "where git"])
+            guard let resource = try await GitShell.zsh(string: "where git")?
                 .split(separator: "\n")
                 .map(String.init)
                 .filter({ FileManager.default.isExecutableFile(atPath: $0) })
@@ -85,10 +85,10 @@ extension GitEnvironment {
             }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
-            if let item = try? GitEnvironment(type: .embedd, variables: variables, triggers: triggers) {
+            if let item = try? await GitEnvironment(type: .embedd, variables: variables, triggers: triggers) {
                 self.init(resource: item.resource, variables: item.variables, triggers: item.triggers)
             } else {
-                try self.init(type: .system, variables: variables, triggers: triggers)
+                try await self.init(type: .system, variables: variables, triggers: triggers)
             }
         }
     }

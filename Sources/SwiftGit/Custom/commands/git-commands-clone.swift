@@ -13,11 +13,11 @@ public extension Git {
     func clone(_ options: [CloneOptions],
                repository: URL,
                credentials: GitCredentials = .default,
-               directory: String) throws -> Repository {
+               directory: String) async throws -> Repository {
         if FileManager.default.fileExists(atPath: directory) {
             throw GitError.existsDirectory(directory)
         }
-        try run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
+        try await run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
         return try Repository(path: directory, environment: environment)
     }
     
@@ -25,13 +25,13 @@ public extension Git {
     func clone(_ options: [CloneOptions],
                repository: URL,
                credentials: GitCredentials = .default,
-               workDirectoryURL: URL) throws -> Repository {
+               workDirectoryURL: URL) async throws -> Repository {
         let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
-        try clone(options, repository: repository, credentials: credentials, directory: directory.path)
+        try await clone(options, repository: repository, credentials: credentials, directory: directory.path)
         return try Repository(url: directory, environment: environment)
     }
     
-    private func repository(url: URL, credentials: GitCredentials) throws -> String {
+    private func repository(url: URL, credentials: GitCredentials) async throws -> String {
         var repository = url
         switch credentials {
         case .default:

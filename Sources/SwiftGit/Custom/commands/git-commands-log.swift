@@ -29,8 +29,8 @@ public extension Repository {
         public var hash: String { ID }
     }
         
-    func log(options: [LogOptions] = []) throws -> [LogResult] {
-        return try log(options + [.pretty(.fuller)])
+    func log(options: [LogOptions] = []) async throws -> [LogResult] {
+        return try await log(options + [.pretty(.fuller)])
             .split(separator: "\n")
             .reduce([LogResult](), { result, item in
                 var result = result
@@ -77,13 +77,13 @@ public extension Repository {
     }
     
     /// https://git-scm.com/docs/git-log
-    func log(_ options: [LogOptions] = [], refspecs: [Reference] = []) throws -> String {
-        try run(["log"] + options.map(\.rawValue) + refspecs.map(\.name))
+    func log(_ options: [LogOptions] = [], refspecs: [Reference] = []) async throws -> String {
+        try await run(["log"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
     @discardableResult
-    func log(_ cmd: String) throws -> String {
-        try run("log " + cmd)
+    func log(_ cmd: String) async throws -> String {
+        try await run("log " + cmd)
     }
     
 }

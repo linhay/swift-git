@@ -14,9 +14,9 @@ class SwiftInitTests: XCTestCase {
     lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
     lazy var target = workFolder.folder(name: "test-init")
     
-    func testTemplate() throws {
+    func testTemplate() async throws {
         try? target.delete()
-        try Git.shared.`init`([.quiet], directory: target.path)
+        try await Git.shared.`init`([.quiet], directory: target.path)
         let items = try target
             .subFilePaths(predicates: [])
             .map(\.url.lastPathComponent)
@@ -24,18 +24,18 @@ class SwiftInitTests: XCTestCase {
         assert(items == [".git"])
     }
     
-    func testBare() throws {
+    func testBare() async throws {
         try? target.delete()
-        try Git.shared.`init`([.quiet, .bare], directory: target.path)
+        try await Git.shared.`init`([.quiet, .bare], directory: target.path)
         let items = try target
             .subFilePaths(predicates: [])
             .map(\.url.lastPathComponent)
         assert(Set(items).isSubset(of: ["HEAD","config", "objects", "refs"]))
     }
     
-    func testBranch() throws {
+    func testBranch() async throws {
         try? target.delete()
-        try Git.shared.`init`([.quiet, .initialBranch("testBranch")], directory: target.path)
+        try await Git.shared.`init`([.quiet, .initialBranch("testBranch")], directory: target.path)
         /// TODO
     }
     

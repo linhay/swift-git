@@ -10,8 +10,8 @@ import Foundation
 public extension Repository {
     
     @discardableResult
-    func add(_ options: [AddOptions], paths: [String]) throws -> String {
-        try run(["add"] + options.map(\.rawValue) + ["--"] + paths)
+    func add(_ options: [AddOptions], paths: [String]) async throws -> String {
+        try await run(["add"] + options.map(\.rawValue) + ["--"] + paths)
     }
     
 }

@@ -10,8 +10,8 @@ import Foundation
 extension Git {
     
     var version: String {
-        get throws {
-            let items = try run([.version]).split(separator: " ").filter({ !$0.isEmpty })
+        get async throws {
+            let items = try await run([.version]).split(separator: " ").filter({ !$0.isEmpty })
             guard let index = items.firstIndex(where: { $0 == "version" }) else {
                 return ""
             }
@@ -20,8 +20,8 @@ extension Git {
     }
     
     var help: String {
-        get throws {
-            return try run([.help])
+        get async throws {
+            return try await run([.help])
         }
     }
     

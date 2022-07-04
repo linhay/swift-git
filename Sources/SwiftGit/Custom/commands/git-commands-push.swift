@@ -11,13 +11,13 @@ public extension Repository {
         
     /// https://git-scm.com/docs/git-push
     @discardableResult
-    func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) throws -> String {
-        try run(["push"] + options.map(\.rawValue) + refspecs.map(\.name))
+    func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) async throws -> String {
+        try await run(["push"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
     @discardableResult
-    func push(_ cmd: String) throws -> String {
-        try run(["push"] + cmd.split(separator: " ").map(\.description))
+    func push(_ cmd: String) async throws -> String {
+        try await run(["push"] + cmd.split(separator: " ").map(\.description))
     }
     
 }
