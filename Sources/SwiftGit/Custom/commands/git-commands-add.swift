@@ -15,3 +15,12 @@ public extension Repository {
     }
     
 }
+
+public extension Repository {
+    
+    @discardableResult
+    func add(_ options: [AddOptions], paths: [String]) throws -> String {
+        try run(["add"] + options.map(\.rawValue) + ["--"] + paths)
+    }
+    
+}

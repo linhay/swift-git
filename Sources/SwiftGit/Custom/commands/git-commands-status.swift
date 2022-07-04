@@ -11,6 +11,67 @@ public extension Git {
     
     func status(_ pathspec: String) async throws -> GitStatus {
         let string = try await status([.porcelain(.v2), .branch], pathspec: pathspec)
+        return self.formatter(string: string)
+    }
+    
+    func status(_ options: [StatusOptions], pathspec: String) async throws -> String {
+        return try await run(["status"] + options.map(\.rawValue),
+                             currentDirectoryURL: .init(fileURLWithPath: pathspec))
+    }
+    
+}
+
+public extension Git {
+    
+    func status(_ pathspec: String) throws -> GitStatus {
+        let string = try status([.porcelain(.v2), .branch], pathspec: pathspec)
+        return self.formatter(string: string)
+    }
+    
+    func status(_ options: [StatusOptions], pathspec: String) throws -> String {
+        return try run(["status"] + options.map(\.rawValue),
+                       currentDirectoryURL: .init(fileURLWithPath: pathspec))
+    }
+    
+}
+
+public extension Repository {
+    
+    func status() async throws -> GitStatus {
+        try await git.status(localURL.path)
+    }
+    
+    func status(_ options: [StatusOptions]) async throws -> String {
+        try await git.status(options, pathspec: localURL.path)
+    }
+    
+    @discardableResult
+    func status(_ cmd: String) async throws -> String {
+        try await run("status" + cmd)
+    }
+    
+}
+
+public extension Repository {
+    
+    func status() throws -> GitStatus {
+        try git.status(localURL.path)
+    }
+    
+    func status(_ options: [StatusOptions]) throws -> String {
+        try git.status(options, pathspec: localURL.path)
+    }
+    
+    @discardableResult
+    func status(_ cmd: String) throws -> String {
+        try run("status" + cmd)
+    }
+    
+}
+
+private extension Git {
+    
+    func formatter(string: String) -> GitStatus {
         var status = GitStatus()
         
         for line in string.split(separator: "\n").map(\.description) {
@@ -80,30 +141,6 @@ public extension Git {
         }
         
         return status
-    }
-    
-    func status(_ options: [StatusOptions], pathspec: String) async throws -> String {
-        return try await run(["status"] + options.map(\.rawValue),
-                       currentDirectoryURL: .init(fileURLWithPath: pathspec))
-    }
-    
-    
-    
-}
-
-public extension Repository {
-    
-    func status() async throws -> GitStatus {
-        try await git.status(localURL.path)
-    }
-    
-    func status(_ options: [StatusOptions]) async throws -> String {
-        try await git.status(options, pathspec: localURL.path)
-    }
-    
-    @discardableResult
-    func status(_ cmd: String) async throws -> String {
-        try await run("status" + cmd)
     }
     
 }

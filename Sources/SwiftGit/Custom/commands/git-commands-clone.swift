@@ -31,7 +31,39 @@ public extension Git {
         return try Repository(url: directory, environment: environment)
     }
     
-    private func repository(url: URL, credentials: GitCredentials) async throws -> String {
+    
+}
+
+public extension Git {
+    
+    @discardableResult
+    func clone(_ options: [CloneOptions],
+               repository: URL,
+               credentials: GitCredentials = .default,
+               directory: String) throws -> Repository {
+        if FileManager.default.fileExists(atPath: directory) {
+            throw GitError.existsDirectory(directory)
+        }
+        try  run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
+        return try Repository(path: directory, environment: environment)
+    }
+    
+    @discardableResult
+    func clone(_ options: [CloneOptions],
+               repository: URL,
+               credentials: GitCredentials = .default,
+               workDirectoryURL: URL) throws -> Repository {
+        let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
+        try clone(options, repository: repository, credentials: credentials, directory: directory.path)
+        return try Repository(url: directory, environment: environment)
+    }
+    
+    
+}
+
+private extension Git {
+    
+    func repository(url: URL, credentials: GitCredentials) throws -> String {
         var repository = url
         switch credentials {
         case .default:
@@ -46,6 +78,7 @@ public extension Git {
         }
         return repository.absoluteString
     }
+    
     
 }
 

@@ -28,6 +28,17 @@ public extension GitShell {
     }
     
     @discardableResult
+    static func zsh(_ command: String, context: Context? = nil) throws -> Data {
+        try data(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
+    }
+    
+    @discardableResult
+    static func zsh(string command: String, context: Context? = nil) throws -> String? {
+        let data = try zsh(command, context: context)
+        return String.init(data: data, encoding: .utf8)
+    }
+    
+    @discardableResult
     static func zsh(_ command: String, context: Context? = nil) async throws -> Data {
         try await data(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
     }

@@ -15,3 +15,12 @@ public extension Git {
     }
     
 }
+
+public extension Git {
+    
+    @discardableResult
+    func `init`(_ options: [InitOptions] = [], directory: String) throws -> String {
+        try run(["init"] + options.map(\.rawValue) + [directory])
+    }
+    
+}

@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 public extension Repository {
         
     /// https://git-scm.com/docs/git-pull
@@ -24,6 +23,26 @@ public extension Repository {
     @discardableResult
     func pull(_ cmd: String) async throws -> String {
         try await run("pull " + cmd)
+    }
+    
+}
+
+public extension Repository {
+        
+    /// https://git-scm.com/docs/git-pull
+    @discardableResult
+    func pull(_ options: [PullOptions] = [], refspecs: [Reference]) throws -> String {
+        try run(["pull"] + options.map(\.rawValue) + refspecs.map(\.name))
+    }
+    
+    @discardableResult
+    func pull(_ options: [PullOptions] = []) throws -> String {
+        try run(["pull"] + options.map(\.rawValue))
+    }
+    
+    @discardableResult
+    func pull(_ cmd: String) throws -> String {
+        try run("pull " + cmd)
     }
     
 }

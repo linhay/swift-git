@@ -48,3 +48,27 @@ public extension Repository {
     }
     
 }
+
+public extension Repository {
+    
+    @discardableResult
+    func data(_ commands: [String]) throws -> Data {
+        try git.data(commands, currentDirectoryURL: localURL)
+    }
+    
+    @discardableResult
+    func run(_ commands: [String]) throws -> String {
+        try git.run(commands, currentDirectoryURL: localURL)
+    }
+    
+    @discardableResult
+    func data(_ cmd: String) throws -> Data {
+        try data(cmd.split(separator: " ").map(\.description))
+    }
+    
+    @discardableResult
+    func run(_ cmd: String) throws -> String {
+        try run(cmd.split(separator: " ").map(\.description))
+    }
+    
+}

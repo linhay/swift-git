@@ -9,20 +9,33 @@ import Foundation
 
 extension Git {
     
-    var version: String {
-        get async throws {
-            let items = try await run([.version]).split(separator: " ").filter({ !$0.isEmpty })
-            guard let index = items.firstIndex(where: { $0 == "version" }) else {
-                return ""
-            }
-            return String(items[index + 1]).trimmingCharacters(in: .whitespacesAndNewlines)
+    func version() async throws -> String {
+        let items = try await run([.version]).split(separator: " ").filter({ !$0.isEmpty })
+        guard let index = items.firstIndex(where: { $0 == "version" }) else {
+            return ""
         }
+        return String(items[index + 1]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
-    var help: String {
-        get async throws {
-            return try await run([.help])
-        }
+    func help() async throws -> String {
+        return try await run([.help])
     }
     
 }
+
+extension Git {
+    
+    func version() throws -> String {
+        let items = try run([.version]).split(separator: " ").filter({ !$0.isEmpty })
+        guard let index = items.firstIndex(where: { $0 == "version" }) else {
+            return ""
+        }
+        return String(items[index + 1]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    func help() throws -> String {
+        return try run([.help])
+    }
+    
+}
+
