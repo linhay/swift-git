@@ -15,8 +15,7 @@ public extension Git {
     }
     
     func status(_ options: [StatusOptions], pathspec: String) async throws -> String {
-        return try await run(["status"] + options.map(\.rawValue),
-                             currentDirectoryURL: .init(fileURLWithPath: pathspec))
+        return try await run(["status"] + options.map(\.rawValue), context: .init(at: .init(fileURLWithPath: pathspec)))
     }
     
 }
@@ -29,8 +28,7 @@ public extension Git {
     }
     
     func status(_ options: [StatusOptions], pathspec: String) throws -> String {
-        return try run(["status"] + options.map(\.rawValue),
-                       currentDirectoryURL: .init(fileURLWithPath: pathspec))
+        return try run(["status"] + options.map(\.rawValue), context: .init(at: .init(fileURLWithPath: pathspec)))
     }
     
 }

@@ -30,62 +30,33 @@ public struct Git {
 public extension Git {
     
     @discardableResult
+    func data(_ commands: [String], context: GitShell.Context? = nil) async throws -> Data {
+        do {
+            triggerOfBeforeRun(commands)
+            let data = try await GitShell.data(environment.resource.executableURL, commands, context: deal(context: context))
+            triggerOfAfterRun(commands, data: data)
+            return data
+        } catch GitError.processFatal(let message) {
+            throw triggerOfAfterRun(commands, message: message)
+        } catch {
+            throw triggerOfAfterRun(commands, message: error.localizedDescription)
+        }
+    }
+    
+    @discardableResult
     func run(_ options: [GitOptions]) async throws -> String {
         try await run(options.map(\.rawValue))
     }
     
     @discardableResult
-    func data(_ commands: [String], env: [String: String]? = nil, currentDirectoryURL: URL? = nil) async throws -> Data {
-        do {
-            var environmentDict = [String: String]()
-            environment.variables.forEach { item in
-                environmentDict[item.key] = item.value
-            }
-            
-            if let triggers = environment.triggersMap[.beforeRun] {
-                let content = GitTrigger.Content(commands: commands, data: Data())
-                triggers.forEach({ item in
-                    item.action(.success(content))
-                })
-            }
-            
-            let data = try await GitShell.data(environment.resource.executableURL,
-                                               commands,
-                                               context: .init(environment: environmentDict,
-                                                              at: currentDirectoryURL,
-                                                              standardOutput: nil,
-                                                              standardError: nil))
-            if let triggers = environment.triggersMap[.afterRun] {
-                let content = GitTrigger.Content(commands: commands, data: data)
-                triggers.forEach({ item in
-                    item.action(.success(content))
-                })
-            }
-            return data
-        } catch GitError.processFatal(let message) {
-            let error = GitTrigger.Error(commands: commands, message: message)
-            environment.triggersMap[.afterRun]?.forEach({ item in
-                item.action(.failure(error))
-            })
-            throw GitError.processFatal(error.message)
-        } catch {
-            let error = GitTrigger.Error(commands: commands, message: error.localizedDescription)
-            environment.triggersMap[.afterRun]?.forEach({ item in
-                item.action(.failure(error))
-            })
-            throw error
-        }
-    }
-    
-    @discardableResult
-    func run(_ commands: [String], env: [String: String]? = nil, currentDirectoryURL: URL? = nil) async throws -> String {
-        let data = try await data(commands, env: env, currentDirectoryURL: currentDirectoryURL)
+    func run(_ commands: [String], context: GitShell.Context? = nil) async throws -> String {
+        let data = try await data(commands, context: context)
         return String(data: data, encoding: .utf8) ?? ""
     }
     
     @discardableResult
-    func run(_ cmd: String, env: [String: String]? = nil, currentDirectoryURL: URL? = nil) async throws -> String {
-        try await run(cmd.split(separator: " ").map(\.description), env: env, currentDirectoryURL: currentDirectoryURL)
+    func run(_ cmd: String, context: GitShell.Context? = nil) async throws -> String {
+        try await run(cmd.split(separator: " ").map(\.description), context: context)
     }
     
 }
@@ -93,62 +64,33 @@ public extension Git {
 public extension Git {
     
     @discardableResult
+    func data(_ commands: [String], context: GitShell.Context? = nil) throws -> Data {
+        do {
+            triggerOfBeforeRun(commands)
+            let data = try GitShell.data(environment.resource.executableURL, commands, context: deal(context: context))
+            triggerOfAfterRun(commands, data: data)
+            return data
+        } catch GitError.processFatal(let message) {
+            throw triggerOfAfterRun(commands, message: message)
+        } catch {
+            throw triggerOfAfterRun(commands, message: error.localizedDescription)
+        }
+    }
+    
+    @discardableResult
     func run(_ options: [GitOptions]) throws -> String {
         try run(options.map(\.rawValue))
     }
     
     @discardableResult
-    func data(_ commands: [String], env: [String: String]? = nil, currentDirectoryURL: URL? = nil) throws -> Data {
-        do {
-            var environmentDict = [String: String]()
-            environment.variables.forEach { item in
-                environmentDict[item.key] = item.value
-            }
-            
-            if let triggers = environment.triggersMap[.beforeRun] {
-                let content = GitTrigger.Content(commands: commands, data: Data())
-                triggers.forEach({ item in
-                    item.action(.success(content))
-                })
-            }
-            
-            let data = try GitShell.data(environment.resource.executableURL,
-                                         commands,
-                                         context: .init(environment: environmentDict,
-                                                        at: currentDirectoryURL,
-                                                        standardOutput: nil,
-                                                        standardError: nil))
-            if let triggers = environment.triggersMap[.afterRun] {
-                let content = GitTrigger.Content(commands: commands, data: data)
-                triggers.forEach({ item in
-                    item.action(.success(content))
-                })
-            }
-            return data
-        } catch GitError.processFatal(let message) {
-            let error = GitTrigger.Error(commands: commands, message: message)
-            environment.triggersMap[.afterRun]?.forEach({ item in
-                item.action(.failure(error))
-            })
-            throw GitError.processFatal(error.message)
-        } catch {
-            let error = GitTrigger.Error(commands: commands, message: error.localizedDescription)
-            environment.triggersMap[.afterRun]?.forEach({ item in
-                item.action(.failure(error))
-            })
-            throw error
-        }
-    }
-    
-    @discardableResult
-    func run(_ commands: [String], env: [String: String]? = nil, currentDirectoryURL: URL? = nil) throws -> String {
-        let data = try data(commands, env: env, currentDirectoryURL: currentDirectoryURL)
+    func run(_ commands: [String], context: GitShell.Context? = nil) throws -> String {
+        let data = try data(commands, context: context)
         return String(data: data, encoding: .utf8) ?? ""
     }
     
     @discardableResult
-    func run(_ cmd: String, env: [String: String]? = nil, currentDirectoryURL: URL? = nil) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), env: env, currentDirectoryURL: currentDirectoryURL)
+    func run(_ cmd: String, context: GitShell.Context? = nil) throws -> String {
+        try run(cmd.split(separator: " ").map(\.description), context: context)
     }
     
 }
@@ -161,6 +103,47 @@ public extension Git {
     
     func repository(at path: String) throws -> Repository {
         try Repository(path: path, environment: environment)
+    }
+    
+}
+
+private extension Git {
+    
+    func deal(context: GitShell.Context?) -> GitShell.Context {
+        var environmentDict = context?.environment ?? [:]
+        environment.variables.forEach { item in
+            environmentDict[item.key] = item.value
+        }
+        return GitShell.Context(environment: environmentDict,
+                                at: context?.currentDirectory,
+                                standardOutput: context?.standardOutput,
+                                standardError: context?.standardError)
+    }
+    
+    func triggerOfAfterRun(_ commands: [String], data: Data) {
+        if let triggers = environment.triggersMap[.afterRun] {
+            let content = GitTrigger.Content(commands: commands, data: data)
+            triggers.forEach({ item in
+                item.action(.success(content))
+            })
+        }
+    }
+    
+    func triggerOfAfterRun(_ commands: [String], message: String) -> GitError {
+        let error = GitTrigger.Error(commands: commands, message: message)
+        environment.triggersMap[.afterRun]?.forEach({ item in
+            item.action(.failure(error))
+        })
+        return GitError.processFatal(error.message)
+    }
+    
+    func triggerOfBeforeRun(_ commands: [String]) {
+        if let triggers = environment.triggersMap[.beforeRun] {
+            let content = GitTrigger.Content(commands: commands, data: Data())
+            triggers.forEach({ item in
+                item.action(.success(content))
+            })
+        }
     }
     
 }

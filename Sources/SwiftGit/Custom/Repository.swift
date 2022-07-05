@@ -29,12 +29,12 @@ public extension Repository {
     
     @discardableResult
     func data(_ commands: [String]) async throws -> Data {
-        try await git.data(commands, currentDirectoryURL: localURL)
+        try await git.data(commands, context: .init(at: localURL))
     }
     
     @discardableResult
     func run(_ commands: [String]) async throws -> String {
-        try await git.run(commands, currentDirectoryURL: localURL)
+        try await git.run(commands, context: .init(at: localURL))
     }
     
     @discardableResult
@@ -53,12 +53,12 @@ public extension Repository {
     
     @discardableResult
     func data(_ commands: [String]) throws -> Data {
-        try git.data(commands, currentDirectoryURL: localURL)
+        try git.data(commands, context: .init(at: localURL))
     }
     
     @discardableResult
     func run(_ commands: [String]) throws -> String {
-        try git.run(commands, currentDirectoryURL: localURL)
+        try git.run(commands, context: .init(at: localURL))
     }
     
     @discardableResult

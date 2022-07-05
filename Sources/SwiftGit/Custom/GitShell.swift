@@ -24,7 +24,6 @@ public extension GitShell {
             self.standardOutput = standardOutput
             self.standardError = standardError
         }
-        
     }
     
     @discardableResult
