@@ -6,9 +6,23 @@
 //
 
 import Foundation
+import Combine
 
 public extension Repository {
-        
+    
+    /// https://git-scm.com/docs/git-push
+    func pushPublisher(_ options: [PushOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
+        runPublisher(["push"] + options.map(\.rawValue) + refspecs.map(\.name))
+    }
+    
+    func pushPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher(["push"] + cmd.split(separator: " ").map(\.description))
+    }
+    
+}
+
+public extension Repository {
+    
     /// https://git-scm.com/docs/git-push
     @discardableResult
     func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) async throws -> String {
@@ -23,7 +37,7 @@ public extension Repository {
 }
 
 public extension Repository {
-        
+    
     /// https://git-scm.com/docs/git-push
     @discardableResult
     func push(_ options: [PushOptions] = [], refspecs: [Reference] = []) throws -> String {

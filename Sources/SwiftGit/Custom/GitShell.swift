@@ -1,5 +1,6 @@
 #if os(macOS)
 import Foundation
+import Combine
 
 @available(macOS 11, *)
 public struct GitShell { }
@@ -26,6 +27,10 @@ public extension GitShell {
         }
     }
     
+}
+
+public extension GitShell {
+    
     @discardableResult
     static func zsh(_ command: String, context: Context? = nil) throws -> Data {
         try data(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
@@ -38,6 +43,62 @@ public extension GitShell {
     }
     
     @discardableResult
+    static func string(_ exec: URL, _ commands: [String], context: Context? = nil) throws -> String {
+        let data = try data(exec, commands, context: context)
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+    
+    @discardableResult
+    static func data(_ exec: URL, _ commands: [String], context: Context? = nil) throws -> Data {
+        let process = self.setupProcess(exec, commands, context: context)
+        let outputPipe = pipe(for: &process.standardOutput, callback: context?.standardOutput)
+        let errorPipe  = pipe(for: &process.standardError, callback: context?.standardError)
+        try process.run()
+        process.waitUntilExit()
+        return try result(process, errorPipe, outputPipe).get()
+    }
+    
+}
+
+public extension GitShell {
+
+    @discardableResult
+    static func zshPublisher(_ command: String, context: Context? = nil) -> AnyPublisher<Data, GitError> {
+         dataPublisher(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
+    }
+    
+    @discardableResult
+    static func zshPublisher(string command: String, context: Context? = nil) -> AnyPublisher<String?, GitError> {
+        return zshPublisher(command, context: context).map { String(data: $0, encoding: .utf8) }.eraseToAnyPublisher()
+    }
+ 
+    @discardableResult
+    static func stringPublisher(_ exec: URL, _ commands: [String], context: Context? = nil) -> AnyPublisher<String?, GitError> {
+        return dataPublisher(exec, commands, context: context).map { String(data: $0, encoding: .utf8) }.eraseToAnyPublisher()
+    }
+    
+    @discardableResult
+    static func dataPublisher(_ exec: URL, _ commands: [String], context: Context? = nil) -> AnyPublisher<Data, GitError> {
+        Future<Data, GitError> { promise in
+            do {
+                let process = self.setupProcess(exec, commands, context: context)
+                let outputPipe = pipe(for: &process.standardOutput, callback: context?.standardOutput)
+                let errorPipe  = pipe(for: &process.standardError, callback: context?.standardError)
+                process.terminationHandler = { process in
+                    promise(result(process, errorPipe, outputPipe))
+                }
+                try process.run()
+            } catch {
+                promise(.failure(.other(error)))
+            }
+        }.eraseToAnyPublisher()
+    }
+
+}
+
+public extension GitShell {
+
+    @discardableResult
     static func zsh(_ command: String, context: Context? = nil) async throws -> Data {
         try await data(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
     }
@@ -47,27 +108,11 @@ public extension GitShell {
         let data = try await zsh(command, context: context)
         return String.init(data: data, encoding: .utf8)
     }
-    
+ 
     @discardableResult
     static func string(_ exec: URL, _ commands: [String], context: Context? = nil) async throws -> String {
         let data = try await data(exec, commands, context: context)
         return String(data: data, encoding: .utf8) ?? ""
-    }
-
-    @discardableResult
-    static func string(_ exec: URL, _ commands: [String], context: Context? = nil) throws -> String {
-        let data = try data(exec, commands, context: context)
-        return String(data: data, encoding: .utf8) ?? ""
-    }
-
-    @discardableResult
-    static func data(_ exec: URL, _ commands: [String], context: Context? = nil) throws -> Data {
-        let process = self.setupProcess(exec, commands, context: context)
-        let outputPipe = pipe(for: &process.standardOutput, callback: context?.standardOutput)
-        let errorPipe  = pipe(for: &process.standardError, callback: context?.standardError)
-        try process.run()
-        process.waitUntilExit()
-        return try result(process, errorPipe, outputPipe).get()
     }
     
     @discardableResult
@@ -87,13 +132,12 @@ public extension GitShell {
             }
         }
     }
-    
-}
 
+}
 
 private extension GitShell {
     
-    static func result(_ process: Process, _ errorPipe: Pipe, _ outputPipe: Pipe) -> Result<Data, Error> {
+    static func result(_ process: Process, _ errorPipe: Pipe, _ outputPipe: Pipe) -> Result<Data, GitError> {
         if process.terminationStatus != .zero {
             if let message = String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) {
                 return .failure(GitError.processFatal(message))

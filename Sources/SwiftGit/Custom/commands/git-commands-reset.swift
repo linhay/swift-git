@@ -6,6 +6,29 @@
 //
 
 import Foundation
+import Combine
+
+public extension Repository {
+    
+    /// https://git-scm.com/docs/git-reset
+    func resetPublisher(_ options: [ResetOptions] = [], paths: [Pathspec]) -> AnyPublisher<String, GitError> {
+        runPublisher(["reset"] + options.map(\.rawValue) + ["--"] + paths.map(\.value))
+    }
+    
+    func resetPublisher(_ options: [ResetOptions] = [], treeIsh: TreeIsh) -> AnyPublisher<String, GitError> {
+        runPublisher(["reset"] + options.map(\.rawValue) + [treeIsh.value])
+    }
+    
+    func resetPublisher(_ options: [ResetOptions] = [], commit: Commit) -> AnyPublisher<String, GitError> {
+        runPublisher(["reset"] + options.map(\.rawValue) + [commit.name])
+    }
+    
+    func resetPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher("reset " + cmd)
+    }
+    
+}
+
 
 public extension Repository {
     

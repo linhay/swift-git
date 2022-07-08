@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public struct Repository {
     
@@ -13,7 +14,7 @@ public struct Repository {
     public let environment: GitEnvironment
     public let git: Git
     
-    public init(url: URL, environment: GitEnvironment) throws {
+    public init(url: URL, environment: GitEnvironment) {
         self.localURL = url
         self.environment = environment
         self.git = .init(environment: environment)
@@ -21,6 +22,26 @@ public struct Repository {
     
     public init(path: String, environment: GitEnvironment) throws {
         try self.init(url: .init(fileURLWithPath: path), environment: environment)
+    }
+    
+}
+
+public extension Repository {
+    
+    func dataPublisher(_ commands: [String]) -> AnyPublisher<Data, GitError> {
+        git.dataPublisher(commands, context: .init(at: localURL))
+    }
+    
+    func dataPublisher(_ cmd: String) -> AnyPublisher<Data, GitError> {
+        dataPublisher(cmd.split(separator: " ").map(\.description))
+    }
+    
+    func runPublisher(_ commands: [String]) -> AnyPublisher<String, GitError> {
+        git.runPublisher(commands, context: .init(at: localURL))
+    }
+    
+    func runPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher(cmd.split(separator: " ").map(\.description))
     }
     
 }

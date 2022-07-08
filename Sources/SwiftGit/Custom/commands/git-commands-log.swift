@@ -6,9 +6,29 @@
 //
 
 import Foundation
+import Combine
 
 public extension Repository {
+    
+    func logPublisher(options: [LogOptions] = []) async throws -> AnyPublisher<[LogResult], GitError> {
+        logPublisher(options + [.pretty(.fuller)])
+            .map(formatter(string:))
+            .eraseToAnyPublisher()
+    }
+    
+    /// https://git-scm.com/docs/git-log
+    func logPublisher(_ options: [LogOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
+        runPublisher(["log"] + options.map(\.rawValue) + refspecs.map(\.name))
+    }
+    
+    func logPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher("log " + cmd)
+    }
+    
+}
 
+public extension Repository {
+    
     func log(options: [LogOptions] = []) async throws -> [LogResult] {
         let str = try await log(options + [.pretty(.fuller)])
         return formatter(string: str)
@@ -27,7 +47,7 @@ public extension Repository {
 }
 
 public extension Repository {
-
+    
     func log(options: [LogOptions] = []) throws -> [LogResult] {
         let str = try log(options + [.pretty(.fuller)])
         return formatter(string: str)
@@ -70,58 +90,58 @@ public extension Repository {
 }
 
 private extension Repository {
-
+    
     func formatter(string: String) -> [LogResult] {
         string
-        .split(separator: "\n")
-        .reduce([LogResult](), { result, item in
-            var result = result
-            if item.hasPrefix("commit ") {
-                let ID = item.dropFirst("commit ".count)
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                    .prefix(40)
-                let new = LogResult(ID: String(ID))
-                result.append(new)
-                return result
-            } else if var old = result.last {
-                if item.hasPrefix("Author:") {
-                    let list = item
-                        .dropFirst("Author:".count)
+            .split(separator: "\n")
+            .reduce([LogResult](), { result, item in
+                var result = result
+                if item.hasPrefix("commit ") {
+                    let ID = item.dropFirst("commit ".count)
                         .trimmingCharacters(in: .whitespacesAndNewlines)
-                        .replacingOccurrences(of: ">", with: "")
-                        .split(separator: "<")
-                        .map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
-                    old.author.user.name = list.first ?? ""
-                    old.author.user.email = list.last ?? ""
-                } else if item.hasPrefix("Commit:") {
-                    let list = item
-                        .dropFirst("Commit:".count)
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                        .replacingOccurrences(of: ">", with: "")
-                        .split(separator: "<")
-                        .map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
-                    old.commit.user.name = list.first ?? ""
-                    old.commit.user.email = list.last ?? ""
-                } else if item.hasPrefix("AuthorDate:") {
-                    old.author.date = item.dropFirst("AuthorDate:".count).trimmingCharacters(in: .whitespacesAndNewlines)
-                } else if item.hasPrefix("CommitDate:") {
-                    old.commit.date = item.dropFirst("CommitDate:".count).trimmingCharacters(in: .whitespacesAndNewlines)
-                } else if old.message.isEmpty == false {
-                    old.message.append("\n")
-                    old.message.append(String(item))
-                } else if item.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
-                    old.message.append(item.trimmingCharacters(in: .whitespacesAndNewlines))
+                        .prefix(40)
+                    let new = LogResult(ID: String(ID))
+                    result.append(new)
+                    return result
+                } else if var old = result.last {
+                    if item.hasPrefix("Author:") {
+                        let list = item
+                            .dropFirst("Author:".count)
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                            .replacingOccurrences(of: ">", with: "")
+                            .split(separator: "<")
+                            .map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
+                        old.author.user.name = list.first ?? ""
+                        old.author.user.email = list.last ?? ""
+                    } else if item.hasPrefix("Commit:") {
+                        let list = item
+                            .dropFirst("Commit:".count)
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                            .replacingOccurrences(of: ">", with: "")
+                            .split(separator: "<")
+                            .map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
+                        old.commit.user.name = list.first ?? ""
+                        old.commit.user.email = list.last ?? ""
+                    } else if item.hasPrefix("AuthorDate:") {
+                        old.author.date = item.dropFirst("AuthorDate:".count).trimmingCharacters(in: .whitespacesAndNewlines)
+                    } else if item.hasPrefix("CommitDate:") {
+                        old.commit.date = item.dropFirst("CommitDate:".count).trimmingCharacters(in: .whitespacesAndNewlines)
+                    } else if old.message.isEmpty == false {
+                        old.message.append("\n")
+                        old.message.append(String(item))
+                    } else if item.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+                        old.message.append(item.trimmingCharacters(in: .whitespacesAndNewlines))
+                    }
+                    result[result.count - 1] = old
                 }
-                result[result.count - 1] = old
-            }
-            return result
-        })
+                return result
+            })
     }
     
 }
 
 public extension LogOptions {
-
+    
     enum Format {
         case oneline
         case short
@@ -164,5 +184,5 @@ public extension LogOptions {
     static func pretty(_ format: Format) -> LogOptions { .init("--pretty=\(format)") }
     static func format(_ format: Format) -> LogOptions { .init("--format=\(format)") }
     static func limit(_ number: Int) -> LogOptions { .init("-\(number)") }
-
+    
 }

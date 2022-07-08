@@ -6,9 +6,27 @@
 //
 
 import Foundation
+import Combine
 
 public extension Repository {
-        
+    
+    /// https://git-scm.com/docs/git-pull
+    func pullPublisher(_ options: [PullOptions] = [], refspecs: [Reference]) -> AnyPublisher<String, GitError> {
+        runPublisher(["pull"] + options.map(\.rawValue) + refspecs.map(\.name))
+    }
+    
+    func pullPublisher(_ options: [PullOptions] = []) -> AnyPublisher<String, GitError> {
+        runPublisher(["pull"] + options.map(\.rawValue))
+    }
+    
+    func pullPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher("pull " + cmd)
+    }
+    
+}
+
+public extension Repository {
+    
     /// https://git-scm.com/docs/git-pull
     @discardableResult
     func pull(_ options: [PullOptions] = [], refspecs: [Reference]) async throws -> String {
@@ -28,7 +46,7 @@ public extension Repository {
 }
 
 public extension Repository {
-        
+    
     /// https://git-scm.com/docs/git-pull
     @discardableResult
     func pull(_ options: [PullOptions] = [], refspecs: [Reference]) throws -> String {

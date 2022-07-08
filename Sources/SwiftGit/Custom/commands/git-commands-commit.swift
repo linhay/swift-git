@@ -6,6 +6,22 @@
 //
 
 import Foundation
+import Combine
+
+public extension Repository {
+    
+    /// https://git-scm.com/docs/git-commit
+    @discardableResult
+    func commitPublisher(_ options: [CommitOptions] = [], pathspecs: [Pathspec] = []) -> AnyPublisher<String, GitError> {
+        runPublisher(["commit"] + options.map(\.rawValue) + pathspecs.map(\.value))
+    }
+    
+    @discardableResult
+    func commitPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher("commit " + cmd)
+    }
+    
+}
 
 public extension Repository {
     

@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import Combine
 
-public struct Git {
+public class Git {
     
     private static var _shared: Git?
     public static var shared: Git {
@@ -23,6 +24,44 @@ public struct Git {
     
     public init(environment: GitEnvironment) {
         self.environment = environment
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
+}
+
+public extension Git {
+    
+    func dataPublisher(_ commands: [String], context: GitShell.Context? = nil) -> AnyPublisher<Data, GitError> {
+        self.triggerOfBeforeRun(commands)
+        return GitShell
+            .dataPublisher(self.environment.resource.executableURL, commands, context: self.deal(context: context))
+            .map({ [weak self] data in
+                guard let self = self else { return data }
+                self.triggerOfAfterRun(commands, data: data)
+                return data
+            })
+            .mapError({ [weak self] error in
+                guard let self = self else { return error }
+                _ = self.triggerOfAfterRun(commands, message: error.errorDescription ?? GitError.other(error).localizedDescription)
+                return error
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    func runPublisher(_ options: [GitOptions]) -> AnyPublisher<String, GitError> {
+        runPublisher(options.map(\.rawValue))
+    }
+    
+    func runPublisher(_ commands: [String], context: GitShell.Context? = nil) -> AnyPublisher<String, GitError> {
+        dataPublisher(commands, context: context)
+            .map { data in
+                String(data: data, encoding: .utf8) ?? ""
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func runPublisher(_ cmd: String, context: GitShell.Context? = nil) -> AnyPublisher<String, GitError> {
+        runPublisher(cmd.split(separator: " ").map(\.description), context: context)
     }
     
 }

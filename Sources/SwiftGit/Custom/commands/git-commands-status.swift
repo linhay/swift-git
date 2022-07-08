@@ -6,6 +6,21 @@
 //
 
 import Foundation
+import Combine
+
+public extension Git {
+    
+    func statusPublisher(_ pathspec: String) -> AnyPublisher<GitStatus, GitError> {
+        statusPublisher([.porcelain(.v2), .branch], pathspec: pathspec)
+            .map(formatter(string:))
+            .eraseToAnyPublisher()
+    }
+    
+    func statusPublisher(_ options: [StatusOptions], pathspec: String) -> AnyPublisher<String, GitError> {
+        runPublisher(["status"] + options.map(\.rawValue), context: .init(at: .init(fileURLWithPath: pathspec)))
+    }
+    
+}
 
 public extension Git {
     

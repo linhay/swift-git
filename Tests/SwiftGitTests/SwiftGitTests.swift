@@ -1,13 +1,20 @@
 import XCTest
 @testable import SwiftGit
 import Stem
+import Combine
 
 final class SwiftGitTests: XCTestCase {
     
-
+    private var cancellables = Set<AnyCancellable>()
+    
     func testVersion() async throws {
         let output = try await Git.shared.version()
         assert(STVersion(output) != nil)
+        try Git.shared.versionPublisher().sink { _ in
+            
+        } receiveValue: { str in
+            assert(output == str)
+        }.store(in: &cancellables)
     }
     
     func testHelp() async throws {

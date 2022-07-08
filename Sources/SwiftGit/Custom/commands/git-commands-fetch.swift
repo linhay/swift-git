@@ -6,9 +6,25 @@
 //
 
 import Foundation
+import Combine
 
 public extension Repository {
-        
+    
+    /// https://git-scm.com/docs/git-fetch
+    @discardableResult
+    func fetchPublisher(_ options: [FetchOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
+        runPublisher(["fetch"] + options.map(\.rawValue) + refspecs.map(\.name))
+    }
+    
+    @discardableResult
+    func fetchPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher("fetch " + cmd)
+    }
+    
+}
+
+public extension Repository {
+    
     /// https://git-scm.com/docs/git-fetch
     @discardableResult
     func fetch(_ options: [FetchOptions] = [], refspecs: [Reference] = []) async throws -> String {
@@ -23,7 +39,7 @@ public extension Repository {
 }
 
 public extension Repository {
-        
+    
     /// https://git-scm.com/docs/git-fetch
     @discardableResult
     func fetch(_ options: [FetchOptions] = [], refspecs: [Reference] = []) throws -> String {

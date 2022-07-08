@@ -6,6 +6,15 @@
 //
 
 import Foundation
+import Combine
+
+public extension Repository {
+    
+    func addPublisher(_ options: [AddOptions], paths: [String]) -> AnyPublisher<String, GitError> {
+        runPublisher(["add"] + options.map(\.rawValue) + ["--"] + paths)
+    }
+    
+}
 
 public extension Repository {
     

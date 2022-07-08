@@ -14,7 +14,8 @@ public enum GitError: Error, LocalizedError {
     case noGitInstanceFoundOnSystem
     case existsDirectory(String)
     case processFatal(String)
-    case unknown
+    case parser(String?)
+    case other(Error)
     
     public var errorDescription: String? {
         switch self {
@@ -28,8 +29,10 @@ public enum GitError: Error, LocalizedError {
             return "destination path '\(string)' already exists and is not an empty directory."
         case .processFatal(let string):
             return string
-        case .unknown:
-            return "unkonwn"
+        case .parser(let string):
+            return "parser error: \(string ?? "")"
+        case .other(let error):
+            return "other: \(error.localizedDescription)"
         }
     }
     
@@ -45,8 +48,10 @@ public enum GitError: Error, LocalizedError {
             return 401
         case .processFatal:
             return 402
-        case .unknown:
+        case .other:
             return 403
+        case .parser:
+            return 404
         }
     }
     

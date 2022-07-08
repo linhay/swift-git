@@ -6,6 +6,28 @@
 //
 
 import Foundation
+import Combine
+
+public extension Repository {
+        
+    /// https://git-scm.com/docs/git-show
+    func showPublisher(_ options: [ShowOptions] = [], objects: [String] = []) -> AnyPublisher<String, GitError> {
+        runPublisher(["show"] + options.map(\.rawValue) + objects)
+    }
+    
+    func showPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+        runPublisher(["show"] + cmd.split(separator: " ").map(\.description))
+    }
+    
+    func showPublisher(_ options: [ShowOptions] = [], objects: [String] = []) -> AnyPublisher<Data, GitError> {
+        dataPublisher(["show"] + options.map(\.rawValue) + objects)
+    }
+    
+    func showPublisher(data cmd: String) -> AnyPublisher<Data, GitError> {
+        dataPublisher("show " + cmd)
+    }
+    
+}
 
 public extension Repository {
         
