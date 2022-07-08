@@ -50,7 +50,7 @@ public extension Git {
 
 public extension Repository {
     
-    func statusPublisher() async throws -> AnyPublisher<GitStatus, GitError> {
+    func statusPublisher() -> AnyPublisher<GitStatus, GitError> {
         git.statusPublisher(localURL.path)
     }
     
@@ -58,7 +58,6 @@ public extension Repository {
         git.statusPublisher(options, pathspec: localURL.path)
     }
     
-    @discardableResult
     func statusPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
         runPublisher("status" + cmd)
     }
