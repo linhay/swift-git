@@ -136,8 +136,8 @@ public extension Git {
 
 public extension Git {
     
-    func repository(at url: URL) throws -> Repository {
-        try Repository(url: url, environment: environment)
+    func repository(at url: URL) -> Repository {
+        Repository(url: url, environment: environment)
     }
     
     func repository(at path: String) throws -> Repository {
