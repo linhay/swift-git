@@ -140,8 +140,8 @@ public extension Git {
         Repository(url: url, environment: environment)
     }
     
-    func repository(at path: String) throws -> Repository {
-        try Repository(path: path, environment: environment)
+    func repository(at path: String) -> Repository {
+        Repository(path: path, environment: environment)
     }
     
 }

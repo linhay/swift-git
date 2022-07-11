@@ -32,14 +32,24 @@ public extension GitShell {
         
         let pipe = Pipe()
         let publisher: PassthroughSubject<Data, Never>?
-        var availableData: Data?
+        
+        var availableData: Data? {
+            get throws {
+                guard let data = _availableData, !data.isEmpty else {
+                    return try pipe.fileHandleForReading.readToEnd()
+                }
+                return data
+            }
+        }
+        
+        private var _availableData: Data?
         
         init(publisher: PassthroughSubject<Data, Never>?) {
             self.publisher = publisher
         }
         
         func append(to standard: inout Any?) -> Self {
-            availableData = Data()
+            _availableData = Data()
             standard = pipe
             pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
                 guard let self = self else { return }
@@ -47,7 +57,7 @@ public extension GitShell {
                 if data.isEmpty {
                     self.pipe.fileHandleForReading.readabilityHandler = nil
                 } else {
-                    self.availableData?.append(data)
+                    self._availableData?.append(data)
                     self.publisher?.send(data)
                 }
             }

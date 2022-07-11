@@ -24,7 +24,7 @@ public extension Git {
             let url = try self.repository(url: repository, credentials: credentials)
             return runPublisher(["clone"] + (options.map(\.rawValue) + [url, directory]))
                 .tryMap { _ in
-                    try Repository(path: directory, environment: self.environment)
+                    Repository(path: directory, environment: self.environment)
                 }
                 .mapError({ error in
                     if let gitError = error as? GitError {
@@ -66,7 +66,7 @@ public extension Git {
             throw GitError.existsDirectory(directory)
         }
         try await run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
-        return try Repository(path: directory, environment: environment)
+        return Repository(path: directory, environment: environment)
     }
     
     @discardableResult
@@ -92,7 +92,7 @@ public extension Git {
             throw GitError.existsDirectory(directory)
         }
         try run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
-        return try Repository(path: directory, environment: environment)
+        return Repository(path: directory, environment: environment)
     }
     
     @discardableResult

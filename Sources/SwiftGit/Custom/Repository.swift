@@ -20,8 +20,8 @@ public struct Repository {
         self.git = .init(environment: environment)
     }
     
-    public init(path: String, environment: GitEnvironment) throws {
-        try self.init(url: .init(fileURLWithPath: path), environment: environment)
+    public init(path: String, environment: GitEnvironment) {
+        self.init(url: .init(fileURLWithPath: path), environment: environment)
     }
     
 }
