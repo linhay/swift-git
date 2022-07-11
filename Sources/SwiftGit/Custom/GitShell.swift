@@ -26,31 +26,26 @@ public extension GitShell {
             self.standardError = standardError
         }
     }
-
+    
     
     class Standard {
         
         let pipe = Pipe()
-        let semaphore: DispatchSemaphore?
-        var isRunning = true
         let publisher: PassthroughSubject<Data, Never>?
         var availableData: Data?
         
-        init(semaphore: DispatchSemaphore?, publisher: PassthroughSubject<Data, Never>?) {
+        init(publisher: PassthroughSubject<Data, Never>?) {
             self.publisher = publisher
-            self.semaphore = semaphore
         }
         
-        func append(to standard: inout Any?, isRecordData: Bool) -> Self {
-            availableData = isRecordData ? Data() : nil
+        func append(to standard: inout Any?) -> Self {
+            availableData = Data()
             standard = pipe
             pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
                 guard let self = self else { return }
                 let data = fh.availableData
                 if data.isEmpty {
                     self.pipe.fileHandleForReading.readabilityHandler = nil
-                    self.isRunning = false
-                    self.semaphore?.signal()
                 } else {
                     self.availableData?.append(data)
                     self.publisher?.send(data)
@@ -60,7 +55,7 @@ public extension GitShell {
         }
         
     }
-
+    
     
 }
 
@@ -86,29 +81,27 @@ public extension GitShell {
     @discardableResult
     static func data(_ exec: URL, _ commands: [String], context: Context? = nil) throws -> Data {
         let process = self.setupProcess(exec, commands, context: context)
-        let semaphore = DispatchSemaphore(value: 1)
-        let output = Standard(semaphore: semaphore, publisher: context?.standardOutput).append(to: &process.standardOutput, isRecordData: true)
-        let error  = Standard(semaphore: semaphore, publisher: context?.standardError).append(to: &process.standardError, isRecordData: true)
+        let output = Standard(publisher: context?.standardOutput).append(to: &process.standardOutput)
+        let error  = Standard(publisher: context?.standardError).append(to: &process.standardError)
         try process.run()
         process.waitUntilExit()
-        semaphore.wait()
-        return try result(process, output: output, error: error).get()
+        return try result(process, output: output.pipe.fileHandleForReading.readToEnd(), error: error.pipe.fileHandleForReading.readToEnd()).get()
     }
     
 }
 
 public extension GitShell {
-
+    
     @discardableResult
     static func zshPublisher(_ command: String, context: Context? = nil) -> AnyPublisher<Data, GitError> {
-         dataPublisher(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
+        dataPublisher(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
     }
     
     @discardableResult
     static func zshPublisher(string command: String, context: Context? = nil) -> AnyPublisher<String?, GitError> {
         return zshPublisher(command, context: context).map { String(data: $0, encoding: .utf8) }.eraseToAnyPublisher()
     }
- 
+    
     @discardableResult
     static func stringPublisher(_ exec: URL, _ commands: [String], context: Context? = nil) -> AnyPublisher<String?, GitError> {
         return dataPublisher(exec, commands, context: context).map { String(data: $0, encoding: .utf8) }.eraseToAnyPublisher()
@@ -118,7 +111,20 @@ public extension GitShell {
     static func dataPublisher(_ exec: URL, _ commands: [String], context: Context? = nil) -> AnyPublisher<Data, GitError> {
         Future<Data, GitError> { promise in
             do {
-                promise(.success(try data(exec, commands, context: context)))
+                let process = self.setupProcess(exec, commands, context: context)
+                let output = Standard(publisher: context?.standardOutput).append(to: &process.standardOutput)
+                let error  = Standard(publisher: context?.standardError).append(to: &process.standardError)
+                try process.run()
+                process.terminationHandler = { process in
+                    do {
+                        let data = try result(process, output: output.availableData, error: error.availableData).get()
+                        promise(.success(data))
+                    } catch let error as GitError {
+                        promise(.failure(error))
+                    } catch {
+                        promise(.failure(.other(error)))
+                    }
+                }
             } catch let error as GitError {
                 promise(.failure(error))
             } catch {
@@ -126,11 +132,11 @@ public extension GitShell {
             }
         }.eraseToAnyPublisher()
     }
-
+    
 }
 
 public extension GitShell {
-
+    
     @discardableResult
     static func zsh(_ command: String, context: Context? = nil) async throws -> Data {
         try await data(URL(fileURLWithPath: "/bin/zsh"), ["-c", command], context: context)
@@ -141,7 +147,7 @@ public extension GitShell {
         let data = try await zsh(command, context: context)
         return String.init(data: data, encoding: .utf8)
     }
- 
+    
     @discardableResult
     static func string(_ exec: URL, _ commands: [String], context: Context? = nil) async throws -> String {
         let data = try await data(exec, commands, context: context)
@@ -152,7 +158,20 @@ public extension GitShell {
     static func data(_ exec: URL, _ commands: [String], context: Context? = nil) async throws -> Data {
         try await withUnsafeThrowingContinuation { continuation in
             do {
-                continuation.resume(with: .success(try data(exec, commands, context: context)))
+                let process = self.setupProcess(exec, commands, context: context)
+                let output = Standard(publisher: context?.standardOutput).append(to: &process.standardOutput)
+                let error  = Standard(publisher: context?.standardError).append(to: &process.standardError)
+                try process.run()
+                process.terminationHandler = { process in
+                    do {
+                        let data = try result(process, output: output.availableData, error: error.availableData).get()
+                        continuation.resume(with: .success(data))
+                    } catch let error as GitError {
+                        continuation.resume(throwing: error)
+                    } catch {
+                        continuation.resume(throwing: GitError.other(error))
+                    }
+                }
             } catch let error as GitError {
                 continuation.resume(throwing: error)
             } catch {
@@ -160,14 +179,14 @@ public extension GitShell {
             }
         }
     }
-
+    
 }
 
 private extension GitShell {
     
-    static func result(_ process: Process, output: Standard, error: Standard) -> Result<Data, GitError> {
+    static func result(_ process: Process, output: Data?, error: Data?) -> Result<Data, GitError> {
         if process.terminationStatus != .zero {
-            if let data = error.availableData, let message = String(data: data, encoding: .utf8) {
+            if let data = error, let message = String(data: data, encoding: .utf8) {
                 return .failure(GitError.processFatal(message))
             }
             
@@ -179,7 +198,7 @@ private extension GitShell {
             message.append("code: \(process.terminationReason.rawValue)")
             return .failure(GitError.processFatal(message.joined(separator: "\n")))
         }
-        return .success(output.availableData ?? Data())
+        return .success(output ?? Data())
     }
     
     static func setupProcess(_ exec: URL, _ commands: [String], context: Context? = nil) -> Process {
