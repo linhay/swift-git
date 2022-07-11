@@ -44,6 +44,10 @@ public extension GitShell {
         
         private var _availableData: Data?
         
+        deinit {
+            self.pipe.fileHandleForReading.readabilityHandler = nil
+        }
+        
         init(publisher: PassthroughSubject<Data, Never>?) {
             self.publisher = publisher
         }
