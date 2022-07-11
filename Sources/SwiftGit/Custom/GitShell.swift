@@ -85,7 +85,7 @@ public extension GitShell {
         let error  = Standard(publisher: context?.standardError).append(to: &process.standardError)
         try process.run()
         process.waitUntilExit()
-        return try result(process, output: output.pipe.fileHandleForReading.readToEnd(), error: error.pipe.fileHandleForReading.readToEnd()).get()
+        return try result(process, output: output.availableData, error: error.availableData).get()
     }
     
 }
