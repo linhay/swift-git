@@ -26,7 +26,7 @@ class GitShellTests: XCTestCase {
             }.store(in: &cancellables)
     }
     
-    func testfindGitSync()  throws {
+    func testfindGitSync() throws {
         let command = "where git"
         let item = try GitShell.zsh(string: command)!
         print(#function, ": ", item)

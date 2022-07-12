@@ -8,15 +8,15 @@
 import Foundation
 import Combine
 
+/// https://git-scm.com/docs/git-log
 public extension Repository {
     
-    func logPublisher(options: [LogOptions] = []) async throws -> AnyPublisher<[LogResult], GitError> {
+    func logPublisher(options: [LogOptions] = []) -> AnyPublisher<[LogResult], GitError> {
         logPublisher(options + [.pretty(.fuller)])
             .map(formatter(string:))
             .eraseToAnyPublisher()
     }
     
-    /// https://git-scm.com/docs/git-log
     func logPublisher(_ options: [LogOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
         runPublisher(["log"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
@@ -67,24 +67,39 @@ public extension Repository {
 
 public extension Repository {
     
-    struct User: Equatable {
+    struct User: Equatable, Codable {
         public var name: String = ""
         public var email: String = ""
     }
     
-    struct UserRecord: Equatable {
+    struct UserRecord: Equatable, Codable {
         public var user: User = .init()
-        public var date: String = .init()
+        public var date: Date = .init()
+        
+        static private let formatter: DateFormatter = {
+            let item = DateFormatter()
+            item.dateFormat = "EEE MMM dd HH:mm:ss yyyy Z"
+            return item
+        }()
+        
+        mutating func set(date string: String) {
+            guard let date = Self.formatter.date(from: string) else {
+                return
+            }
+            
+            self.date = date
+        }
+        
     }
     
-    struct LogResult: Equatable {
-        public var ID: String
+    struct LogResult: Equatable, Codable, Identifiable {
+        public var id: String
         public var message: String = ""
         
         public var author: UserRecord = .init()
         public var commit: UserRecord = .init()
         
-        public var hash: String { ID }
+        public var hash: String { id }
     }
     
 }
@@ -100,7 +115,7 @@ private extension Repository {
                     let ID = item.dropFirst("commit ".count)
                         .trimmingCharacters(in: .whitespacesAndNewlines)
                         .prefix(40)
-                    let new = LogResult(ID: String(ID))
+                    let new = LogResult(id: String(ID))
                     result.append(new)
                     return result
                 } else if var old = result.last {
@@ -123,9 +138,9 @@ private extension Repository {
                         old.commit.user.name = list.first ?? ""
                         old.commit.user.email = list.last ?? ""
                     } else if item.hasPrefix("AuthorDate:") {
-                        old.author.date = item.dropFirst("AuthorDate:".count).trimmingCharacters(in: .whitespacesAndNewlines)
+                        old.author.set(date: item.dropFirst("AuthorDate:".count).trimmingCharacters(in: .whitespacesAndNewlines))
                     } else if item.hasPrefix("CommitDate:") {
-                        old.commit.date = item.dropFirst("CommitDate:".count).trimmingCharacters(in: .whitespacesAndNewlines)
+                        old.commit.set(date: item.dropFirst("CommitDate:".count).trimmingCharacters(in: .whitespacesAndNewlines))
                     } else if old.message.isEmpty == false {
                         old.message.append("\n")
                         old.message.append(String(item))
