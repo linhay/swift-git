@@ -15,7 +15,7 @@ class SwiftStatusTests: XCTestCase {
     lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
     lazy var directory = workFolder.folder(name: "test-clone")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
-
+    
     func test() async throws {
         _ = try? directory.delete()
         try await Git.shared.clone([], repository: repository, directory: directory.path)
@@ -44,7 +44,7 @@ class SwiftStatusTests: XCTestCase {
         assert(!result.isEmpty)
     }
     
-    func testShow1() throws {
+    func testShowCommitResult1() throws {
         let string =
 """
 commit 9a1d113d09df3d97f3a87cf26c4f9decc3da620e
@@ -65,7 +65,7 @@ index 0000000..ed894f0
 +<path d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16ZM7 4C7 3.44772 7.44772 3 8 3C8.55228 3 9 3.44772 9 4V8C9 8.55228 8.55228 9 8 9C7.44772 9 7 8.55228 7 8V4ZM7 12C7 11.4477 7.44772 11 8 11C8.55228 11 9 11.4477 9 12C9 12.5523 8.55228 13 8 13C7.44772 13 7 12.5523 7 12Z" fill="#333333"/>
 +</svg>
 """
-       let commit = Repository(path: "", environment: try .shared).formatter(string: string)
+        let commit = Repository(path: "", environment: try .shared).showCommitResult(from: string)
         
         assert(commit.ID == "9a1d113d09df3d97f3a87cf26c4f9decc3da620e")
         assert(commit.items == [.init(diff: .init(a: "SVGs/dui_warning.svg", b: "SVGs/dui_warning.svg"),
@@ -76,7 +76,7 @@ index 0000000..ed894f0
     }
     
     
-    func testShow2() throws {
+    func testShowCommitResult2() throws {
         let string =
 """
 commit 463bfbcbb4c5e61fbdefbec658b0a317a780461f (HEAD -> master, origin/master, origin/HEAD)
@@ -92,7 +92,7 @@ new file mode 100644
 index 00000000..7c55edee
 Binary files /dev/null and b/Images/bg_sharepic.png differ
 """
-       let commit = Repository(path: "", environment: try .shared).formatter(string: string)
+        let commit = Repository(path: "", environment: try .shared).showCommitResult(from: string)
         
         assert(commit.ID == "463bfbcbb4c5e61fbdefbec658b0a317a780461f")
         assert(commit.items == [.init(diff: .init(a: "Images/bg_sharepic.png", b: "Images/bg_sharepic.png"),
