@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-/// https://git-scm.com/docs/git-stash
+/// https://git-scm.com/docs/git-ls-tree
 public extension Repository {
     
     func lsTreePublisher(_ cmd: String) -> AnyPublisher<String, GitError> {

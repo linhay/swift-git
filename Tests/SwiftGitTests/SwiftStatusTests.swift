@@ -102,4 +102,13 @@ Binary files /dev/null and b/Images/bg_sharepic.png differ
         assert(commit.message == "9.21.0")
     }
     
+    
+    func testls() async throws {
+        _ = try? directory.delete()
+        try await Git.shared.clone([], repository: repository, directory: directory.path)
+        let repo = try Repository(path: directory.path, environment: .shared)
+        let str = try await repo.lsRemote([.getURL], refs: [])
+        assert(str == repository.absoluteString)
+    }
+    
 }

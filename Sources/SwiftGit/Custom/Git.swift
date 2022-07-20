@@ -55,7 +55,7 @@ public extension Git {
     func runPublisher(_ commands: [String], context: GitShell.Context? = nil) -> AnyPublisher<String, GitError> {
         dataPublisher(commands, context: context)
             .map { data in
-                String(data: data, encoding: .utf8) ?? ""
+                String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
             }
             .eraseToAnyPublisher()
     }
@@ -90,7 +90,7 @@ public extension Git {
     @discardableResult
     func run(_ commands: [String], context: GitShell.Context? = nil) async throws -> String {
         let data = try await data(commands, context: context)
-        return String(data: data, encoding: .utf8) ?? ""
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
     }
     
     @discardableResult
@@ -124,7 +124,7 @@ public extension Git {
     @discardableResult
     func run(_ commands: [String], context: GitShell.Context? = nil) throws -> String {
         let data = try data(commands, context: context)
-        return String(data: data, encoding: .utf8) ?? ""
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
     }
     
     @discardableResult
