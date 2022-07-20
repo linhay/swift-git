@@ -94,15 +94,23 @@ public struct Branch: ReferenceType, Hashable {
     
 }
 
-public struct Tag: ReferenceType, Hashable {
+public struct Tag: ReferenceType, Hashable, ExpressibleByStringLiteral {
     
     public let longName: String
     
-    init?(longName: String) {
+    public init?(longName: String) {
         guard longName.hasPrefix("refs/tags/") else {
             return nil
         }
         self.longName = longName
+    }
+    
+    public init(stringLiteral value: String) {
+        self.longName = "refs/tags/\(value)"
+    }
+    
+    public init(_ version: String) {
+        self.longName = "refs/tags/\(version)"
     }
     
 }
