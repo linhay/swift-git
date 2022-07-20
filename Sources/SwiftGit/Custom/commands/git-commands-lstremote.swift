@@ -61,6 +61,11 @@ public extension Repository {
 
 public extension Repository.LsRemote {
     
+    func url() async throws -> URL? {
+        let str = try await repository.lsRemote([.getURL], refs: [])
+        return .init(string: str)
+    }
+    
     func tags() async throws -> [Tag] {
         try await repository
             .lsRemote([.tags, .sort(.creatordate)], refs: [])
