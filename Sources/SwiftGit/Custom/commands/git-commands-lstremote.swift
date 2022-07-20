@@ -71,7 +71,7 @@ public extension Repository.LsRemote {
             .lsRemote([.tags, .sort(.creatordate)], refs: [])
             .split(separator: "\n")
             .compactMap { row in
-                let items = row.split(separator: " ").map({ String($0) })
+                let items = row.split(separator: "\t").map({ String($0) })
                 guard items.count == 2 else  {
                     return nil
                 }
