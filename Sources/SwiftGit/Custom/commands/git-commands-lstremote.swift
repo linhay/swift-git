@@ -75,7 +75,7 @@ public extension Repository.LsRemote {
                 guard items.count == 2 else  {
                     return nil
                 }
-                return Tag(longName: items[0], commit: items[1])
+                return Tag(longName: items[1], commit: items[0])
             }
             .reversed()
     }
