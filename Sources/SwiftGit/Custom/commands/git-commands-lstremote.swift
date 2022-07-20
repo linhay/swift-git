@@ -49,6 +49,35 @@ public extension Git {
     
 }
 
+public extension Repository {
+    
+    struct LsRemote {
+        let repository: Repository
+    }
+    
+    var lsRemote: LsRemote { .init(repository: self) }
+    
+}
+
+public extension Repository.LsRemote {
+    
+    func tags() async throws -> [Tag] {
+        try await repository
+            .lsRemote([.tags, .sort(.creatordate)], refs: [])
+            .split(separator: "\n")
+            .compactMap { row in
+                let items = row.split(separator: " ").map({ String($0) })
+                guard items.count == 2 else  {
+                    return nil
+                }
+                return Tag(longName: items[0], commit: items[1])
+            }
+            .reversed()
+    }
+    
+    
+}
+
 /// https://git-scm.com/docs/git-ls-remote
 public extension Repository {
     
@@ -122,10 +151,10 @@ public extension LsRemoteOptions {
     /// In addition to the object pointed by it, show the underlying ref pointed by it when showing a symbolic ref. Currently, upload-pack only shows the symref HEAD, so it will be the only one shown by ls-remote.
     static var symref: LsRemoteOptions { .init("--symref") }
     /// Specify the full path of git-upload-pack on the remote host. This allows listing references from repositories accessed via SSH and where the SSH daemon does not use the PATH configured by the user.
-    func uploadPack(_ exec: String) -> LsRemoteOptions { .init("--upload-pack=\(exec)") }
+    static func uploadPack(_ exec: String) -> LsRemoteOptions { .init("--upload-pack=\(exec)") }
     /// Sort based on the key given. Prefix to sort in descending order of the value. Supports "version:refname" or "v:refname" (tag names are treated as versions). The "version:refname" sort order can also be affected by the "versionsort.suffix" configuration variable. See git-for-each-ref[1] for more sort options, but be aware keys like that require access to the objects themselves will not work for refs whose objects have not yet been fetched from the remote, and will give a error
-    func sort(_ key: String) -> LsRemoteOptions { .init("--sort=\(key)") }
+    static func sort(_ key: GitSortKey) -> LsRemoteOptions { .init("--sort=\(key.rawValue)") }
     /// Transmit the given string to the server when communicating using protocol version 2. The given string must not contain a NUL or LF character. When multiple are given, they are all sent to the other side in the order listed on the command line.--server-option=<option>
-    func serverOption(_ option: String) -> LsRemoteOptions { .init("--server-option=\(option)") }
+    static func serverOption(_ option: String) -> LsRemoteOptions { .init("--server-option=\(option)") }
     
 }

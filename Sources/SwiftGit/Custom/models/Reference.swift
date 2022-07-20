@@ -97,12 +97,14 @@ public struct Branch: ReferenceType, Hashable {
 public struct Tag: ReferenceType, Hashable, ExpressibleByStringLiteral {
     
     public let longName: String
+    public var commit: String?
     
-    public init?(longName: String) {
+    public init?(longName: String, commit: String? = nil) {
         guard longName.hasPrefix("refs/tags/") else {
             return nil
         }
         self.longName = longName
+        self.commit = commit
     }
     
     public init(stringLiteral value: String) {
