@@ -10,7 +10,7 @@ import Combine
 
 public class Git {
     
-    private static var _shared: Git?
+    public static var _shared: Git?
     public static var shared: Git {
         get throws {
             if let git = _shared { return git }

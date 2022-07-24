@@ -50,3 +50,31 @@ public extension Repository {
     }
     
 }
+
+public extension Repository {
+    
+    var push: Push { .init(repository: self) }
+    
+    struct Push {
+        
+        let repository: Repository
+        
+        public func tag(_ name: String) async throws {
+            try await repository.push([.origin], refspecs: [.other(name)])
+        }
+        
+        
+        public func delete(_ refs: Reference) async throws {
+            try await repository.push([.delete, .origin], refspecs: [refs])
+        }
+        
+    }
+    
+}
+
+public extension PushOptions {
+
+    static let origin: Self = "origin"
+
+    
+}

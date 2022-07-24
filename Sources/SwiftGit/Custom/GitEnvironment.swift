@@ -56,7 +56,7 @@ extension GitEnvironment {
         case auto
     }
     
-    public convenience init(type: Style, variables: [Variable], triggers: [GitTrigger]) throws {
+    public convenience init(type: Style, variables: [Variable] = [], triggers: [GitTrigger] = []) throws {
         switch type {
         case .embedd:
             guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
