@@ -10,13 +10,25 @@ public extension GitShell {
     
     struct Context {
         
-        public var environment: [String: String]?
+        public var environment: [String: String]
         public var currentDirectory: URL?
         
         public let standardOutput: PassthroughSubject<Data, Never>?
         public var standardError: PassthroughSubject<Data, Never>?
         
-        internal init(environment: [String : String]? = nil,
+        internal init(environment: [String : String] = [
+            "PATH": ["/bin",
+                     "/sbin",
+                     "/usr/bin",
+                     "/usr/sbin",
+                     "/opt/homebrew/bin",
+                     "/opt/homebrew/sbin",
+                     "/usr/local/bin",
+                     "/usr/local/sbin",
+                     "/usr/local/opt/ruby/bin",
+                     "/Library/Apple/usr/bin"].joined(separator: ":"),
+            "LANG": "en_US.UTF-8"
+        ],
                       at currentDirectory: URL? = nil,
                       standardOutput: PassthroughSubject<Data, Never>? = .init(),
                       standardError: PassthroughSubject<Data, Never>? = .init()) {

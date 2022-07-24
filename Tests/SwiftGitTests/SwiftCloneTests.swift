@@ -6,12 +6,12 @@
 //
 
 import XCTest
-import Stem
+import StemFilePath
 import SwiftGit
 
 class SwiftCloneTests: XCTestCase {
     
-    lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
+    lazy var workFolder = try! STFolder("~/Downloads/")
     lazy var testClone = workFolder.folder(name: "test-clone")
     lazy var arctic = workFolder.folder(name: "Arctic")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!

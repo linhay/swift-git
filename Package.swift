@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "SwiftGit", targets: ["SwiftGit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/linhay/Stem.git", .upToNextMajor(from: "1.0.9")),
+        .package(url: "https://github.com/linhay/Stem.git", .upToNextMajor(from: "1.1.1")),
     ],
     targets: [
         .target(
@@ -22,7 +22,8 @@ let package = Package(
             name: "SwiftGitTests",
             dependencies: [
                 "SwiftGit",
-                .product(name: "Stem", package: "Stem")
+                .product(name: "Stem", package: "Stem"),
+                .product(name: "StemFilePath", package: "Stem")
             ]),
     ]
 )

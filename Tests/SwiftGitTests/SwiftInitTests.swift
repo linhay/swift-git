@@ -6,12 +6,12 @@
 //
 
 import XCTest
-import Stem
+import StemFilePath
 import SwiftGit
 
 class SwiftInitTests: XCTestCase {
     
-    lazy var workFolder = try! FilePath.Folder(path: "~/Downloads/")
+    lazy var workFolder = try! STFolder("~/Downloads/")
     lazy var target = workFolder.folder(name: "test-init")
     
     func testTemplate() async throws {
