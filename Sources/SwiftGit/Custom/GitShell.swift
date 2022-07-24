@@ -111,7 +111,7 @@ public extension GitShell {
         let error  = Standard(publisher: context?.standardError).append(to: &process.standardError)
         try process.run()
         process.waitUntilExit()
-        return try result(process, output: output.availableData, error: error.availableData).get()
+        return try result(process, commands: commands, output: output.availableData, error: error.availableData).get()
     }
     
 }
@@ -143,7 +143,7 @@ public extension GitShell {
                 try process.run()
                 process.terminationHandler = { process in
                     do {
-                        let data = try result(process, output: output.availableData, error: error.availableData).get()
+                        let data = try result(process, commands: commands, output: output.availableData, error: error.availableData).get()
                         promise(.success(data))
                     } catch let error as GitError {
                         promise(.failure(error))
@@ -190,7 +190,7 @@ public extension GitShell {
                 try process.run()
                 process.terminationHandler = { process in
                     do {
-                        let data = try result(process, output: output.availableData, error: error.availableData).get()
+                        let data = try result(process, commands: commands, output: output.availableData, error: error.availableData).get()
                         continuation.resume(with: .success(data))
                     } catch let error as GitError {
                         continuation.resume(throwing: error)
@@ -210,13 +210,17 @@ public extension GitShell {
 
 private extension GitShell {
     
-    static func result(_ process: Process, output: Data?, error: Data?) -> Result<Data, GitError> {
+    static func result(_ process: Process,
+                       commands: [String],
+                       output: Data?,
+                       error: Data?) -> Result<Data, GitError> {
         if process.terminationStatus != .zero {
             if let data = error, let message = String(data: data, encoding: .utf8) {
                 return .failure(GitError.processFatal(message))
             }
             
             var message = [String]()
+            message.append("commands: \(commands.joined(separator: " "))")
             if let currentDirectory = process.currentDirectoryURL?.path {
                 message.append("currentDirectory: \(currentDirectory)")
             }
