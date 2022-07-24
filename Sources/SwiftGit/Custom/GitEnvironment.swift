@@ -36,7 +36,7 @@ public class GitEnvironment {
 }
 
 extension GitEnvironment {
-
+    
     private static var _shared: GitEnvironment?
     public static var shared: GitEnvironment {
         get throws {
@@ -68,7 +68,10 @@ extension GitEnvironment {
             variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
-            guard let path = try GitShell.zsh(string: "where git")?.trimmingCharacters(in: .whitespacesAndNewlines),
+            guard let path = try GitShell.zsh(string: "where git")?
+                .split(separator: "\n")
+                .first?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
                   FileManager.default.isExecutableFile(atPath: path) else {
                 throw GitError.noGitInstanceFoundOnSystem
             }
@@ -97,7 +100,7 @@ extension GitEnvironment {
         
         public let executableURL: URL
         public let envExecPath: String?
-
+        
         public init?(folder: URL) {
             let exec = folder.appendingPathComponent("libexec/git-core")
             let git  = folder.appendingPathComponent("bin/git")
