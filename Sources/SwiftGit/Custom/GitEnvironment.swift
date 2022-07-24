@@ -65,19 +65,15 @@ extension GitEnvironment {
             }
             let resource = Resource(bundle: bundle)
             var variables = variables
-            variables.append(contentsOf: [.execPath(resource.envExecPath), .configNoSysyem(true)])
+            variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
-            guard let resource = try GitShell.zsh(string: "where git")?
-                .split(separator: "\n")
-                .map(String.init)
-                .filter({ FileManager.default.isExecutableFile(atPath: $0) })
-                .compactMap({ URL(fileURLWithPath:$0) })
-                .map({ $0.deletingLastPathComponent().deletingLastPathComponent() })
-                .compactMap(Resource.init(folder:))
-                .first else {
+            guard let path = try GitShell.zsh(string: "where git")?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  FileManager.default.isExecutableFile(atPath: path) else {
                 throw GitError.noGitInstanceFoundOnSystem
             }
+            let url = URL(fileURLWithPath: path)
+            let resource = Resource(executableURL: url)
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .custom(let folder):
             guard let resource = Resource(folder: folder) else {
@@ -100,8 +96,8 @@ extension GitEnvironment {
     public struct Resource {
         
         public let executableURL: URL
-        public let envExecPath: String
-        
+        public let envExecPath: String?
+
         public init?(folder: URL) {
             let exec = folder.appendingPathComponent("libexec/git-core")
             let git  = folder.appendingPathComponent("bin/git")
@@ -118,7 +114,7 @@ extension GitEnvironment {
             self.envExecPath = bundle.url(forAuxiliaryExecutable: "libexec/git-core")!.path
         }
         
-        public init(executableURL: URL, envExecPath: String) {
+        public init(executableURL: URL, envExecPath: String? = nil) {
             self.executableURL = executableURL
             self.envExecPath = envExecPath
         }
