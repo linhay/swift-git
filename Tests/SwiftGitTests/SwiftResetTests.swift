@@ -12,7 +12,7 @@ import Stem
 
 class SwiftResetTests: XCTestCase {
     
-    lazy var workFolder = try! STFolder("~/Downloads/")
+    lazy var workFolder = STFolder("~/Downloads/")
     lazy var directory = workFolder.folder(name: "test-clone")
     lazy var repository = "https://github.com/linhay/Arctic"
     

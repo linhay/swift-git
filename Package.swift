@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "SwiftGit", targets: ["SwiftGit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/linhay/Stem.git", .upToNextMajor(from: "1.1.1")),
+        .package(url: "https://github.com/linhay/Stem.git", .upToNextMajor(from: "1.1.2")),
     ],
     targets: [
         .target(

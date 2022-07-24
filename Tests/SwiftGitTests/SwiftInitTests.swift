@@ -11,7 +11,7 @@ import SwiftGit
 
 class SwiftInitTests: XCTestCase {
     
-    lazy var workFolder = try! STFolder("~/Downloads/")
+    lazy var workFolder = STFolder("~/Downloads/")
     lazy var target = workFolder.folder(name: "test-init")
     
     func testTemplate() async throws {

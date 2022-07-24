@@ -11,7 +11,7 @@ import SwiftGit
 
 class SwiftCloneTests: XCTestCase {
     
-    lazy var workFolder = try! STFolder("~/Downloads/")
+    lazy var workFolder = STFolder("~/Downloads/")
     lazy var testClone = workFolder.folder(name: "test-clone")
     lazy var arctic = workFolder.folder(name: "Arctic")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
