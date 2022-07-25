@@ -68,7 +68,7 @@ public extension Repository.LsRemote {
     
     func tags() async throws -> [Tag] {
         try await repository
-            .lsRemote([.tags, .sort(.creatordate)], refs: [])
+            .lsRemote([.tags], refs: [])
             .split(separator: "\n")
             .compactMap { row in
                 let items = row.split(separator: "\t").map({ String($0) })
