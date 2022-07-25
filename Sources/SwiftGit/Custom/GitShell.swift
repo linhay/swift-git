@@ -16,26 +16,25 @@ public extension GitShell {
         public let standardOutput: PassthroughSubject<Data, Never>?
         public var standardError: PassthroughSubject<Data, Never>?
         
-        internal init(environment: [String : String] = [
-            "PATH": ["/bin",
-                     "/sbin",
-                     "/usr/bin",
-                     "/usr/sbin",
-                     "/opt/homebrew/bin",
-                     "/opt/homebrew/sbin",
-                     "/usr/local/bin",
-                     "/usr/local/sbin",
-                     "/usr/local/opt/ruby/bin",
-                     "/Library/Apple/usr/bin"].joined(separator: ":"),
-            "LANG": "en_US.UTF-8"
-        ],
+        internal init(environment: [String : String] = [:],
                       at currentDirectory: URL? = nil,
                       standardOutput: PassthroughSubject<Data, Never>? = .init(),
                       standardError: PassthroughSubject<Data, Never>? = .init()) {
-            self.environment = environment
+            self.environment = ProcessInfo.processInfo.environment.merging(environment, uniquingKeysWith: { $1 })
             self.currentDirectory = currentDirectory
             self.standardOutput = standardOutput
             self.standardError = standardError
+            let libs = ["/bin", "/sbin",
+                        "/usr/bin", "/usr/sbin",
+                        "/opt/homebrew/bin", "/opt/homebrew/sbin",
+                        "/usr/local/bin", "/usr/local/sbin",
+                        "/usr/local/opt/ruby/bin", "/Library/Apple/usr/bin"]
+            if var paths = environment["PATH"]?.split(separator: ":").map({ String($0) }), !paths.isEmpty {
+                paths.append(contentsOf: libs)
+                self.environment["PATH"] = Set(paths).joined(separator: ":")
+            } else {
+                self.environment["PATH"] = Set(libs).joined(separator: ":")
+            }
         }
     }
     
