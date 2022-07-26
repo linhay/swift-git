@@ -37,9 +37,13 @@ public extension GitShell {
                 self.environment["PATH"] = Set(libs).joined(separator: ":")
             }
             
+#if arch(arm64)
+            
+#elseif arch(x86_64)
             if self.environment["SSH_AUTH_SOCK"] == nil {
                 self.environment["SSH_AUTH_SOCK"] = ProcessInfo.processInfo.environment["SSH_AUTH_SOCK"]
             }
+#endif
         }
     }
     
