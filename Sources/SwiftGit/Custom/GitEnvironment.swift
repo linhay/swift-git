@@ -50,7 +50,7 @@ extension GitEnvironment {
     }
     
     public enum Style {
-        case embedd
+        case embed
         case system
         case custom(_ url: URL)
         case auto
@@ -58,7 +58,7 @@ extension GitEnvironment {
     
     public convenience init(type: Style, variables: [Variable] = [], triggers: [GitTrigger] = []) throws {
         switch type {
-        case .embedd:
+        case .embed:
             guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
                   let bundle = Bundle(url: url) else {
                 throw GitError.unableLoadEmbeddGitInstance
@@ -84,7 +84,7 @@ extension GitEnvironment {
             }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
-            if let item = try? GitEnvironment(type: .embedd, variables: variables, triggers: triggers) {
+            if let item = try? GitEnvironment(type: .embed, variables: variables, triggers: triggers) {
                 self.init(resource: item.resource, variables: item.variables, triggers: item.triggers)
             } else {
                 try self.init(type: .system, variables: variables, triggers: triggers)
