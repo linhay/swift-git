@@ -7,18 +7,17 @@
 
 import XCTest
 import Stem
-import SwiftGit
 import Combine
 
-class GitShellTests: XCTestCase {
+class StemShellTests: XCTestCase {
     
     private var cancellables = Set<AnyCancellable>()
     
     func testfindGit() async throws {
         let command = "where git"
-        let item = try await GitShell.zsh(string: command)!
+        let item = try await StemShell.zsh(string: command)!
         print(#function, ": ", item)
-        GitShell.zshPublisher(string: command)
+        StemShell.zshPublisher(string: command)
             .breakpointOnError()
             .sink { _ in
             } receiveValue: { str in
@@ -28,7 +27,7 @@ class GitShellTests: XCTestCase {
     
     func testfindGitSync() throws {
         let command = "where git"
-        let item = try GitShell.zsh(string: command)!
+        let item = try StemShell.zsh(string: command)!
         print(#function, ": ", item)
     }
     

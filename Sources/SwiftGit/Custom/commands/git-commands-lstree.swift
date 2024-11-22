@@ -11,7 +11,7 @@ import Combine
 /// https://git-scm.com/docs/git-ls-tree
 public extension Repository {
     
-    func lsTreePublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func lsTreePublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("ls-tree " + cmd)
     }
     

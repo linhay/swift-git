@@ -12,12 +12,12 @@ public extension Repository {
     
     /// https://git-scm.com/docs/git-fetch
     @discardableResult
-    func fetchPublisher(_ options: [FetchOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
+    func fetchPublisher(_ options: [FetchOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, Error> {
         runPublisher(["fetch"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
     @discardableResult
-    func fetchPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func fetchPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("fetch " + cmd)
     }
     

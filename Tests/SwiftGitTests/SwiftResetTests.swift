@@ -6,14 +6,14 @@
 //
 
 import XCTest
-import StemFilePath
+import STFilePath
 import SwiftGit
 import Stem
 
 class SwiftResetTests: XCTestCase {
     
     lazy var workFolder = STFolder("~/Downloads/")
-    lazy var directory = workFolder.folder(name: "test-clone")
+    lazy var directory = workFolder.folder("test-clone")
     lazy var repository = "https://github.com/linhay/Arctic"
     
     func testReset() async throws {

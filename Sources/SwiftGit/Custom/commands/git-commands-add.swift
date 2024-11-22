@@ -10,7 +10,7 @@ import Combine
 
 public extension Repository {
     
-    func addPublisher(_ options: [AddOptions], paths: [String]) -> AnyPublisher<String, GitError> {
+    func addPublisher(_ options: [AddOptions], paths: [String]) -> AnyPublisher<String, Error> {
         runPublisher(["add"] + options.map(\.rawValue) + ["--"] + paths)
     }
     

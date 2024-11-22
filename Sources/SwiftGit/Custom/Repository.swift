@@ -11,36 +11,34 @@ import Combine
 public struct Repository {
     
     public let localURL: URL
-    public let environment: GitEnvironment
     public let git: Git
     
-    public init(url: URL, environment: GitEnvironment) {
+    public init(git: Git, url: URL) {
         self.localURL = url
-        self.environment = environment
-        self.git = .init(environment: environment)
+        self.git = git
     }
     
-    public init(path: String, environment: GitEnvironment) {
-        self.init(url: .init(fileURLWithPath: path), environment: environment)
+    public init(git: Git, path: String) {
+        self.init(git: git, url: .init(fileURLWithPath: path))
     }
     
 }
 
 public extension Repository {
     
-    func dataPublisher(_ commands: [String]) -> AnyPublisher<Data, GitError> {
+    func dataPublisher(_ commands: [String]) -> AnyPublisher<Data, Error> {
         git.dataPublisher(commands, context: .init(at: localURL))
     }
     
-    func dataPublisher(_ cmd: String) -> AnyPublisher<Data, GitError> {
+    func dataPublisher(_ cmd: String) -> AnyPublisher<Data, Error> {
         dataPublisher(cmd.split(separator: " ").map(\.description))
     }
     
-    func runPublisher(_ commands: [String]) -> AnyPublisher<String, GitError> {
+    func runPublisher(_ commands: [String]) -> AnyPublisher<String, Error> {
         git.runPublisher(commands, context: .init(at: localURL))
     }
     
-    func runPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func runPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher(cmd.split(separator: " ").map(\.description))
     }
     

@@ -11,19 +11,19 @@ import Combine
 public extension Repository {
     
     /// https://git-scm.com/docs/git-reset
-    func resetPublisher(_ options: [ResetOptions] = [], paths: [Pathspec]) -> AnyPublisher<String, GitError> {
+    func resetPublisher(_ options: [ResetOptions] = [], paths: [Pathspec]) -> AnyPublisher<String, Error> {
         runPublisher(["reset"] + options.map(\.rawValue) + ["--"] + paths.map(\.value))
     }
     
-    func resetPublisher(_ options: [ResetOptions] = [], treeIsh: TreeIsh) -> AnyPublisher<String, GitError> {
+    func resetPublisher(_ options: [ResetOptions] = [], treeIsh: TreeIsh) -> AnyPublisher<String, Error> {
         runPublisher(["reset"] + options.map(\.rawValue) + [treeIsh.value])
     }
     
-    func resetPublisher(_ options: [ResetOptions] = [], commit: Commit) -> AnyPublisher<String, GitError> {
+    func resetPublisher(_ options: [ResetOptions] = [], commit: Commit) -> AnyPublisher<String, Error> {
         runPublisher(["reset"] + options.map(\.rawValue) + [commit.name])
     }
     
-    func resetPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func resetPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("reset " + cmd)
     }
     

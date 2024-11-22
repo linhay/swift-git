@@ -1,5 +1,5 @@
 package Git::I18N;
-use 5.008;
+use 5.008001;
 use strict;
 use warnings $ENV{GIT_PERL_FATAL_WARNINGS} ? qw(FATAL all) : ();
 BEGIN {
@@ -16,9 +16,19 @@ BEGIN {
 our @EXPORT = qw(__ __n N__);
 our @EXPORT_OK = @EXPORT;
 
+# See Git::LoadCPAN's NO_PERL_CPAN_FALLBACKS_STR for a description of
+# this "'@@' [...] '@@'" pattern.
+use constant NO_GETTEXT_STR => '@@' . 'NO_GETTEXT' . '@@';
+use constant NO_GETTEXT => (
+	q[1] ne ''
+	and
+	q[1] ne NO_GETTEXT_STR
+);
+
 sub __bootstrap_locale_messages {
 	our $TEXTDOMAIN = 'git';
 	our $TEXTDOMAINDIR ||= $ENV{GIT_TEXTDOMAINDIR} || '/usr/local/git/share/locale';
+	die "NO_GETTEXT=" . NO_GETTEXT_STR if NO_GETTEXT;
 
 	require POSIX;
 	POSIX->import(qw(setlocale));

@@ -6,19 +6,19 @@
 //
 
 import XCTest
-import StemFilePath
+import STFilePath
 import SwiftGit
 
 class SwiftInitTests: XCTestCase {
     
     lazy var workFolder = STFolder("~/Downloads/")
-    lazy var target = workFolder.folder(name: "test-init")
+    lazy var target = workFolder.folder("test-init")
     
     func testTemplate() async throws {
         try? target.delete()
         try await Git.shared.`init`([.quiet], directory: target.path)
         let items = try target
-            .subFilePaths(predicates: [])
+            .subFilePaths([])
             .map(\.url.lastPathComponent)
             .sorted()
         assert(items == [".git"])
@@ -28,7 +28,7 @@ class SwiftInitTests: XCTestCase {
         try? target.delete()
         try await Git.shared.`init`([.quiet, .bare], directory: target.path)
         let items = try target
-            .subFilePaths(predicates: [])
+            .subFilePaths([])
             .map(\.url.lastPathComponent)
         assert(Set(items).isSubset(of: ["HEAD","config", "objects", "refs"]))
     }

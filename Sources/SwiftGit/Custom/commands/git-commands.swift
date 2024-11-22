@@ -10,13 +10,13 @@ import Combine
 
 extension Git {
     
-    func versionPublisher() -> AnyPublisher<String, GitError> {
+    func versionPublisher() -> AnyPublisher<String, Error> {
         runPublisher([.version])
             .map(formatter(version:))
             .eraseToAnyPublisher()
     }
     
-    func helpPublisher() -> AnyPublisher<String, GitError> {
+    func helpPublisher() -> AnyPublisher<String, Error> {
         return runPublisher([.help])
     }
     

@@ -6,14 +6,14 @@
 //
 
 import XCTest
-import StemFilePath
+import STFilePath
 @testable
 import SwiftGit
 
 class SwiftStatusTests: XCTestCase {
     
     lazy var workFolder = STFolder("~/Downloads/")
-    lazy var directory = workFolder.folder(name: "test-clone")
+    lazy var directory = workFolder.folder("test-clone")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
     
     func test() async throws {
@@ -24,9 +24,9 @@ class SwiftStatusTests: XCTestCase {
     func testStatus() async throws {
         let repo = try Repository(path: directory.path, environment: .shared)
         
-        let untracked = directory.file(name: "test-untracked")
-        let add = directory.file(name: "test-add")
-        let modify = directory.file(name: "test-modify")
+        let untracked = directory.file("test-untracked")
+        let add = directory.file( "test-add")
+        let modify = directory.file("test-modify")
         
         try [untracked, add, modify].forEach { file in
             try? file.delete()

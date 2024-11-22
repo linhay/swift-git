@@ -11,11 +11,11 @@ import Combine
 public extension Repository {
     
     /// https://git-scm.com/docs/git-push
-    func pushPublisher(_ options: [PushOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
+    func pushPublisher(_ options: [PushOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, Error> {
         runPublisher(["push"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
-    func pushPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func pushPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher(["push"] + cmd.split(separator: " ").map(\.description))
     }
     

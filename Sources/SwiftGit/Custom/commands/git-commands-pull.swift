@@ -11,15 +11,15 @@ import Combine
 public extension Repository {
     
     /// https://git-scm.com/docs/git-pull
-    func pullPublisher(_ options: [PullOptions] = [], refspecs: [Reference]) -> AnyPublisher<String, GitError> {
+    func pullPublisher(_ options: [PullOptions] = [], refspecs: [Reference]) -> AnyPublisher<String, Error> {
         runPublisher(["pull"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
-    func pullPublisher(_ options: [PullOptions] = []) -> AnyPublisher<String, GitError> {
+    func pullPublisher(_ options: [PullOptions] = []) -> AnyPublisher<String, Error> {
         runPublisher(["pull"] + options.map(\.rawValue))
     }
     
-    func pullPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func pullPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("pull " + cmd)
     }
     

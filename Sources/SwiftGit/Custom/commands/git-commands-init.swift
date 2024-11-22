@@ -11,7 +11,7 @@ import Combine
 public extension Git {
     
     @discardableResult
-    func initPublisher(_ options: [InitOptions] = [], directory: String) -> AnyPublisher<String, GitError> {
+    func initPublisher(_ options: [InitOptions] = [], directory: String) -> AnyPublisher<String, Error> {
         runPublisher(["init"] + options.map(\.rawValue) + [directory])
     }
     

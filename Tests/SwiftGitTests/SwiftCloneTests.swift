@@ -6,14 +6,14 @@
 //
 
 import XCTest
-import StemFilePath
+import STFilePath
 import SwiftGit
 
 class SwiftCloneTests: XCTestCase {
     
     lazy var workFolder = STFolder("~/Downloads/")
-    lazy var testClone = workFolder.folder(name: "test-clone")
-    lazy var arctic = workFolder.folder(name: "Arctic")
+    lazy var testClone = workFolder.folder("test-clone")
+    lazy var arctic = workFolder.folder("Arctic")
     lazy var repository = URL(string: "https://github.com/linhay/Arctic")!
         
     func testWithDirectory() async throws {

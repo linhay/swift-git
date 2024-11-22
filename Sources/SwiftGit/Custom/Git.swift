@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import Stem
 
 public class Git {
     
@@ -21,6 +22,7 @@ public class Git {
     }
     
     public let environment: GitEnvironment
+    public var shell = StemShell.Instance()
     
     public init(environment: GitEnvironment) {
         self.environment = environment
@@ -31,10 +33,12 @@ public class Git {
 
 public extension Git {
     
-    func dataPublisher(_ commands: [String], context: GitShell.Context? = nil) -> AnyPublisher<Data, GitError> {
+    func dataPublisher(_ commands: [String], context: StemShell.Context? = nil) -> AnyPublisher<Data, Error> {
         self.triggerOfBeforeRun(commands)
-        return GitShell
-            .dataPublisher(self.environment.resource.executableURL, commands, context: self.deal(context: context))
+        return shell
+            .dataPublisher(StemShell.Arguments(exec: self.environment.resource.executableURL,
+                                               commands: commands,
+                                               context: self.deal(context: context)))
             .map({ [weak self] data in
                 guard let self = self else { return data }
                 self.triggerOfAfterRun(commands, data: data)
@@ -42,17 +46,17 @@ public extension Git {
             })
             .mapError({ [weak self] error in
                 guard let self = self else { return error }
-                _ = self.triggerOfAfterRun(commands, message: error.errorDescription ?? GitError.other(error).localizedDescription)
+                _ = self.triggerOfAfterRun(commands, message: error.localizedDescription)
                 return error
             })
             .eraseToAnyPublisher()
     }
     
-    func runPublisher(_ options: [GitOptions]) -> AnyPublisher<String, GitError> {
+    func runPublisher(_ options: [GitOptions]) -> AnyPublisher<String, Error> {
         runPublisher(options.map(\.rawValue))
     }
     
-    func runPublisher(_ commands: [String], context: GitShell.Context? = nil) -> AnyPublisher<String, GitError> {
+    func runPublisher(_ commands: [String], context: StemShell.Context? = nil) -> AnyPublisher<String, Error> {
         dataPublisher(commands, context: context)
             .map { data in
                 String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
@@ -60,7 +64,7 @@ public extension Git {
             .eraseToAnyPublisher()
     }
     
-    func runPublisher(_ cmd: String, context: GitShell.Context? = nil) -> AnyPublisher<String, GitError> {
+    func runPublisher(_ cmd: String, context: StemShell.Context? = nil) -> AnyPublisher<String, Error> {
         runPublisher(cmd.split(separator: " ").map(\.description), context: context)
     }
     
@@ -69,10 +73,10 @@ public extension Git {
 public extension Git {
     
     @discardableResult
-    func data(_ commands: [String], context: GitShell.Context? = nil) async throws -> Data {
+    func data(_ commands: [String], context: StemShell.Context? = nil) async throws -> Data {
         do {
             triggerOfBeforeRun(commands)
-            let data = try await GitShell.data(environment.resource.executableURL, commands, context: deal(context: context))
+            let data = try await StemShell.data(environment.resource.executableURL, commands, context: deal(context: context))
             triggerOfAfterRun(commands, data: data)
             return data
         } catch GitError.processFatal(let message) {
@@ -88,13 +92,13 @@ public extension Git {
     }
     
     @discardableResult
-    func run(_ commands: [String], context: GitShell.Context? = nil) async throws -> String {
+    func run(_ commands: [String], context: StemShell.Context? = nil) async throws -> String {
         let data = try await data(commands, context: context)
         return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
     }
     
     @discardableResult
-    func run(_ cmd: String, context: GitShell.Context? = nil) async throws -> String {
+    func run(_ cmd: String, context: StemShell.Context? = nil) async throws -> String {
         try await run(cmd.split(separator: " ").map(\.description), context: context)
     }
     
@@ -103,10 +107,10 @@ public extension Git {
 public extension Git {
     
     @discardableResult
-    func data(_ commands: [String], context: GitShell.Context? = nil) throws -> Data {
+    func data(_ commands: [String], context: StemShell.Context? = nil) throws -> Data {
         do {
             triggerOfBeforeRun(commands)
-            let data = try GitShell.data(environment.resource.executableURL, commands, context: deal(context: context))
+            let data = try StemShell.data(environment.resource.executableURL, commands, context: deal(context: context))
             triggerOfAfterRun(commands, data: data)
             return data
         } catch GitError.processFatal(let message) {
@@ -122,13 +126,13 @@ public extension Git {
     }
     
     @discardableResult
-    func run(_ commands: [String], context: GitShell.Context? = nil) throws -> String {
+    func run(_ commands: [String], context: StemShell.Context? = nil) throws -> String {
         let data = try data(commands, context: context)
         return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
     }
     
     @discardableResult
-    func run(_ cmd: String, context: GitShell.Context? = nil) throws -> String {
+    func run(_ cmd: String, context: StemShell.Context? = nil) throws -> String {
         try run(cmd.split(separator: " ").map(\.description), context: context)
     }
     
@@ -137,26 +141,27 @@ public extension Git {
 public extension Git {
     
     func repository(at url: URL) -> Repository {
-        Repository(url: url, environment: environment)
+        Repository(git: self, url: url)
     }
     
     func repository(at path: String) -> Repository {
-        Repository(path: path, environment: environment)
+        Repository(git: self, path: path)
     }
     
 }
 
 private extension Git {
     
-    func deal(context: GitShell.Context?) -> GitShell.Context {
+    func deal(context: StemShell.Context?) -> StemShell.Context {
         var environmentDict = context?.environment ?? [:]
         environment.variables.forEach { item in
             environmentDict[item.key] = item.value
         }
-        return GitShell.Context(environment: environmentDict,
-                                at: context?.currentDirectory,
-                                standardOutput: context?.standardOutput,
-                                standardError: context?.standardError)
+        let ctx = StemShell.Context(environment: environmentDict,
+                                    at: context?.currentDirectory,
+                                    standardOutput: context?.standardOutput,
+                                    standardError: context?.standardError)
+        return ctx
     }
     
     func triggerOfAfterRun(_ commands: [String], data: Data) {

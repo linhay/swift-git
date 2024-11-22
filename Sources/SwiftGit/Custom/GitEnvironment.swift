@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Stem
 
 public class GitEnvironment {
     
@@ -68,7 +69,7 @@ extension GitEnvironment {
             variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
-            guard let path = try GitShell.zsh(string: "where git")?
+            guard let path = try StemShell.zsh(string: "where git")?
                 .split(separator: "\n")
                 .first?
                 .trimmingCharacters(in: .whitespacesAndNewlines),

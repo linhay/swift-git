@@ -13,9 +13,9 @@ public extension Git {
     func clonePublisher(_ options: [CloneOptions],
                         repository: URL,
                         credentials: GitCredentials = .default,
-                        directory: String) -> AnyPublisher<Repository, GitError> {
+                        directory: String) -> AnyPublisher<Repository, Error> {
         if FileManager.default.fileExists(atPath: directory) {
-            return Future<Repository, GitError> { promise in
+            return Future<Repository, Error> { promise in
                 promise(.failure(GitError.existsDirectory(directory)))
             }.eraseToAnyPublisher()
         }
@@ -24,7 +24,7 @@ public extension Git {
             let url = try self.repository(url: repository, credentials: credentials)
             return runPublisher(["clone"] + (options.map(\.rawValue) + [url, directory]))
                 .tryMap { _ in
-                    Repository(path: directory, environment: self.environment)
+                    Repository(git: self, path: directory)
                 }
                 .mapError({ error in
                     if let gitError = error as? GitError {
@@ -35,12 +35,12 @@ public extension Git {
                 })
                 .eraseToAnyPublisher()
         } catch let error as GitError {
-            return Future<Repository, GitError> { promise in
+            return Future<Repository, Error> { promise in
                 promise(.failure(error))
             }.eraseToAnyPublisher()
         } catch {
-            return Future<Repository, GitError> { promise in
-                promise(.failure(.other(error)))
+            return Future<Repository, Error> { promise in
+                promise(.failure(GitError.other(error)))
             }.eraseToAnyPublisher()
         }
     }
@@ -48,7 +48,7 @@ public extension Git {
     func clonePublisher(_ options: [CloneOptions],
                         repository: URL,
                         credentials: GitCredentials = .default,
-                        workDirectoryURL: URL) -> AnyPublisher<Repository, GitError> {
+                        workDirectoryURL: URL) -> AnyPublisher<Repository, Error> {
         let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
         return clonePublisher(options, repository: repository, credentials: credentials, directory: directory.path)
     }
@@ -66,7 +66,7 @@ public extension Git {
             throw GitError.existsDirectory(directory)
         }
         try await run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
-        return Repository(path: directory, environment: environment)
+        return Repository(git: self, path: directory)
     }
     
     @discardableResult
@@ -76,7 +76,7 @@ public extension Git {
                workDirectoryURL: URL) async throws -> Repository {
         let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
         try await clone(options, repository: repository, credentials: credentials, directory: directory.path)
-        return Repository(url: directory, environment: environment)
+        return Repository(git: self, url: directory)
     }
     
 }
@@ -92,7 +92,7 @@ public extension Git {
             throw GitError.existsDirectory(directory)
         }
         try run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
-        return Repository(path: directory, environment: environment)
+        return Repository(git: self, path: directory)
     }
     
     @discardableResult
@@ -102,7 +102,7 @@ public extension Git {
                workDirectoryURL: URL) throws -> Repository {
         let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
         try clone(options, repository: repository, credentials: credentials, directory: directory.path)
-        return Repository(url: directory, environment: environment)
+        return Repository(git: self, url: directory)
     }
     
     

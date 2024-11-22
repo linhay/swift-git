@@ -10,13 +10,13 @@ import Combine
 
 public extension Git {
     
-    func statusPublisher(_ pathspec: String) -> AnyPublisher<GitStatus, GitError> {
+    func statusPublisher(_ pathspec: String) -> AnyPublisher<GitStatus, Error> {
         statusPublisher([.porcelain(.v2), .branch], pathspec: pathspec)
             .map(formatter(string:))
             .eraseToAnyPublisher()
     }
     
-    func statusPublisher(_ options: [StatusOptions], pathspec: String) -> AnyPublisher<String, GitError> {
+    func statusPublisher(_ options: [StatusOptions], pathspec: String) -> AnyPublisher<String, Error> {
         runPublisher(["status"] + options.map(\.rawValue), context: .init(at: .init(fileURLWithPath: pathspec)))
     }
     
@@ -50,15 +50,15 @@ public extension Git {
 
 public extension Repository {
     
-    func statusPublisher() -> AnyPublisher<GitStatus, GitError> {
+    func statusPublisher() -> AnyPublisher<GitStatus, Error> {
         git.statusPublisher(localURL.path)
     }
     
-    func statusPublisher(_ options: [StatusOptions]) -> AnyPublisher<String, GitError> {
+    func statusPublisher(_ options: [StatusOptions]) -> AnyPublisher<String, Error> {
         git.statusPublisher(options, pathspec: localURL.path)
     }
     
-    func statusPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func statusPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("status" + cmd)
     }
     

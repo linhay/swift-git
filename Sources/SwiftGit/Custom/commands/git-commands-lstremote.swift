@@ -10,7 +10,7 @@ import Combine
 
 public extension Git {
     
-    func lsRemotePublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func lsRemotePublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("ls-remote " + cmd)
     }
     
@@ -86,7 +86,7 @@ public extension Repository.LsRemote {
 /// https://git-scm.com/docs/git-ls-remote
 public extension Repository {
     
-    func lsRemotePublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func lsRemotePublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("ls-remote " + cmd)
     }
     

@@ -11,7 +11,7 @@ import Combine
 /// https://git-scm.com/docs/git-stash
 public extension Repository {
     
-    func stashPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func stashPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("stash " + cmd)
     }
     
@@ -46,51 +46,51 @@ public extension Repository {
 
 public extension Repository.Stash {
     
-    func listPublisher(_ options: [LogOptions] = []) -> AnyPublisher<String, GitError> {
+    func listPublisher(_ options: [LogOptions] = []) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "list"] + options.map(\.rawValue))
     }
     
-    func showPublisher(_ options: [StashOptions.ShowSet] = [], diff: [DiffOptions] = [], stash: String? = nil) -> AnyPublisher<String, GitError> {
+    func showPublisher(_ options: [StashOptions.ShowSet] = [], diff: [DiffOptions] = [], stash: String? = nil) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash"] + options.map(\.options.rawValue) + diff.map(\.rawValue) + [stash].compactMap({ $0 }))
     }
     
-    func dropPublisher(_ options: [StashOptions.DropSet] = [], stash: String? = nil) -> AnyPublisher<String, GitError> {
+    func dropPublisher(_ options: [StashOptions.DropSet] = [], stash: String? = nil) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "drop"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }))
     }
     
-    func popPublisher(_ options: [StashOptions.PopSet] = [], stash: String? = nil) -> AnyPublisher<String, GitError> {
+    func popPublisher(_ options: [StashOptions.PopSet] = [], stash: String? = nil) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "pop"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }))
     }
     
-    func applyPublisher(_ options: [StashOptions.PopSet] = [], stash: String? = nil) -> AnyPublisher<String, GitError> {
+    func applyPublisher(_ options: [StashOptions.PopSet] = [], stash: String? = nil) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "apply"] + options.map(\.options.rawValue) + [stash].compactMap({ $0 }))
     }
     
-    func branchPublisher(_ branchname: String, stash: String? = nil) -> AnyPublisher<String, GitError> {
+    func branchPublisher(_ branchname: String, stash: String? = nil) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "branch", "branchname"] + [stash].compactMap({ $0 }))
     }
     
-    func pushPublisher(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) -> AnyPublisher<String, GitError> {
+    func pushPublisher(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash"] + options.map(\.options.rawValue) + pathspec.map(\.value))
     }
     
-    func callAsFunctionPublisher(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) -> AnyPublisher<String, GitError> {
+    func callAsFunctionPublisher(_ options: [StashOptions.PushSet] = [], pathspec: [Pathspec] = .all) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash"] + options.map(\.options.rawValue) + pathspec.map(\.value))
     }
     
-    func clearPublisher() -> AnyPublisher<String, GitError> {
+    func clearPublisher() -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "clear"])
     }
     
-    func createPublisher(_ message: String) -> AnyPublisher<String, GitError> {
+    func createPublisher(_ message: String) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "create", message])
     }
     
-    func storePublisher(_ options: [StashOptions.StoreSet] = [], commit: String) -> AnyPublisher<String, GitError> {
+    func storePublisher(_ options: [StashOptions.StoreSet] = [], commit: String) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "store"] + options.map(\.options.rawValue) + [commit])
     }
     
-    func savePublisher(message: String? = nil) -> AnyPublisher<String, GitError> {
+    func savePublisher(message: String? = nil) -> AnyPublisher<String, Error> {
         repository.runPublisher(["stash", "save"] + [message].compactMap({ $0 }))
     }
     

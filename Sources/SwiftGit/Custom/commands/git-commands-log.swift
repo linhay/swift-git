@@ -11,17 +11,17 @@ import Combine
 /// https://git-scm.com/docs/git-log
 public extension Repository {
     
-    func logPublisher(options: [LogOptions] = []) -> AnyPublisher<[LogResult], GitError> {
+    func logPublisher(options: [LogOptions] = []) -> AnyPublisher<[LogResult], Error> {
         logPublisher(options + [.pretty(.fuller)])
             .map(logResults(from:))
             .eraseToAnyPublisher()
     }
     
-    func logPublisher(_ options: [LogOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, GitError> {
+    func logPublisher(_ options: [LogOptions] = [], refspecs: [Reference] = []) -> AnyPublisher<String, Error> {
         runPublisher(["log"] + options.map(\.rawValue) + refspecs.map(\.name))
     }
     
-    func logPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func logPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("log " + cmd)
     }
     

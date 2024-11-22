@@ -11,11 +11,11 @@ import Combine
 /// https://git-scm.com/docs/git-tag
 public extension Repository {
     
-    func tagPublisher(_ options: [TagOptions] = [], tagname: String? = nil) -> AnyPublisher<String, GitError> {
+    func tagPublisher(_ options: [TagOptions] = [], tagname: String? = nil) -> AnyPublisher<String, Error> {
         runPublisher(["tag"] + options.map(\.rawValue) + (tagname == nil ? [] : [tagname!]))
     }
     
-    func tagPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func tagPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher("tag " + cmd)
     }
 }

@@ -11,25 +11,25 @@ import Combine
 /// https://git-scm.com/docs/git-show
 public extension Repository {
     
-    func showPublisher(commit ID: String) -> AnyPublisher<ShowCommitResult, GitError> {
+    func showPublisher(commit ID: String) -> AnyPublisher<ShowCommitResult, Error> {
         showPublisher([.pretty(.fuller)], objects: [ID])
             .map(showCommitResult(from:))
             .eraseToAnyPublisher()
     }
     
-    func showPublisher(_ options: [ShowOptions] = [], objects: [String] = []) -> AnyPublisher<String, GitError> {
+    func showPublisher(_ options: [ShowOptions] = [], objects: [String] = []) -> AnyPublisher<String, Error> {
         runPublisher(["show"] + options.map(\.rawValue) + objects)
     }
     
-    func showPublisher(_ options: [ShowOptions] = [], objects: [String] = []) -> AnyPublisher<Data, GitError> {
+    func showPublisher(_ options: [ShowOptions] = [], objects: [String] = []) -> AnyPublisher<Data, Error> {
         dataPublisher(["show"] + options.map(\.rawValue) + objects)
     }
     
-    func showPublisher(_ cmd: String) -> AnyPublisher<String, GitError> {
+    func showPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
         runPublisher(["show"] + cmd.split(separator: " ").map(\.description))
     }
     
-    func showPublisher(data cmd: String) -> AnyPublisher<Data, GitError> {
+    func showPublisher(data cmd: String) -> AnyPublisher<Data, Error> {
         dataPublisher("show " + cmd)
     }
     
