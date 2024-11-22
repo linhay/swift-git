@@ -7,6 +7,7 @@
 
 import Foundation
 import Stem
+import STFilePath
 
 public class GitEnvironment {
     
@@ -57,7 +58,10 @@ extension GitEnvironment {
         case auto
     }
     
-    public convenience init(type: Style, variables: [Variable] = [], triggers: [GitTrigger] = []) throws {
+    public convenience init(type: Style,
+                            shell: StemShell.Instance = .init(),
+                            variables: [Variable] = [],
+                            triggers: [GitTrigger] = []) throws {
         switch type {
         case .embed:
             guard let url = Bundle.module.url(forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
@@ -69,15 +73,14 @@ extension GitEnvironment {
             variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
-            guard let path = try StemShell.zsh(string: "where git")?
+            guard let path = try shell.shell(string: .init(command: "which git"))?
                 .split(separator: "\n")
                 .first?
                 .trimmingCharacters(in: .whitespacesAndNewlines),
-                  FileManager.default.isExecutableFile(atPath: path) else {
+                  STFile(path).permission.contains(.executable) else {
                 throw GitError.noGitInstanceFoundOnSystem
             }
-            let url = URL(fileURLWithPath: path)
-            let resource = Resource(executableURL: url)
+            let resource = Resource(executableURL: STFile(path).url)
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .custom(let folder):
             guard let resource = Resource(folder: folder) else {

@@ -76,7 +76,9 @@ public extension Git {
     func data(_ commands: [String], context: StemShell.Context? = nil) async throws -> Data {
         do {
             triggerOfBeforeRun(commands)
-            let data = try await StemShell.data(environment.resource.executableURL, commands, context: deal(context: context))
+            let data = try await shell.data(.init(exec: environment.resource.executableURL,
+                                                  commands: commands,
+                                                  context: deal(context: context)))
             triggerOfAfterRun(commands, data: data)
             return data
         } catch GitError.processFatal(let message) {
@@ -110,7 +112,9 @@ public extension Git {
     func data(_ commands: [String], context: StemShell.Context? = nil) throws -> Data {
         do {
             triggerOfBeforeRun(commands)
-            let data = try StemShell.data(environment.resource.executableURL, commands, context: deal(context: context))
+            let data = try shell.data(.init(exec: environment.resource.executableURL,
+                                            commands: commands,
+                                            context: deal(context: context)))
             triggerOfAfterRun(commands, data: data)
             return data
         } catch GitError.processFatal(let message) {
