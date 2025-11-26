@@ -18,18 +18,21 @@ public extension Repository {
         public var user: User = .init()
         public var date: Date = .init()
         
+        public init() {}
+        
         static private let formatter: DateFormatter = {
             let item = DateFormatter()
+            item.locale = Locale(identifier: "en_US_POSIX")
             item.dateFormat = "EEE MMM dd HH:mm:ss yyyy Z"
             return item
         }()
         
-        mutating func set(date string: String) {
-            guard let date = Self.formatter.date(from: string) else {
-                return
+        public mutating func set(date string: String) {
+            if let date = Self.formatter.date(from: string) {
+                self.date = date
+            } else {
+                fatalError("Date string format error: \(string)")
             }
-            
-            self.date = date
         }
         
     }

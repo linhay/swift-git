@@ -11,13 +11,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/linhay/Stem.git", from: "2.0.3"),
-        .package(url: "https://github.com/linhay/STFilePath.git", from: "1.2.0"),
+        .package(url: "https://github.com/linhay/STFilePath.git", from: "1.2.4"),
     ],
     targets: [
         .target(
             name: "SwiftGit",
             dependencies: [
-                .product(name: "Stem", package: "Stem")
+                .product(name: "Stem", package: "Stem"),
+                .product(name: "STFilePath", package: "STFilePath")
             ],
             resources: [
                 .copy("Resource/git-instance.bundle"),

@@ -1,12 +1,21 @@
 {
   "pins" : [
     {
+      "identity" : "stem",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/linhay/Stem.git",
+      "state" : {
+        "revision" : "fe88a25503aa55313938008a781d9bf8dc821c74",
+        "version" : "2.1.0"
+      }
+    },
+    {
       "identity" : "stfilepath",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/linhay/STFilePath.git",
       "state" : {
-        "revision" : "59b650f88054f46f0aa6b2356ad01f588e89b4f4",
-        "version" : "1.2.0"
+        "revision" : "9c6bc8a2a2451e6947abbacc3b675f031be410e5",
+        "version" : "1.2.4"
       }
     }
   ],
