@@ -86,6 +86,8 @@ extension GitEnvironment {
             guard let resource = Resource(folder: folder) else {
                 throw GitError.unableLoadCustomGitInstance
             }
+            var variables = variables
+            variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
             if let item = try? GitEnvironment(type: .embed, variables: variables, triggers: triggers) {
