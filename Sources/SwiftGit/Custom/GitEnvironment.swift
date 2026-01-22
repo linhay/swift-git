@@ -77,9 +77,9 @@ extension GitEnvironment {
             }
             var variables = variables
             if let execPath = resource.envExecPath {
-                variables.append(contentsOf: [.execPath(execPath), .configNoSysyem(true)])
+                variables.append(contentsOf: [.execPath(execPath), .configNoSystem(true)])
             } else {
-                variables.append(.configNoSysyem(true))
+                variables.append(.configNoSystem(true))
             }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
@@ -100,9 +100,9 @@ extension GitEnvironment {
             }
             var variables = variables
             if let execPath = resource.envExecPath {
-                variables.append(contentsOf: [.execPath(execPath), .configNoSysyem(true)])
+                variables.append(contentsOf: [.execPath(execPath), .configNoSystem(true)])
             } else {
-                variables.append(.configNoSysyem(true))
+                variables.append(.configNoSystem(true))
             }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
