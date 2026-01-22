@@ -118,7 +118,7 @@ public extension Git {
     
 }
 
-private extension Git {
+extension Git {
     
     func repository(url: URL, credentials: GitCredentials) throws -> String {
         var repository = url
