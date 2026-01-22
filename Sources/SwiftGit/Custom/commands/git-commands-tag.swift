@@ -12,7 +12,8 @@ import Combine
 public extension Repository {
     
     func tagPublisher(_ options: [TagOptions] = [], tagname: String? = nil) -> AnyPublisher<String, Error> {
-        runPublisher(["tag"] + options.map(\.rawValue) + (tagname == nil ? [] : [tagname!]))
+        let args = ["tag"] + options.map(\.rawValue) + (tagname.map { [$0] } ?? [])
+        return runPublisher(args)
     }
     
     func tagPublisher(_ cmd: String) -> AnyPublisher<String, Error> {
@@ -24,7 +25,8 @@ public extension Repository {
     
     @discardableResult
     func tag(_ options: [TagOptions] = [], tagname: String? = nil) async throws -> String {
-        try await run(["tag"] + options.map(\.rawValue) + (tagname == nil ? [] : [tagname!]))
+        let args = ["tag"] + options.map(\.rawValue) + (tagname.map { [$0] } ?? [])
+        return try await run(args)
     }
     
     @discardableResult
@@ -37,7 +39,8 @@ public extension Repository {
     
     @discardableResult
     func tag(_ options: [TagOptions] = [], tagname: String? = nil) throws -> String {
-        try run(["tag"] + options.map(\.rawValue) + (tagname == nil ? [] : [tagname!]))
+        let args = ["tag"] + options.map(\.rawValue) + (tagname.map { [$0] } ?? [])
+        return try run(args)
     }
     
     @discardableResult

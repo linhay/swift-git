@@ -82,7 +82,7 @@ extension Git {
 // Helper: split a shell-like command string into arguments.
 // This is a lightweight splitter and does not cover all shell quoting rules,
 // but improves upon simple `split(separator:" ")` by handling quoted substrings.
-fileprivate func splitCommandLine(_ cmd: String) -> [String] {
+func splitCommandLine(_ cmd: String) -> [String] {
     var args: [String] = []
     var current = ""
     var inSingle = false

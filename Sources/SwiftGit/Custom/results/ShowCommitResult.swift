@@ -180,7 +180,7 @@ public extension Repository {
                     .replacingOccurrences(of: "%", with: "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 if let number = Double(index) {
-                    record?.actions.append(.similarity(number / 100))
+                    record?.actions.append(.dissimilarity(number / 100))
                 }
             }
             else if let item = hasPrefixAndReturn(item, prefix: "rename from") {
