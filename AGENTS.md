@@ -43,7 +43,10 @@ swift test --package-path . --filter <TestName>
     - SwiftLint: `brew install swiftlint` then `swiftlint lint` (or `swiftlint autocorrect`).
     - swift-format: follow Apple or community formatter and add a `.swift-format` config if you want automated formatting.
 
-  - If you add a formatter/linter, update this document and add its config to the repo root.
+- If you add a formatter/linter, update this document and add its config to the repo root.
+  - This repository now includes minimal configuration examples:
+    - `.swiftformat` — basic formatting rules used by `swiftformat`/community tools.
+    - `.swiftlint.yml` — basic SwiftLint configuration. These are small defaults; adjust rules to taste.
 
 - **Common CI commands**
   - Build + test (fast): `swift test --enable-test-discovery`

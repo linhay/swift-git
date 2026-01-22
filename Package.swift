@@ -21,6 +21,7 @@ let package = Package(
             resources: [
                 .copy("Resource/git-instance.bundle")
             ]),
+        // Example target removed — no Examples/ directory present in this tree.
         .testTarget(
             name: "SwiftGitTests",
             dependencies: [

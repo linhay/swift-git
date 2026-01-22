@@ -188,6 +188,29 @@
         }
 
         @discardableResult
+        public func data(_ args: Shell.Arguments, input: Data?) throws -> Data {
+            var args = args
+            changedArgsBeforeRun?(&args)
+            let process = self.setupProcess(args.exec, args.commands, context: args.context)
+
+            if let input = input {
+                let inputPipe = Pipe()
+                process.standardInput = inputPipe
+                try inputPipe.fileHandleForWriting.write(contentsOf: input)
+                try inputPipe.fileHandleForWriting.close()
+            }
+
+            let output = Shell.Standard(publisher: args.context?.standardOutput).append(
+                to: &process.standardOutput)
+            let error = Shell.Standard(publisher: args.context?.standardError).append(
+                to: &process.standardError)
+            try process.run()
+            process.waitUntilExit()
+            return try result(process, output: output.availableData, error: error.availableData)
+                .get()
+        }
+
+        @discardableResult
         public func zshPublisher(_ args: Shell.ShellArguments) -> AnyPublisher<Data, Error> {
             dataPublisher(args.arguments)
         }

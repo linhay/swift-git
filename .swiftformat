@@ -1,0 +1,9 @@
+--indent 4
+--line-length 120
+--exclude Sources/SwiftGit/Resource/git-instance.bundle
+--trimwhitespace always
+--stripunusedargs closure-only
+
+# Keep parentheses formatting conservative for readability
+--wraparguments before-first
+--removelinestrailingwhitespace always

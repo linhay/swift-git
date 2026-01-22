@@ -1,0 +1,22 @@
+
+# Enable stricter defaults: avoid trailing whitespace and enforce line length
+disabled_rules: []
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - always_use_lowerCamelCase
+
+excluded:
+  - Sources/SwiftGit/Resource/git-instance.bundle
+
+line_length:
+  warning: 120
+  error: 160
+
+# Recommended autocorrect rules are not enabled by default; enable locally as needed
+disabled_by_default:
+  - nimble_operator
+  - prefer_self_in_static_references
+
+reporter: xcode
