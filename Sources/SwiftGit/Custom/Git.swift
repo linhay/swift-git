@@ -74,9 +74,49 @@ extension Git {
     public func runPublisher(_ cmd: String, context: Shell.Context? = nil) -> AnyPublisher<
         String, Error
     > {
-        runPublisher(cmd.split(separator: " ").map(\.description), context: context)
+        runPublisher(splitCommandLine(cmd), context: context)
     }
 
+}
+
+// Helper: split a shell-like command string into arguments.
+// This is a lightweight splitter and does not cover all shell quoting rules,
+// but improves upon simple `split(separator:" ")` by handling quoted substrings.
+fileprivate func splitCommandLine(_ cmd: String) -> [String] {
+    var args: [String] = []
+    var current = ""
+    var inSingle = false
+    var inDouble = false
+    var escape = false
+    for ch in cmd {
+        if escape {
+            current.append(ch)
+            escape = false
+            continue
+        }
+        if ch == "\\" {
+            escape = true
+            continue
+        }
+        if ch == "'" && !inDouble {
+            inSingle.toggle()
+            continue
+        }
+        if ch == "\"" && !inSingle {
+            inDouble.toggle()
+            continue
+        }
+        if ch == " " && !inSingle && !inDouble {
+            if !current.isEmpty {
+                args.append(current)
+                current = ""
+            }
+            continue
+        }
+        current.append(ch)
+    }
+    if !current.isEmpty { args.append(current) }
+    return args
 }
 
 extension Git {
@@ -112,7 +152,7 @@ extension Git {
 
     @discardableResult
     public func run(_ cmd: String, context: Shell.Context? = nil) async throws -> String {
-        try await run(cmd.split(separator: " ").map(\.description), context: context)
+        try await run(splitCommandLine(cmd), context: context)
     }
 
 }
@@ -150,7 +190,7 @@ extension Git {
 
     @discardableResult
     public func run(_ cmd: String, context: Shell.Context? = nil) throws -> String {
-        try run(cmd.split(separator: " ").map(\.description), context: context)
+        try run(splitCommandLine(cmd), context: context)
     }
 
 }
