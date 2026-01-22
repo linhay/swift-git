@@ -106,4 +106,18 @@ final class ParseTests: XCTestCase {
         XCTAssertFalse(status.hasEntry(in: [.untracked]))
     }
 
+    func testSplitCommandLine_basic_and_quoted() {
+        let s1 = "git commit -m \"hello world\""
+        let parts1 = splitCommandLine(s1)
+        XCTAssertEqual(parts1, ["git", "commit", "-m", "hello world"]) 
+
+        let s2 = "echo 'single quoted arg' plain"
+        let parts2 = splitCommandLine(s2)
+        XCTAssertEqual(parts2, ["echo", "single quoted arg", "plain"]) 
+
+        let s3 = "cmd escaped\\ space"
+        let parts3 = splitCommandLine(s3)
+        XCTAssertEqual(parts3, ["cmd", "escaped space"]) 
+    }
+
 }
