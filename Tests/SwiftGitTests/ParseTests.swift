@@ -1,0 +1,78 @@
+import XCTest
+@testable import SwiftGit
+
+final class ParseTests: XCTestCase {
+
+    func testChangedEntryIndex_valid() {
+        let entry = GitStatus.ChangedEntry(
+            XY: "MM",
+            sub: "----",
+            mH: "000",
+            mI: "000",
+            mW: "000",
+            hH: "h",
+            hI: "i",
+            path: "path"
+        )
+        let index = entry.index
+        XCTAssertEqual(index.staged, .modified)
+        XCTAssertEqual(index.unStaged, .modified)
+    }
+
+    func testRenamedCopiedEntryIndex_valid() {
+        let entry = GitStatus.RenamedCopiedEntry(
+            XY: "A.",
+            sub: "----",
+            mH: "000",
+            mI: "000",
+            mW: "000",
+            hH: "h",
+            hI: "i",
+            X: "R100",
+            path: "to",
+            score: "100",
+            sep: "\t",
+            origPath: "from"
+        )
+        let index = entry.index
+        // staged 'A' (added) and unstaged '.' (unmodified)
+        XCTAssertEqual(index.staged, .added)
+        XCTAssertEqual(index.unStaged, .unmodified)
+    }
+
+    func testUnmergedEntryIndex_valid() {
+        let entry = GitStatus.UnmergedEntry(
+            XY: "UU",
+            sub: "----",
+            m1: "000",
+            m2: "000",
+            m3: "000",
+            mW: "000",
+            h1: "h1",
+            h2: "h2",
+            h3: "h3",
+            path: "p"
+        )
+        let index = entry.index
+        XCTAssertEqual(index.staged, .updatedButUnmerged)
+        XCTAssertEqual(index.unStaged, .updatedButUnmerged)
+    }
+
+    func testResource_init_folder_missing_binaries_returns_nil() {
+        // create a temporary folder without git binaries
+        let fm = FileManager.default
+        let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("swiftgit-test-\(UUID().uuidString)")
+        try? fm.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: tmp) }
+
+        let resource = GitEnvironment.Resource(folder: tmp)
+        XCTAssertNil(resource)
+    }
+
+    func testVariable_configNoSysyem_key_and_value() {
+        let v = GitEnvironment.Variable.configNoSysyem(true)
+        XCTAssertEqual(v.key, "GIT_CONFIG_NOSYSTEM")
+        XCTAssertEqual(v.value, "true")
+    }
+
+}

@@ -96,7 +96,18 @@ public extension GitStatus {
         
         public let staged: Style
         public let unStaged: Style
-        
+        public init(staged: Style, unStaged: Style) {
+            self.staged = staged
+            self.unStaged = unStaged
+        }
+
+        public init?(fromXY xy: String) {
+            guard xy.count >= 2, let s = xy.first, let u = xy.last,
+                  let staged = Style(rawValue: s), let unStaged = Style(rawValue: u)
+            else { return nil }
+            self.staged = staged
+            self.unStaged = unStaged
+        }
     }
     
     /// 1 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <path>
@@ -104,7 +115,13 @@ public extension GitStatus {
         
         public var id: Int { hashValue }
         public let type: EntryType = .changed
-        public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
+        public var index: Index {
+            if let idx = Index(fromXY: XY) {
+                return idx
+            }
+            // Fallback to unmodified to avoid crashes on malformed input
+            return .init(staged: .unmodified, unStaged: .unmodified)
+        }
         
         public let XY: String
         public let sub: String
@@ -144,7 +161,12 @@ public extension GitStatus {
         
         public var id: Int { hashValue }
         public let type: EntryType = .renamedCopied
-        public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
+        public var index: Index {
+            if let idx = Index(fromXY: XY) {
+                return idx
+            }
+            return .init(staged: .unmodified, unStaged: .unmodified)
+        }
         
         public let XY: String
         public let sub: String
@@ -197,7 +219,12 @@ public extension GitStatus {
         
         public var id: Int { hashValue }
         public let type: EntryType = .unmerged
-        public var index: Index { .init(staged: .init(rawValue: XY.first!)!, unStaged: .init(rawValue: XY.last!)!) }
+        public var index: Index {
+            if let idx = Index(fromXY: XY) {
+                return idx
+            }
+            return .init(staged: .unmodified, unStaged: .unmodified)
+        }
         
         public let XY: String
         public let sub: String

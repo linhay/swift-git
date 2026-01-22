@@ -72,9 +72,15 @@ extension GitEnvironment {
             else {
                 throw GitError.unableLoadEmbeddGitInstance
             }
-            let resource = Resource(bundle: bundle)
+            guard let resource = Resource(bundle: bundle) else {
+                throw GitError.unableLoadEmbeddGitInstance
+            }
             var variables = variables
-            variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
+            if let execPath = resource.envExecPath {
+                variables.append(contentsOf: [.execPath(execPath), .configNoSysyem(true)])
+            } else {
+                variables.append(.configNoSysyem(true))
+            }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .system:
             guard
@@ -93,7 +99,11 @@ extension GitEnvironment {
                 throw GitError.unableLoadCustomGitInstance
             }
             var variables = variables
-            variables.append(contentsOf: [.execPath(resource.envExecPath!), .configNoSysyem(true)])
+            if let execPath = resource.envExecPath {
+                variables.append(contentsOf: [.execPath(execPath), .configNoSysyem(true)])
+            } else {
+                variables.append(.configNoSysyem(true))
+            }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
             if let item = try? GitEnvironment(
@@ -128,9 +138,12 @@ extension GitEnvironment {
             envExecPath = exec.path
         }
 
-        public init(bundle: Bundle) {
-            self.executableURL = bundle.url(forAuxiliaryExecutable: "bin/git")!
-            self.envExecPath = bundle.url(forAuxiliaryExecutable: "libexec/git-core")!.path
+        public init?(bundle: Bundle) {
+            guard let gitURL = bundle.url(forAuxiliaryExecutable: "bin/git"),
+                  let execPathURL = bundle.url(forAuxiliaryExecutable: "libexec/git-core")
+            else { return nil }
+            self.executableURL = gitURL
+            self.envExecPath = execPathURL.path
         }
 
         public init(executableURL: URL, envExecPath: String? = nil) {

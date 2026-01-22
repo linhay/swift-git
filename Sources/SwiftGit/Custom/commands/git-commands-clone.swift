@@ -49,7 +49,13 @@ public extension Git {
                         repository: URL,
                         credentials: GitCredentials = .default,
                         workDirectoryURL: URL) -> AnyPublisher<Repository, Error> {
-        let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
+        let last = repository.lastPathComponent
+        if last.isEmpty {
+            return Future<Repository, Error> { promise in
+                promise(.failure(GitError.parser("invalid repository url")))
+            }.eraseToAnyPublisher()
+        }
+        let directory = workDirectoryURL.appendingPathComponent(last)
         return clonePublisher(options, repository: repository, credentials: credentials, directory: directory.path)
     }
     
@@ -74,7 +80,9 @@ public extension Git {
                repository: URL,
                credentials: GitCredentials = .default,
                workDirectoryURL: URL) async throws -> Repository {
-        let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
+        let last = repository.lastPathComponent
+        guard !last.isEmpty else { throw GitError.parser("invalid repository url") }
+        let directory = workDirectoryURL.appendingPathComponent(last)
         try await clone(options, repository: repository, credentials: credentials, directory: directory.path)
         return Repository(git: self, url: directory)
     }
@@ -100,7 +108,9 @@ public extension Git {
                repository: URL,
                credentials: GitCredentials = .default,
                workDirectoryURL: URL) throws -> Repository {
-        let directory = workDirectoryURL.appendingPathComponent(repository.pathComponents.last!)
+        let last = repository.lastPathComponent
+        guard !last.isEmpty else { throw GitError.parser("invalid repository url") }
+        let directory = workDirectoryURL.appendingPathComponent(last)
         try clone(options, repository: repository, credentials: credentials, directory: directory.path)
         return Repository(git: self, url: directory)
     }
