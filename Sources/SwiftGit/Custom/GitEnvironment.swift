@@ -178,7 +178,13 @@ extension GitEnvironment {
         }
 
         ///  if set, disables the use of the system-wide configuration file. This is useful if your system config is interfering with your commands, but you don’t have access to change or remove it.
+        @available(*, deprecated, message: "Typo: use configNoSystem(_:) instead")
         public static func configNoSysyem(_ value: Bool) -> Variable {
+            return .init(key: "GIT_CONFIG_NOSYSTEM", value: value ? "true" : "false")
+        }
+
+        /// Correct spelling for disabling the system config file lookup.
+        public static func configNoSystem(_ value: Bool) -> Variable {
             return .init(key: "GIT_CONFIG_NOSYSTEM", value: value ? "true" : "false")
         }
     }

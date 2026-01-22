@@ -75,4 +75,35 @@ final class ParseTests: XCTestCase {
         XCTAssertEqual(v.value, "true")
     }
 
+    func testVariable_configNoSystem_key_and_value() {
+        let v = GitEnvironment.Variable.configNoSystem(false)
+        XCTAssertEqual(v.key, "GIT_CONFIG_NOSYSTEM")
+        XCTAssertEqual(v.value, "false")
+    }
+
+    func testChangedEntryIndex_malformed_XY_returns_unmodified() {
+        let entry = GitStatus.ChangedEntry(
+            XY: "",
+            sub: "----",
+            mH: "000",
+            mI: "000",
+            mW: "000",
+            hH: "h",
+            hI: "i",
+            path: "path"
+        )
+        let index = entry.index
+        XCTAssertEqual(index.staged, .unmodified)
+        XCTAssertEqual(index.unStaged, .unmodified)
+    }
+
+    func testHasEntry_various_types() {
+        var status = GitStatus()
+        XCTAssertFalse(status.hasEntry())
+        status.changed.append(.init(XY: "MM", sub: "", mH: "", mI: "", mW: "", hH: "", hI: "", path: "p"))
+        XCTAssertTrue(status.hasEntry())
+        XCTAssertTrue(status.hasEntry(in: [.changed]))
+        XCTAssertFalse(status.hasEntry(in: [.untracked]))
+    }
+
 }
