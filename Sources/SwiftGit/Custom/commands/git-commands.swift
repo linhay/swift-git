@@ -53,8 +53,8 @@ private extension Git {
         guard let index = items.firstIndex(where: { $0 == "version" }) else {
             return ""
         }
+        guard index + 1 < items.count else { return "" }
         return String(items[index + 1]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
 }
-

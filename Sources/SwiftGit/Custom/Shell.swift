@@ -64,10 +64,13 @@
 
             var availableData: Data? {
                 get throws {
-                    guard let data = _availableData, !data.isEmpty else {
-                        return try pipe.fileHandleForReading.readToEnd()
+                    // If we have already accumulated data in _availableData return it.
+                    // If _availableData is nil, fall back to readToEnd() to avoid
+                    // racing with the readability handler which may initialize the buffer to empty.
+                    if let data = _availableData, !data.isEmpty {
+                        return data
                     }
-                    return data
+                    return try pipe.fileHandleForReading.readToEnd()
                 }
             }
 
@@ -82,7 +85,9 @@
             }
 
             func append(to standard: inout Any?) -> Self {
-                _availableData = Data()
+                // Initialize the buffer lazily when we first receive data to avoid
+                // empty-but-non-nil state racing with readers.
+                _availableData = nil
                 standard = pipe
                 pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
                     guard let self = self else { return }
@@ -90,6 +95,7 @@
                     if data.isEmpty {
                         self.pipe.fileHandleForReading.readabilityHandler = nil
                     } else {
+                        if self._availableData == nil { self._availableData = Data() }
                         self._availableData?.append(data)
                         self.publisher?.send(data)
                     }
