@@ -41,7 +41,6 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import re
           import zipfile
           import sys
 
@@ -53,16 +52,21 @@ jobs:
               print(f"[ERROR] SKILL.md not found at {skill_md}")
               sys.exit(1)
 
-          text = skill_md.read_text(encoding="utf-8")
-          match = re.match(r"^---\\s*\\n(.*?)\\n---\\s*\\n", text, re.S)
-          if not match:
-              print("[ERROR] Missing YAML frontmatter in SKILL.md")
+          lines = skill_md.read_text(encoding="utf-8").lstrip("\ufeff").splitlines()
+          if not lines or lines[0].strip() != "---":
+              print("[ERROR] Missing YAML frontmatter in SKILL.md (no opening ---)")
+              sys.exit(1)
+          try:
+              end_index = lines.index("---", 1)
+          except ValueError:
+              print("[ERROR] Missing YAML frontmatter in SKILL.md (no closing ---)")
               sys.exit(1)
 
-          frontmatter = match.group(1)
-          def get_field(name: str) -> str | None:
-              for line in frontmatter.splitlines():
-                  if line.strip().startswith(f"{name}:"):
+          frontmatter = lines[1:end_index]
+          def get_field(name: str):
+              prefix = f"{name}:"
+              for line in frontmatter:
+                  if line.strip().startswith(prefix):
                       return line.split(":", 1)[1].strip().strip('"').strip("'")
               return None
 
