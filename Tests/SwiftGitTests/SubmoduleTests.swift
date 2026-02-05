@@ -37,11 +37,12 @@ final class SubmoduleTests: XCTestCase {
 
         // add submodule to main
         let subUrl = sub.path
-        try git.run(["submodule", "add", subUrl, "sub"], context: Shell.Context(at: main))
+        let allowFile = ["-c", "protocol.file.allow=always"]
+        try git.run(allowFile + ["submodule", "add", subUrl, "sub"], context: Shell.Context(at: main))
         try git.run(["commit", "-am", "add submodule"], context: Shell.Context(at: main))
 
         // update submodule
-        try git.run(["submodule", "update", "--init", "--recursive"], context: Shell.Context(at: main))
+        try git.run(allowFile + ["submodule", "update", "--init", "--recursive"], context: Shell.Context(at: main))
 
         // check submodule content
         let subFile = main.appendingPathComponent("sub").appendingPathComponent("f.txt")

@@ -6,6 +6,10 @@ GitStatus
 - Location: Sources/SwiftGit/Custom/models/GitStatus.swift
 - public struct GitStatus: Equatable with properties branch, changed, renamedCopied, unmerged, untracked and nested entry types.
 
+GitProgress
+- Location: Sources/SwiftGit/Custom/GitProgress.swift
+- public struct GitProgress with progress counters and stage; paired with GitProgressStage and GitProgressAction for clone/pull progress callbacks.
+
 Commit & User models
 - Sources/SwiftGit/Custom/models/Commit.swift
 - Sources/SwiftGit/Custom/results/LogResult.swift

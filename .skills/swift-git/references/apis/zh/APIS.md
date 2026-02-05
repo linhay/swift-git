@@ -10,6 +10,7 @@
 - [GitEnvironment](symbols/GitEnvironment.md)（类） — Sources/SwiftGit/Custom/GitEnvironment.swift - Git 环境配置管理
 - [Shell](symbols/Shell.md)（工具） — Sources/SwiftGit/Custom/Shell.swift - 进程执行工具
 - [GitTrigger](symbols/GitTrigger.md)（结构体） — Sources/SwiftGit/Custom/GitTrigger.swift - 命令执行触发器
+- GitProgress / GitProgressStage / GitProgressAction（结构体/枚举） — Sources/SwiftGit/Custom/GitProgress.swift - 克隆/拉取进度回调类型与可取消动作
 
 ### 错误处理
 - [GitError](symbols/GitError.md)（枚举） — Sources/SwiftGit/Custom/GitError.swift - 统一的错误类型定义

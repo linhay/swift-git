@@ -4,6 +4,7 @@ This section maps the command helper files in Sources/SwiftGit/Custom/commands/ 
 
 Files & purpose (selection)
 - git-commands-clone.swift — clone helpers and CloneOptions
+- git-commands-pull.swift — pull helpers and PullOptions (includes progress callbacks)
 - git-commands-commit.swift — commit helpers and CommitOptions
 - git-commands-status.swift — status helpers and StatusOptions
 - git-commands-log.swift — log helpers and LogOptions

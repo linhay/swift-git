@@ -74,6 +74,47 @@ public extension Git {
         try await run(["clone"] + (options.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]))
         return Repository(git: self, path: directory)
     }
+
+    /// Clone a repository with progress updates.
+    @discardableResult
+    func clone(
+        _ options: [CloneOptions],
+        repository: URL,
+        credentials: GitCredentials = .default,
+        directory: String,
+        progress: @escaping @Sendable (GitProgress) -> Void
+    ) async throws -> Repository {
+        try await clone(
+            options,
+            repository: repository,
+            credentials: credentials,
+            directory: directory,
+            progress: { value in
+                progress(value)
+                return .proceed
+            }
+        )
+    }
+
+    /// Clone a repository with progress updates that can request cancellation.
+    @discardableResult
+    func clone(
+        _ options: [CloneOptions],
+        repository: URL,
+        credentials: GitCredentials = .default,
+        directory: String,
+        progress: @escaping @Sendable (GitProgress) -> GitProgressAction
+    ) async throws -> Repository {
+        if FileManager.default.fileExists(atPath: directory) {
+            throw GitError.existsDirectory(directory)
+        }
+        let progressOptions = cloneOptionsWithProgress(options)
+        try await runWithProgress(
+            ["clone"] + (progressOptions.map(\.rawValue) + [self.repository(url: repository, credentials: credentials), directory]),
+            progress: progress
+        )
+        return Repository(git: self, path: directory)
+    }
     
     @discardableResult
     func clone(_ options: [CloneOptions],
@@ -84,6 +125,49 @@ public extension Git {
         guard !last.isEmpty else { throw GitError.parser("invalid repository url") }
         let directory = workDirectoryURL.appendingPathComponent(last)
         try await clone(options, repository: repository, credentials: credentials, directory: directory.path)
+        return Repository(git: self, url: directory)
+    }
+
+    /// Clone a repository into the work directory with progress updates.
+    @discardableResult
+    func clone(
+        _ options: [CloneOptions],
+        repository: URL,
+        credentials: GitCredentials = .default,
+        workDirectoryURL: URL,
+        progress: @escaping @Sendable (GitProgress) -> Void
+    ) async throws -> Repository {
+        try await clone(
+            options,
+            repository: repository,
+            credentials: credentials,
+            workDirectoryURL: workDirectoryURL,
+            progress: { value in
+                progress(value)
+                return .proceed
+            }
+        )
+    }
+
+    /// Clone a repository into the work directory with progress updates that can request cancellation.
+    @discardableResult
+    func clone(
+        _ options: [CloneOptions],
+        repository: URL,
+        credentials: GitCredentials = .default,
+        workDirectoryURL: URL,
+        progress: @escaping @Sendable (GitProgress) -> GitProgressAction
+    ) async throws -> Repository {
+        let last = repository.lastPathComponent
+        guard !last.isEmpty else { throw GitError.parser("invalid repository url") }
+        let directory = workDirectoryURL.appendingPathComponent(last)
+        try await clone(
+            options,
+            repository: repository,
+            credentials: credentials,
+            directory: directory.path,
+            progress: progress
+        )
         return Repository(git: self, url: directory)
     }
     
@@ -148,4 +232,11 @@ public extension CloneOptions {
     /// use IPv6 addresses only
     static let ipv6: CloneOptions = "--ipv6"
     
+}
+
+private func cloneOptionsWithProgress(_ options: [CloneOptions]) -> [CloneOptions] {
+    if options.contains(where: { $0.rawValue == CloneOptions.progress.rawValue }) {
+        return options
+    }
+    return options + [.progress]
 }

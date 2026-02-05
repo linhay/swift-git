@@ -6,6 +6,10 @@ GitStatus
 - 位置: Sources/SwiftGit/Custom/models/GitStatus.swift
 - 说明: `public struct GitStatus` 包含分支信息、已更改文件、重命名/拷贝、未合并、未跟踪项等。许多嵌套类型用于表示不同的条目。
 
+GitProgress
+- 位置: Sources/SwiftGit/Custom/GitProgress.swift
+- 说明: 进度快照类型，包含 receivedObjects/totalObjects/indexedObjects/receivedBytes 与 stage；配合 GitProgressStage 与 GitProgressAction 用于 clone/pull 进度回调与取消控制。
+
 Commit
 - 位置: Sources/SwiftGit/Custom/models/Commit.swift
 - 说明: 包含 Commit enum（如 HEAD、mnemonics 等）用于表示引用定位。

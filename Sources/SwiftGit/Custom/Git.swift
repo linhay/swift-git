@@ -160,6 +160,42 @@ extension Git {
 extension Git {
 
     @discardableResult
+    func runWithProgress(
+        _ commands: [String],
+        context: Shell.Context? = nil,
+        progress: @escaping @Sendable (GitProgress) -> GitProgressAction
+    ) async throws -> String {
+        try Task.checkCancellation()
+        triggerOfBeforeRun(commands)
+        let parser = GitProgressParser(progress: progress)
+        do {
+            let data = try await shell.data(
+                .init(
+                    exec: environment.resource.executableURL,
+                    commands: commands,
+                    context: deal(context: context)
+                ),
+                onStdout: { parser.handle($0) },
+                onStderr: { parser.handle($0) },
+                shouldCancel: { parser.isCancelRequested || Task.isCancelled }
+            )
+            parser.finish()
+            triggerOfAfterRun(commands, data: data)
+            return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch GitError.processFatal(let message) {
+            throw triggerOfAfterRun(commands, message: message)
+        } catch {
+            throw triggerOfAfterRun(commands, message: error.localizedDescription)
+        }
+    }
+
+}
+
+extension Git {
+
+    @discardableResult
     public func data(_ commands: [String], context: Shell.Context? = nil) throws -> Data {
         do {
             triggerOfBeforeRun(commands)

@@ -7,6 +7,7 @@ Public declaration highlights
 - public init(git: Git, url: URL)
 - public init(git: Git, path: String)
 - Many repository-scoped command helpers are defined as public extensions across Sources/SwiftGit/Custom/commands/*. These include clone, commit, push, status, tag, stash, fetch, pull, merge, etc.
+  - Pull includes progress callback overloads (GitProgress / GitProgressAction).
 
 Summary
 Repository is a lightweight wrapper that provides convenience methods executing git commands within a repository directory using an associated Git instance.

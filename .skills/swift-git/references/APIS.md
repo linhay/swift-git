@@ -61,6 +61,14 @@ Primary public types
   - public init(on event: Event, action: @escaping (_ result: Result<Content, Error>) -> Void)
   - public static func failure(on:event, action: ...) and success(on:event, action: ...)
 
+6) GitProgress / GitProgressStage / GitProgressAction (struct + enums)
+- Location: Sources/SwiftGit/Custom/GitProgress.swift
+- Summary: Progress snapshot types for long-running clone/pull operations, plus the action enum for cancellable callbacks.
+- Important public members:
+  - public struct GitProgress { receivedObjects, totalObjects, indexedObjects, receivedBytes, stage, stagePercent }
+  - public enum GitProgressStage { case network, indexing, checkout, done }
+  - public enum GitProgressAction { case proceed, cancel }
+
 Models (examples)
 - GitStatus (Sources/SwiftGit/Custom/models/GitStatus.swift): public struct GitStatus with properties branch, changed, renamedCopied, unmerged, untracked. Several nested types represent entries and styles.
 - Commit / Commit enums: Sources/SwiftGit/Custom/models/Commit.swift
@@ -73,6 +81,7 @@ Options
 
 Commands & repository extensions
 - Most git subcommands are exposed as public extensions on Git or Repository under Sources/SwiftGit/Custom/commands/*. Each file shapes a coherent sub-API (clone, commit, push, fetch, log, status, tag, stash, etc.).
+- Clone and pull now have progress callback overloads (see git-commands-clone.swift and git-commands-pull.swift).
 
 Tests that reference public APIs
 - Tests live under Tests/SwiftGitTests. Key files that exercise public APIs include:

@@ -5,6 +5,7 @@
 
 文件与职责
 - git-commands-clone.swift — clone 相关 helper 与 CloneOptions
+- git-commands-pull.swift — pull helper 与 PullOptions（包含进度回调）
 - git-commands-commit.swift — commit helper 与 CommitOptions
 - git-commands-status.swift — status helper 与 StatusOptions
 - git-commands-log.swift — log helper 与 LogOptions

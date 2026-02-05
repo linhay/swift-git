@@ -8,6 +8,7 @@ description: "Repository-focused skill for building, testing, and agent-safe ope
 Purpose
 - Provide concise, actionable instructions and examples for automated agents and humans working with this repository.
 - Expose the small set of repository-specific commands and agent rules an automated worker needs so the runtime can make safe decisions without loading large docs.
+- Include the progress-callback APIs for clone/pull so agents can guide UI work and cancellation behavior.
 
 When to use this skill (trigger examples)
 - "Build the package"
@@ -15,6 +16,7 @@ When to use this skill (trigger examples)
 - "Run a single test"
 - "Where are the build/test commands"
 - "What agent rules should I follow for commits and CI"
+- "Add progress callbacks for clone or pull"
 
 Quick commands (do not execute without user approval)
 - Build (debug):
@@ -26,6 +28,28 @@ Quick commands (do not execute without user approval)
 - Run a single test (filter by name):
   - swift test --filter ParseTests.testChangedEntryIndex_valid
   - swift test --filter test_format_date
+
+Progress callbacks (clone/pull)
+- Types: `GitProgress`, `GitProgressStage`, `GitProgressAction` (Sources/SwiftGit/Custom/GitProgress.swift)
+- Clone overloads (Git):
+  - `clone(... progress: (GitProgress) -> Void)` for simple progress updates
+  - `clone(... progress: (GitProgress) -> GitProgressAction)` to allow cancellation (`.proceed` / `.cancel`)
+- Pull overloads (Repository):
+  - `pull(... progress: (GitProgress) -> Void)`
+  - `pull(... progress: (GitProgress) -> GitProgressAction)`
+- Callbacks are off-main; UI code should dispatch as needed.
+- Stage percent is per-stage and resets when stage changes.
+
+Example (cancel at 50% network)
+```swift
+let git = try Git(environment: .shared)
+_ = try await git.clone([.progress], repository: url, directory: "/tmp/repo") { progress in
+    if progress.stage == .network, (progress.stagePercent ?? 0) > 0.5 {
+        return .cancel
+    }
+    return .proceed
+}
+```
 
 Repository constraints (MUST follow)
 - Do NOT create commits or push to remote on behalf of a user unless explicitly authorized.

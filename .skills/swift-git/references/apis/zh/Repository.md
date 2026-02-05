@@ -3,7 +3,8 @@
 位置: Sources/SwiftGit/Custom/Repository.swift
 
 概述
-- Repository 是对仓库目录里的 Git 操作的轻量封装，绑定在一个 Git 实例上，提供方便的方法来执行常见的 git 流程（commit、push、status、tag、stash 等）。
+- Repository 是对仓库目录里的 Git 操作的轻量封装，绑定在一个 Git 实例上，提供方便的方法来执行常见的 git 流程（commit、push、status、tag、stash、pull 等）。
+- pull 支持进度回调（GitProgress / GitProgressAction），适合 UI 展示与可取消操作。
 
 主要公开成员（节选）
 - public struct Repository

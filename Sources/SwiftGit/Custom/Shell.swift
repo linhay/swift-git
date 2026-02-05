@@ -62,6 +62,7 @@
 
             let pipe = Pipe()
             let publisher: PassthroughSubject<Data, Never>?
+            let onData: ((Data) -> Void)?
 
             var availableData: Data? {
                 get throws {
@@ -81,8 +82,27 @@
                 self.pipe.fileHandleForReading.readabilityHandler = nil
             }
 
-            init(publisher: PassthroughSubject<Data, Never>?) {
+            init(
+                publisher: PassthroughSubject<Data, Never>?,
+                onData: ((Data) -> Void)? = nil
+            ) {
                 self.publisher = publisher
+                self.onData = onData
+            }
+
+            func finalizeData() -> Data? {
+                pipe.fileHandleForReading.readabilityHandler = nil
+                let remaining = try? pipe.fileHandleForReading.readToEnd()
+                if let remaining, !remaining.isEmpty {
+                    if _availableData == nil { _availableData = Data() }
+                    _availableData?.append(remaining)
+                    publisher?.send(remaining)
+                    onData?(remaining)
+                }
+                if let data = _availableData, !data.isEmpty {
+                    return data
+                }
+                return nil
             }
 
             func append(to standard: inout Any?) -> Self {
@@ -99,6 +119,7 @@
                         if self._availableData == nil { self._availableData = Data() }
                         self._availableData?.append(data)
                         self.publisher?.send(data)
+                        self.onData?(data)
                     }
                 }
                 return self
@@ -269,7 +290,9 @@
                     process.terminationHandler = { process in
                         do {
                             let data = try result(
-                                process, output: output.availableData, error: error.availableData
+                                process,
+                                output: output.finalizeData(),
+                                error: error.finalizeData()
                             ).get()
                             promise(.success(data))
                         } catch {
@@ -358,6 +381,25 @@
     }
 
     // MARK: - Async/Await Support
+    private final class CancellationState {
+        private let lock = NSLock()
+        private var cancelled = false
+
+        func requestCancel() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            if cancelled { return false }
+            cancelled = true
+            return true
+        }
+
+        var isCancelled: Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            return cancelled
+        }
+    }
+
     @available(macOS 11, *)
     extension Shell.Instance {
 
@@ -390,6 +432,83 @@
                 return result.stdoutData
             } catch let error as SKProcessRunner.RunError {
                 throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
+            }
+        }
+
+        @discardableResult
+        func data(
+            _ args: Shell.Arguments,
+            onStdout: ((Data) -> Void)? = nil,
+            onStderr: ((Data) -> Void)? = nil,
+            shouldCancel: @escaping @Sendable () -> Bool = { false }
+        ) async throws -> Data {
+            try Task.checkCancellation()
+            var args = args
+            changedArgsBeforeRun?(&args)
+            guard let exec = args.exec else {
+                throw Shell.Error.processFailed(message: "Missing executable.", code: -1)
+            }
+
+            let process = setupProcess(exec, args.commands, context: args.context)
+            let cancellation = CancellationState()
+
+            let output = Shell.Standard(
+                publisher: args.context?.standardOutput,
+                onData: { data in
+                    onStdout?(data)
+                    if shouldCancel() {
+                        if cancellation.requestCancel() {
+                            process.interrupt()
+                        }
+                    }
+                }
+            ).append(to: &process.standardOutput)
+
+            let error = Shell.Standard(
+                publisher: args.context?.standardError,
+                onData: { data in
+                    onStderr?(data)
+                    if shouldCancel() {
+                        if cancellation.requestCancel() {
+                            process.interrupt()
+                        }
+                    }
+                }
+            ).append(to: &process.standardError)
+
+            return try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { continuation in
+                    process.terminationHandler = { process in
+                        do {
+                            let data = try result(
+                                process,
+                                output: output.finalizeData(),
+                                error: error.finalizeData()
+                            ).get()
+                            if cancellation.isCancelled {
+                                continuation.resume(throwing: CancellationError())
+                            } else {
+                                continuation.resume(returning: data)
+                            }
+                        } catch {
+                            if cancellation.isCancelled {
+                                continuation.resume(throwing: CancellationError())
+                            } else {
+                                continuation.resume(throwing: error)
+                            }
+                        }
+                    }
+                    do {
+                        try process.run()
+                    } catch {
+                        process.terminationHandler = nil
+                        continuation.resume(throwing: error)
+                    }
+                }
+            } onCancel: {
+                if cancellation.requestCancel() {
+                    process.interrupt()
+                }
             }
         }
 
