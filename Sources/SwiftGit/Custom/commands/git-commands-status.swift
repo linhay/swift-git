@@ -238,7 +238,7 @@ public extension StatusOptions {
      */
     /// ignore changes to submodules, optional when: all, dirty, untracked. (Default: all)
     static func ignoreSubmodules(_ when: IgnoreSubmodules) -> StatusOptions {
-        .init(stringLiteral: "--ignored=\(when.rawValue)")
+        .init(stringLiteral: "--ignore-submodules=\(when.rawValue)")
     }
     
     /**

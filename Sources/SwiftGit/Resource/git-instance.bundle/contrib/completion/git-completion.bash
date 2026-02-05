@@ -13,7 +13,8 @@
 #    *) git email aliases for git-send-email
 #    *) tree paths within 'ref:path/to/file' expressions
 #    *) file paths within current working directory and index
-#    *) common --long-options
+#    *) common --long-options but not single-letter options
+#    *) arguments to long and single-letter options
 #
 # To use these routines:
 #
@@ -31,14 +32,28 @@
 # Note that "git" is optional --- '!f() { : commit; ...}; f' would complete
 # just like the 'git commit' command.
 #
-# If you have a command that is not part of git, but you would still
-# like completion, you can use __git_complete:
+# To add completion for git subcommands that are implemented in external
+# scripts, define a function of the form '_git_${subcommand}' while replacing
+# all dashes with underscores, and the main git completion will make use of it.
+# For example, to add completion for 'git do-stuff' (which could e.g. live
+# in /usr/bin/git-do-stuff), name the completion function '_git_do_stuff'.
+# See _git_show, _git_bisect etc. below for more examples.
+#
+# If you have a shell command that is not part of git (and is not called as a
+# git subcommand), but you would still like git-style completion for it, use
+# __git_complete. For example, to use the same completion as for 'git log' also
+# for the 'gl' command:
 #
 #   __git_complete gl git_log
 #
-# Or if it's a main command (i.e. git or gitk):
+# Or if the 'gk' command should be completed the same as 'gitk':
 #
 #   __git_complete gk gitk
+#
+# The second parameter of __git_complete gives the completion function; it is
+# resolved as a function named "$2", or "__$2_main", or "_$2" in that order.
+# In the examples above, the actual functions used for completion will be
+# _git_log and __gitk_main.
 #
 # Compatible with bash 3.2.57.
 #
@@ -218,6 +233,17 @@ __git_dequote ()
 			;;
 		esac
 	done
+}
+
+# Prints the number of slash-separated components in a path.
+# 1: Path to count components of.
+__git_count_path_components ()
+{
+	local path="$1"
+	local relative="${path#/}"
+	relative="${relative%/}"
+	local slashes="/${relative//[^\/]}"
+	echo "${#slashes}"
 }
 
 # The following function is based on code from:
@@ -765,16 +791,39 @@ __git_tags ()
 __git_dwim_remote_heads ()
 {
 	local pfx="${1-}" cur_="${2-}" sfx="${3-}"
-	local fer_pfx="${pfx//\%/%%}" # "escape" for-each-ref format specifiers
 
 	# employ the heuristic used by git checkout and git switch
 	# Try to find a remote branch that cur_es the completion word
 	# but only output if the branch name is unique
-	__git for-each-ref --format="$fer_pfx%(refname:strip=3)$sfx" \
-		--sort="refname:strip=3" \
-		${GIT_COMPLETION_IGNORE_CASE+--ignore-case} \
-		"refs/remotes/*/$cur_*" "refs/remotes/*/$cur_*/**" | \
-	uniq -u
+	local awk_script='
+	function casemap(s) {
+		if (ENVIRON["IGNORE_CASE"])
+			return tolower(s)
+		else
+			return s
+	}
+	BEGIN {
+		split(ENVIRON["REMOTES"], remotes, /\n/)
+		for (i in remotes)
+			remotes[i] = "refs/remotes/" casemap(remotes[i])
+		cur_ = casemap(ENVIRON["CUR_"])
+	}
+	{
+		ref_case = casemap($0)
+		for (i in remotes) {
+			if (index(ref_case, remotes[i] "/" cur_) == 1) {
+				branch = substr($0, length(remotes[i] "/") + 1)
+				print ENVIRON["PFX"] branch ENVIRON["SFX"]
+				break
+			}
+		}
+	}
+	'
+	__git for-each-ref --format='%(refname)' refs/remotes/ |
+		PFX="$pfx" SFX="$sfx" CUR_="$cur_" \
+			IGNORE_CASE=${GIT_COMPLETION_IGNORE_CASE+1} \
+			REMOTES="$(__git_remotes | sort -r)" awk "$awk_script" |
+		sort | uniq -u
 }
 
 # Lists refs from the local (by default) or from a remote repository.
@@ -880,7 +929,8 @@ __git_refs ()
 			case "HEAD" in
 			$match*|$umatch*)	echo "${pfx}HEAD$sfx" ;;
 			esac
-			__git for-each-ref --format="$fer_pfx%(refname:strip=3)$sfx" \
+			local strip="$(__git_count_path_components "refs/remotes/$remote")"
+			__git for-each-ref --format="$fer_pfx%(refname:strip=$strip)$sfx" \
 				${GIT_COMPLETION_IGNORE_CASE+--ignore-case} \
 				"refs/remotes/$remote/$match*" \
 				"refs/remotes/$remote/$match*/**"
@@ -2169,7 +2219,7 @@ __git_log_gitk_options="
 "
 # Options that go well for log and shortlog (not gitk)
 __git_log_shortlog_options="
-	--author= --committer= --grep=
+	--author= --grep= --exclude=
 	--all-match --invert-grep
 "
 # Options accepted by log and show
@@ -2247,6 +2297,7 @@ __git_complete_log_opts ()
 			$__git_log_shortlog_options
 			$__git_log_gitk_options
 			$__git_log_show_options
+			--committer=
 			--root --topo-order --date-order --reverse
 			--follow --full-diff
 			--abbrev-commit --no-abbrev-commit --abbrev=
@@ -2317,7 +2368,7 @@ _git_mergetool ()
 		return
 		;;
 	--*)
-		__gitcomp "--tool= --prompt --no-prompt --gui --no-gui"
+		__gitcomp "--tool= --tool-help --prompt --no-prompt --gui --no-gui"
 		return
 		;;
 	esac
@@ -2723,12 +2774,17 @@ __git_compute_config_vars_all ()
 	__git_config_vars_all="$(git --no-pager help --config)"
 }
 
+__git_indirect()
+{
+	eval printf '%s' "\"\$$1\""
+}
+
 __git_compute_first_level_config_vars_for_section ()
 {
 	local section="$1"
 	__git_compute_config_vars
 	local this_section="__git_first_level_config_vars_for_section_${section}"
-	test -n "${!this_section}" ||
+	test -n "$(__git_indirect "${this_section}")" ||
 	printf -v "__git_first_level_config_vars_for_section_${section}" %s \
 		"$(echo "$__git_config_vars" | awk -F. "/^${section}\.[a-z]/ { print \$2 }")"
 }
@@ -2738,7 +2794,7 @@ __git_compute_second_level_config_vars_for_section ()
 	local section="$1"
 	__git_compute_config_vars_all
 	local this_section="__git_second_level_config_vars_for_section_${section}"
-	test -n "${!this_section}" ||
+	test -n "$(__git_indirect "${this_section}")" ||
 	printf -v "__git_second_level_config_vars_for_section_${section}" %s \
 		"$(echo "$__git_config_vars_all" | awk -F. "/^${section}\.</ { print \$3 }")"
 }
@@ -2893,7 +2949,7 @@ __git_complete_config_variable_name ()
 		local section="${pfx%.*.}"
 		__git_compute_second_level_config_vars_for_section "${section}"
 		local this_section="__git_second_level_config_vars_for_section_${section}"
-		__gitcomp "${!this_section}" "$pfx" "$cur_" "$sfx"
+		__gitcomp "$(__git_indirect "${this_section}")" "$pfx" "$cur_" "$sfx"
 		return
 		;;
 	branch.*)
@@ -2903,7 +2959,7 @@ __git_complete_config_variable_name ()
 		__gitcomp_direct "$(__git_heads "$pfx" "$cur_" ".")"
 		__git_compute_first_level_config_vars_for_section "${section}"
 		local this_section="__git_first_level_config_vars_for_section_${section}"
-		__gitcomp_nl_append "${!this_section}" "$pfx" "$cur_" "${sfx:- }"
+		__gitcomp_nl_append "$(__git_indirect "${this_section}")" "$pfx" "$cur_" "${sfx:- }"
 		return
 		;;
 	pager.*)
@@ -2920,7 +2976,7 @@ __git_complete_config_variable_name ()
 		__gitcomp_nl "$(__git_remotes)" "$pfx" "$cur_" "."
 		__git_compute_first_level_config_vars_for_section "${section}"
 		local this_section="__git_first_level_config_vars_for_section_${section}"
-		__gitcomp_nl_append "${!this_section}" "$pfx" "$cur_" "${sfx:- }"
+		__gitcomp_nl_append "$(__git_indirect "${this_section}")" "$pfx" "$cur_" "${sfx:- }"
 		return
 		;;
 	submodule.*)
@@ -2930,7 +2986,7 @@ __git_complete_config_variable_name ()
 		__gitcomp_nl "$(__git config -f "$(__git rev-parse --show-toplevel)/.gitmodules" --get-regexp 'submodule.*.path' | awk -F. '{print $2}')" "$pfx" "$cur_" "."
 		__git_compute_first_level_config_vars_for_section "${section}"
 		local this_section="__git_first_level_config_vars_for_section_${section}"
-		__gitcomp_nl_append "${!this_section}" "$pfx" "$cur_" "${sfx:- }"
+		__gitcomp_nl_append "$(__git_indirect "${this_section}")" "$pfx" "$cur_" "${sfx:- }"
 		return
 		;;
 	*.*)
@@ -2975,22 +3031,42 @@ __git_complete_config_variable_name_and_value ()
 
 _git_config ()
 {
-	case "$prev" in
-	--get|--get-all|--unset|--unset-all)
-		__gitcomp_nl "$(__git_config_get_set_variables)"
+	local subcommands subcommand
+
+	__git_resolve_builtins "config"
+
+	subcommands="$___git_resolved_builtins"
+	subcommand="$(__git_find_subcommand "$subcommands")"
+
+	if [ -z "$subcommand" ]
+	then
+		__gitcomp "$subcommands"
 		return
-		;;
-	*.*)
-		__git_complete_config_variable_value
+	fi
+
+	case "$cur" in
+	--*)
+		__gitcomp_builtin "config_$subcommand"
 		return
 		;;
 	esac
-	case "$cur" in
-	--*)
-		__gitcomp_builtin config
+
+	case "$subcommand" in
+	get)
+		__gitcomp_nl "$(__git_config_get_set_variables)"
 		;;
-	*)
-		__git_complete_config_variable_name
+	set)
+		case "$prev" in
+		*.*)
+			__git_complete_config_variable_value
+			;;
+		*)
+			__git_complete_config_variable_name
+			;;
+		esac
+		;;
+	unset)
+		__gitcomp_nl "$(__git_config_get_set_variables)"
 		;;
 	esac
 }
@@ -3155,7 +3231,7 @@ _git_shortlog ()
 		__gitcomp "
 			$__git_log_common_options
 			$__git_log_shortlog_options
-			--numbered --summary --email
+			--committer --numbered --summary --email
 			"
 		return
 		;;
@@ -3262,7 +3338,7 @@ __gitcomp_directories ()
 		#       i.e. which are *already* part of their
 		#       sparse-checkout.  Thus, normal file and directory
 		#       completion is always useless for "git
-		#       sparse-checkout add" and is also probelmatic for
+		#       sparse-checkout add" and is also problematic for
 		#       "git sparse-checkout set" unless using it to
 		#       strictly narrow the checkout.
 		COMPREPLY=( "" )
@@ -3581,6 +3657,17 @@ _git_svn ()
 	fi
 }
 
+_git_symbolic_ref () {
+	case "$cur" in
+	--*)
+		__gitcomp_builtin symbolic-ref
+		return
+		;;
+	esac
+
+	__git_complete_refs
+}
+
 _git_tag ()
 {
 	local i c="$__git_cmd_idx" f=0
@@ -3653,7 +3740,7 @@ _git_worktree ()
 		# Here we are not completing an --option, it's either the
 		# path or a ref.
 		case "$prev" in
-		-b|-B)	# Complete refs for branch to be created/reseted.
+		-b|-B)	# Complete refs for branch to be created/reset.
 			__git_complete_refs
 			;;
 		-*)	# The previous word is an -o|--option without an

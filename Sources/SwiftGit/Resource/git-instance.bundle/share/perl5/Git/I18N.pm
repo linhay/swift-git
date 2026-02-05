@@ -1,5 +1,5 @@
 package Git::I18N;
-use 5.008001;
+require v5.26;
 use strict;
 use warnings $ENV{GIT_PERL_FATAL_WARNINGS} ? qw(FATAL all) : ();
 BEGIN {
@@ -27,7 +27,7 @@ use constant NO_GETTEXT => (
 
 sub __bootstrap_locale_messages {
 	our $TEXTDOMAIN = 'git';
-	our $TEXTDOMAINDIR ||= $ENV{GIT_TEXTDOMAINDIR} || '/usr/local/git/share/locale';
+	our $TEXTDOMAINDIR ||= $ENV{GIT_TEXTDOMAINDIR} || '/var/folders/rk/yj_4tlx92sz7t5k73kxppyl80000gn/T//git-bundle.liZNhZ/stage/share/locale';
 	die "NO_GETTEXT=" . NO_GETTEXT_STR if NO_GETTEXT;
 
 	require POSIX;
@@ -111,7 +111,7 @@ L<Locale::Messages>'s ngettext function or passthrough fallback function.
 =head2 N__($)
 
 No-operation that only returns its argument. Use this if you want xgettext to
-extract the text to the pot template but do not want to trigger retrival of the
+extract the text to the pot template but do not want to trigger retrieval of the
 translation at run time.
 
 =head1 AUTHOR
