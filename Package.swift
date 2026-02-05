@@ -10,13 +10,15 @@ let package = Package(
         .library(name: "SwiftGit", targets: ["SwiftGit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/linhay/STFilePath.git", from: "1.2.4")
+        .package(url: "https://github.com/linhay/SKProcessRunner.git", from: "0.0.2"),
+        .package(url: "https://github.com/linhay/STFilePath.git", from: "1.3.1"),
     ],
     targets: [
         .target(
             name: "SwiftGit",
             dependencies: [
-                .product(name: "STFilePath", package: "STFilePath")
+                .product(name: "STFilePath", package: "STFilePath"),
+                .product(name: "SKProcessRunner", package: "SKProcessRunner"),
             ],
             resources: [
                 .copy("Resource/git-instance.bundle")
@@ -27,6 +29,7 @@ let package = Package(
             dependencies: [
                 "SwiftGit",
                 .product(name: "STFilePath", package: "STFilePath"),
+                .product(name: "SKProcessRunner", package: "SKProcessRunner"),
             ]),
     ]
 )

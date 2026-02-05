@@ -8,6 +8,7 @@
 #if os(macOS)
     import Foundation
     import Combine
+    import SKProcessRunner
 
     @available(macOS 11, *)
     public struct Shell {}
@@ -176,38 +177,63 @@
         public func data(_ args: Shell.Arguments) throws -> Data {
             var args = args
             changedArgsBeforeRun?(&args)
-            let process = self.setupProcess(args.exec, args.commands, context: args.context)
-            let output = Shell.Standard(publisher: args.context?.standardOutput).append(
-                to: &process.standardOutput)
-            let error = Shell.Standard(publisher: args.context?.standardError).append(
-                to: &process.standardError)
-            try process.run()
-            process.waitUntilExit()
-            return try result(process, output: output.availableData, error: error.availableData)
-                .get()
+            guard let exec = args.exec else {
+                throw Shell.Error.processFailed(message: "Missing executable.", code: -1)
+            }
+
+            let stdoutPublisher = args.context?.standardOutput
+            let stderrPublisher = args.context?.standardError
+
+            do {
+                let result = try SKProcessRunner.runSync(
+                    executableURL: exec,
+                    arguments: args.commands,
+                    configuration: .init(
+                        cwd: args.context?.currentDirectory,
+                        environment: args.context?.environment ?? [:],
+                        timeoutMs: 5 * 60 * 1000,
+                        maxOutputBytes: 4 * 1024 * 1024
+                    ),
+                    onStdout: { stdoutPublisher?.send($0) },
+                    onStderr: { stderrPublisher?.send($0) },
+                    throwOnNonZeroExit: true
+                )
+                return result.stdoutData
+            } catch let error as SKProcessRunner.RunError {
+                throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
+            }
         }
 
         @discardableResult
         public func data(_ args: Shell.Arguments, input: Data?) throws -> Data {
             var args = args
             changedArgsBeforeRun?(&args)
-            let process = self.setupProcess(args.exec, args.commands, context: args.context)
-
-            if let input = input {
-                let inputPipe = Pipe()
-                process.standardInput = inputPipe
-                try inputPipe.fileHandleForWriting.write(contentsOf: input)
-                try inputPipe.fileHandleForWriting.close()
+            guard let exec = args.exec else {
+                throw Shell.Error.processFailed(message: "Missing executable.", code: -1)
             }
 
-            let output = Shell.Standard(publisher: args.context?.standardOutput).append(
-                to: &process.standardOutput)
-            let error = Shell.Standard(publisher: args.context?.standardError).append(
-                to: &process.standardError)
-            try process.run()
-            process.waitUntilExit()
-            return try result(process, output: output.availableData, error: error.availableData)
-                .get()
+            let stdoutPublisher = args.context?.standardOutput
+            let stderrPublisher = args.context?.standardError
+
+            do {
+                let result = try SKProcessRunner.runSync(
+                    executableURL: exec,
+                    arguments: args.commands,
+                    stdinData: input,
+                    configuration: .init(
+                        cwd: args.context?.currentDirectory,
+                        environment: args.context?.environment ?? [:],
+                        timeoutMs: 5 * 60 * 1000,
+                        maxOutputBytes: 4 * 1024 * 1024
+                    ),
+                    onStdout: { stdoutPublisher?.send($0) },
+                    onStderr: { stderrPublisher?.send($0) },
+                    throwOnNonZeroExit: true
+                )
+                return result.stdoutData
+            } catch let error as SKProcessRunner.RunError {
+                throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
+            }
         }
 
         @discardableResult
@@ -337,29 +363,33 @@
 
         @discardableResult
         public func data(_ args: Shell.Arguments) async throws -> Data {
-            try await withCheckedThrowingContinuation { continuation in
-                do {
-                    var args = args
-                    changedArgsBeforeRun?(&args)
-                    let process = setupProcess(args.exec, args.commands, context: args.context)
-                    let output = Shell.Standard(publisher: args.context?.standardOutput).append(
-                        to: &process.standardOutput)
-                    let error = Shell.Standard(publisher: args.context?.standardError).append(
-                        to: &process.standardError)
-                    try process.run()
-                    process.terminationHandler = { [self] process in
-                        do {
-                            let data = try result(
-                                process, output: output.availableData, error: error.availableData
-                            ).get()
-                            continuation.resume(returning: data)
-                        } catch {
-                            continuation.resume(throwing: error)
-                        }
-                    }
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+            var args = args
+            changedArgsBeforeRun?(&args)
+            guard let exec = args.exec else {
+                throw Shell.Error.processFailed(message: "Missing executable.", code: -1)
+            }
+
+            let stdoutPublisher = args.context?.standardOutput
+            let stderrPublisher = args.context?.standardError
+
+            do {
+                let result = try await SKProcessRunner.run(
+                    executableURL: exec,
+                    arguments: args.commands,
+                    stdinData: nil,
+                    configuration: .init(
+                        cwd: args.context?.currentDirectory,
+                        environment: args.context?.environment ?? [:],
+                        timeoutMs: 5 * 60 * 1000,
+                        maxOutputBytes: 4 * 1024 * 1024
+                    ),
+                    onStdout: { stdoutPublisher?.send($0) },
+                    onStderr: { stderrPublisher?.send($0) },
+                    throwOnNonZeroExit: true
+                )
+                return result.stdoutData
+            } catch let error as SKProcessRunner.RunError {
+                throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
             }
         }
 
