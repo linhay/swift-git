@@ -51,7 +51,7 @@ extension GitEnvironment {
     }
 
     public enum Style {
-        case embed
+        case embed(EmbeddedResource)
         case system
         case custom(_ url: URL)
         case auto
@@ -64,12 +64,13 @@ extension GitEnvironment {
         triggers: [GitTrigger] = []
     ) throws {
         switch type {
-        case .embed:
+        case .embed(let embedded):
             guard
-                let resourceBundle = Self.findEmbeddedResourceBundle(),
-                let embeddedURL = resourceBundle.url(forResource: "git-instance", withExtension: "bundle"),
-                let bundle = Bundle(url: embeddedURL),
-                let resource = Resource(bundle: bundle)
+                let embeddedURL = embedded.bundle.url(
+                    forResource: "git-instance",
+                    withExtension: "bundle"),
+                let resourceBundle = Bundle(url: embeddedURL),
+                let resource = Resource(bundle: resourceBundle)
             else {
                 throw GitError.unableLoadEmbeddGitInstance
             }
@@ -112,42 +113,12 @@ extension GitEnvironment {
 
 extension GitEnvironment {
 
-    private static func findEmbeddedResourceBundle() -> Bundle? {
-        let candidates: [String]
-#if arch(arm64)
-        candidates = [
-            "SwiftGitResourcesArm64",
-            "SwiftGitResourcesUniversal",
-            "SwiftGitResourcesX86_64",
-            "SwiftGit"
-        ]
-#elseif arch(x86_64)
-        candidates = [
-            "SwiftGitResourcesX86_64",
-            "SwiftGitResourcesUniversal",
-            "SwiftGitResourcesArm64",
-            "SwiftGit"
-        ]
-#else
-        candidates = [
-            "SwiftGitResourcesUniversal",
-            "SwiftGitResourcesArm64",
-            "SwiftGitResourcesX86_64",
-            "SwiftGit"
-        ]
-#endif
+    public struct EmbeddedResource {
+        public let bundle: Bundle
 
-        let bundles = Bundle.allBundles + Bundle.allFrameworks
-        for name in candidates {
-            if let url = Bundle.main.url(forResource: name, withExtension: "bundle"),
-               let bundle = Bundle(url: url) {
-                return bundle
-            }
-            if let bundle = bundles.first(where: { $0.bundleURL.lastPathComponent == "\(name).bundle" }) {
-                return bundle
-            }
+        public init(bundle: Bundle) {
+            self.bundle = bundle
         }
-        return nil
     }
 
     public struct Resource {

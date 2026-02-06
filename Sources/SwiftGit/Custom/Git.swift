@@ -20,11 +20,20 @@ public class Git {
         }
     }
 
-    public let environment: GitEnvironment
+    public private(set) var environment: GitEnvironment
+    private let environments: [GitEnvironment]
+    private var activeEnvironment: GitEnvironment?
     public var shell = Shell.Instance()
 
     public init(environment: GitEnvironment) {
         self.environment = environment
+        self.environments = [environment]
+    }
+
+    public init(environments: [GitEnvironment]) {
+        precondition(!environments.isEmpty, "Git requires at least one GitEnvironment")
+        self.environments = environments
+        self.environment = environments[0]
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -35,23 +44,32 @@ extension Git {
     public func dataPublisher(_ commands: [String], context: Shell.Context? = nil)
         -> AnyPublisher<Data, Error>
     {
-        self.triggerOfBeforeRun(commands)
+        let env: GitEnvironment
+        do {
+            env = try resolveEnvironment()
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
+        }
+        self.triggerOfBeforeRun(commands, environment: env)
         return
             shell
             .dataPublisher(
                 Shell.Arguments(
-                    exec: self.environment.resource.executableURL,
+                    exec: env.resource.executableURL,
                     commands: commands,
-                    context: self.deal(context: context))
+                    context: self.deal(context: context, environment: env))
             )
             .map({ [weak self] data in
                 guard let self = self else { return data }
-                self.triggerOfAfterRun(commands, data: data)
+                self.triggerOfAfterRun(commands, data: data, environment: env)
                 return data
             })
             .mapError({ [weak self] error in
                 guard let self = self else { return error }
-                _ = self.triggerOfAfterRun(commands, message: error.localizedDescription)
+                _ = self.triggerOfAfterRun(
+                    commands,
+                    message: error.localizedDescription,
+                    environment: env)
                 return error
             })
             .eraseToAnyPublisher()
@@ -124,18 +142,21 @@ extension Git {
     @discardableResult
     public func data(_ commands: [String], context: Shell.Context? = nil) async throws -> Data {
         do {
-            triggerOfBeforeRun(commands)
+            let env = try resolveEnvironment()
+            triggerOfBeforeRun(commands, environment: env)
             let data = try await shell.data(
                 .init(
-                    exec: environment.resource.executableURL,
+                    exec: env.resource.executableURL,
                     commands: commands,
-                    context: deal(context: context)))
-            triggerOfAfterRun(commands, data: data)
+                    context: deal(context: context, environment: env)))
+            triggerOfAfterRun(commands, data: data, environment: env)
             return data
         } catch GitError.processFatal(let message) {
-            throw triggerOfAfterRun(commands, message: message)
+            let env = try resolveEnvironment()
+            throw triggerOfAfterRun(commands, message: message, environment: env)
         } catch {
-            throw triggerOfAfterRun(commands, message: error.localizedDescription)
+            let env = try resolveEnvironment()
+            throw triggerOfAfterRun(commands, message: error.localizedDescription, environment: env)
         }
     }
 
@@ -166,28 +187,29 @@ extension Git {
         progress: @escaping @Sendable (GitProgress) -> GitProgressAction
     ) async throws -> String {
         try Task.checkCancellation()
-        triggerOfBeforeRun(commands)
+        let env = try resolveEnvironment()
+        triggerOfBeforeRun(commands, environment: env)
         let parser = GitProgressParser(progress: progress)
         do {
             let data = try await shell.data(
                 .init(
-                    exec: environment.resource.executableURL,
+                    exec: env.resource.executableURL,
                     commands: commands,
-                    context: deal(context: context)
+                    context: deal(context: context, environment: env)
                 ),
                 onStdout: { parser.handle($0) },
                 onStderr: { parser.handle($0) },
                 shouldCancel: { parser.isCancelRequested || Task.isCancelled }
             )
             parser.finish()
-            triggerOfAfterRun(commands, data: data)
+            triggerOfAfterRun(commands, data: data, environment: env)
             return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) ?? ""
         } catch is CancellationError {
             throw CancellationError()
         } catch GitError.processFatal(let message) {
-            throw triggerOfAfterRun(commands, message: message)
+            throw triggerOfAfterRun(commands, message: message, environment: env)
         } catch {
-            throw triggerOfAfterRun(commands, message: error.localizedDescription)
+            throw triggerOfAfterRun(commands, message: error.localizedDescription, environment: env)
         }
     }
 
@@ -198,18 +220,21 @@ extension Git {
     @discardableResult
     public func data(_ commands: [String], context: Shell.Context? = nil) throws -> Data {
         do {
-            triggerOfBeforeRun(commands)
+            let env = try resolveEnvironment()
+            triggerOfBeforeRun(commands, environment: env)
             let data = try shell.data(
                 .init(
-                    exec: environment.resource.executableURL,
+                    exec: env.resource.executableURL,
                     commands: commands,
-                    context: deal(context: context)))
-            triggerOfAfterRun(commands, data: data)
+                    context: deal(context: context, environment: env)))
+            triggerOfAfterRun(commands, data: data, environment: env)
             return data
         } catch GitError.processFatal(let message) {
-            throw triggerOfAfterRun(commands, message: message)
+            let env = try resolveEnvironment()
+            throw triggerOfAfterRun(commands, message: message, environment: env)
         } catch {
-            throw triggerOfAfterRun(commands, message: error.localizedDescription)
+            let env = try resolveEnvironment()
+            throw triggerOfAfterRun(commands, message: error.localizedDescription, environment: env)
         }
     }
 
@@ -245,7 +270,7 @@ extension Git {
 
 extension Git {
 
-    fileprivate func deal(context: Shell.Context?) -> Shell.Context {
+    fileprivate func deal(context: Shell.Context?, environment: GitEnvironment) -> Shell.Context {
         var environmentDict = context?.environment ?? [:]
         environment.variables.forEach { item in
             environmentDict[item.key] = item.value
@@ -258,7 +283,11 @@ extension Git {
         return ctx
     }
 
-    fileprivate func triggerOfAfterRun(_ commands: [String], data: Data) {
+    fileprivate func triggerOfAfterRun(
+        _ commands: [String],
+        data: Data,
+        environment: GitEnvironment
+    ) {
         if let triggers = environment.triggersMap[.afterRun] {
             let content = GitTrigger.Content(commands: commands, data: data)
             triggers.forEach({ item in
@@ -267,7 +296,11 @@ extension Git {
         }
     }
 
-    fileprivate func triggerOfAfterRun(_ commands: [String], message: String) -> GitError {
+    fileprivate func triggerOfAfterRun(
+        _ commands: [String],
+        message: String,
+        environment: GitEnvironment
+    ) -> GitError {
         let error = GitTrigger.Error(commands: commands, message: message)
         environment.triggersMap[.afterRun]?.forEach({ item in
             item.action(.failure(error))
@@ -275,13 +308,42 @@ extension Git {
         return GitError.processFatal(error.message)
     }
 
-    fileprivate func triggerOfBeforeRun(_ commands: [String]) {
+    fileprivate func triggerOfBeforeRun(_ commands: [String], environment: GitEnvironment) {
         if let triggers = environment.triggersMap[.beforeRun] {
             let content = GitTrigger.Content(commands: commands, data: Data())
             triggers.forEach({ item in
                 item.action(.success(content))
             })
         }
+    }
+
+}
+
+extension Git {
+
+    private func resolveEnvironment() throws -> GitEnvironment {
+        if let active = activeEnvironment {
+            return active
+        }
+        for env in environments {
+            if isUsable(env) {
+                activeEnvironment = env
+                environment = env
+                return env
+            }
+        }
+        throw GitError.noGitInstanceFoundOnSystem
+    }
+
+    private func isUsable(_ env: GitEnvironment) -> Bool {
+        let execPath = env.resource.executableURL.path
+        guard FileManager.default.isExecutableFile(atPath: execPath) else {
+            return false
+        }
+        if let execPath = env.resource.envExecPath {
+            return FileManager.default.fileExists(atPath: execPath)
+        }
+        return true
     }
 
 }

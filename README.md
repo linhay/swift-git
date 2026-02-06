@@ -78,7 +78,7 @@ Important modules (quick code map)
   - Use `Git.data(...)` or `Git.run(...)` which delegate to `Shell.Instance`.
 
 - `GitEnvironment` (`Sources/SwiftGit/Custom/GitEnvironment.swift`)
-  - Selects between embedded git (`.embed`), system git (`.system`), or custom folder.
+  - Selects between embedded git (`.embed(...)`), system git (`.system`), or custom folder.
   - Exposes environment variables used to run git (e.g. `GIT_EXEC_PATH`).
 
 - `Git` (`Sources/SwiftGit/Custom/Git.swift`)
@@ -97,8 +97,18 @@ Embedded git bundle
   - `SwiftGitArm64` → `Sources/SwiftGitResourcesArm64/Resource/git-instance.bundle`
   - `SwiftGitX86_64` → `Sources/SwiftGitResourcesX86_64/Resource/git-instance.bundle`
   - `SwiftGitUniversal` → `Sources/SwiftGitResourcesUniversal/Resource/git-instance.bundle`
-- `SwiftGit` (base product) no longer embeds a bundle; `GitEnvironment.Style.embed` will only succeed if one of the resource products is linked.
-- `GitEnvironment.Style.auto` now maps to system git only; use `.embed` explicitly when you add a resource product.
+- `SwiftGit` (base product) no longer embeds a bundle; `.embed(.arm64/.x86_64/.universal)` works only when the corresponding resource product is linked.
+- `GitEnvironment.Style.auto` now maps to system git only; use `.embed(...)` explicitly when you add a resource product.
+
+Example usage (arm64):
+
+```swift
+import SwiftGit
+import SwiftGitResourcesArm64
+
+let env = try GitEnvironment(type: .embed(.arm64))
+let git = Git(environment: env)
+```
 - Agents and tests should not modify files under the bundles. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
 - To generate updated bundles, run `tools/update-git-bundle.sh` with the desired `--archs` and copy the result into the corresponding `Sources/SwiftGitResources*/Resource/` directory.
 - If a bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.
@@ -109,7 +119,7 @@ Tests and integration tests
 - Tests live under `Tests/SwiftGitTests/`.
   - Unit tests: parsing and helpers (safe parsing of `git` output, command splitting).
   - Integration tests: initialize temporary repos and run real git workflows (init, add, commit, tag, branch, stash, rebase, plumbing commands like `write-tree`).
-- Integration tests try to use the embedded git first and fall back to system git. If neither is available they skip.
+- Integration tests use system git; if git is unavailable they skip.
 - Helper examples: `Tests/SwiftGitTests/IntegrationTests.swift`, `PlumbingTests.swift`, `ShowCommitResultTests.swift`.
 
 Design & safety notes

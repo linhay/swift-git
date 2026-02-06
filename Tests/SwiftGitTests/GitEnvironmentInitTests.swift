@@ -3,14 +3,11 @@ import XCTest
 
 final class GitEnvironmentInitTests: XCTestCase {
 
-    func testAutoInit_prefers_embed_when_available() throws {
-        // We cannot easily manipulate Bundle.module in tests; at least call the auto init
-        // to ensure it doesn't throw in a normal environment.
+    func testAutoInit_uses_system_git() throws {
+        // Auto now maps to system git; if git is unavailable, the init may throw.
         do {
             _ = try GitEnvironment(type: .auto)
         } catch {
-            // It's acceptable for the test environment to not have an embedded bundle,
-            // but the call should not crash; swallowing errors here is intended.
             XCTAssertNotNil(error)
         }
     }

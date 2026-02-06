@@ -25,16 +25,19 @@ let package = Package(
             ]),
         .target(
             name: "SwiftGitResourcesArm64",
+            dependencies: ["SwiftGit"],
             resources: [
                 .copy("Resource/git-instance.bundle")
             ]),
         .target(
             name: "SwiftGitResourcesX86_64",
+            dependencies: ["SwiftGit"],
             resources: [
                 .copy("Resource/git-instance.bundle")
             ]),
         .target(
             name: "SwiftGitResourcesUniversal",
+            dependencies: ["SwiftGit"],
             resources: [
                 .copy("Resource/git-instance.bundle")
             ]),

@@ -11,9 +11,9 @@ final class PlumbingTests: XCTestCase {
     }
 
     func envOrSkip() throws -> GitEnvironment {
-        if let env = try? GitEnvironment(type: .embed) { return env }
         if let env = try? GitEnvironment(type: .system) { return env }
-        throw XCTSkip("No git instance available (embed or system)")
+        if let env = try? GitEnvironment(type: .system) { return env }
+        throw XCTSkip("No git instance available (system)")
     }
 
     func test_update_index_add_and_write_tree() throws {

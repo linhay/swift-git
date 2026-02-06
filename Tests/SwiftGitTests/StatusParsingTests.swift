@@ -12,9 +12,9 @@ final class StatusParsingTests: XCTestCase {
     }
 
     func envOrSkip() throws -> GitEnvironment {
-        if let env = try? GitEnvironment(type: .embed) { return env }
         if let env = try? GitEnvironment(type: .system) { return env }
-        throw XCTSkip("No git instance available (embed or system)")
+        if let env = try? GitEnvironment(type: .system) { return env }
+        throw XCTSkip("No git instance available (system)")
     }
 
     func configureUser(_ git: Git, at repoDir: URL) throws {
