@@ -31,10 +31,13 @@ Options:
   --base-url <url>    Base URL for git source tarballs (default: kernel.org mirror).
   --archs <list>      Comma-separated arch list (default: arm64,x86_64).
   --force             Remove existing output bundle before writing.
+  --include-contrib   Include contrib/ in the bundle (default: skip).
+  --include-extras    Include optional GUI/web/perl/completion tools (default: skip).
   --lfs-version <ver> Specify git-lfs version (e.g. 3.5.0). Defaults to latest.
   --lfs-api-url <url> GitHub API URL for latest release metadata.
   --lfs-base-url <u>  Base URL for git-lfs release assets.
   --lfs-raw-base-url  Base URL for git-lfs raw files (README/CHANGELOG/install).
+  --no-strip          Do not strip symbols from binaries.
   --skip-lfs          Do not copy existing git-lfs bundle from the repo.
   -h, --help          Show this help.
 
@@ -98,6 +101,56 @@ optimize_git_links() {
   if [[ "${relinked}" -gt 0 || "${bin_relinked}" -gt 0 ]]; then
     log "Optimized git links: ${relinked} git-core links, ${bin_relinked} bin links."
   fi
+}
+
+strip_bundle_binaries() {
+  local bundle_root="$1"
+  local stripped=0
+  local skipped=0
+
+  if ! command -v strip >/dev/null 2>&1; then
+    log "strip not found; skipping symbol stripping."
+    return
+  fi
+
+  while IFS= read -r -d '' candidate; do
+    if file "${candidate}" | grep -q "Mach-O"; then
+      if strip -S "${candidate}" 2>/dev/null; then
+        stripped=$((stripped + 1))
+      else
+        skipped=$((skipped + 1))
+      fi
+    fi
+  done < <(find "${bundle_root}" -type f -perm -111 -print0)
+
+  log "Stripped ${stripped} binaries (skipped: ${skipped})."
+}
+
+prune_bundle_extras() {
+  local bundle_root="$1"
+  local share_dir="${bundle_root}/share"
+  local bin_dir="${bundle_root}/bin"
+  local core_dir="${bundle_root}/libexec/git-core"
+
+  rm -rf "${share_dir}/git-gui" \
+         "${share_dir}/gitk" \
+         "${share_dir}/gitweb" \
+         "${share_dir}/bash-completion" \
+         "${share_dir}/perl5" 2>/dev/null || true
+
+  rm -f "${bin_dir}/gitk" \
+        "${bin_dir}/git-cvsserver" 2>/dev/null || true
+
+  rm -f "${core_dir}/git-gui" \
+        "${core_dir}/git-gui--askpass" \
+        "${core_dir}/git-gui--askyesno" \
+        "${core_dir}/git-instaweb" \
+        "${core_dir}/git-send-email" \
+        "${core_dir}/git-svn" \
+        "${core_dir}/git-p4" \
+        "${core_dir}/git-cvsserver" 2>/dev/null || true
+
+  log "Pruned optional GUI/web/perl/completion tooling."
 }
 
 resolve_lfs_release() {
@@ -172,7 +225,10 @@ output="${DEFAULT_OUTPUT}"
 base_url="${DEFAULT_BASE_URL}"
 archs="${DEFAULT_ARCHS}"
 force=0
+include_contrib=0
+include_extras=0
 skip_lfs=0
+strip_binaries=1
 lfs_version=""
 lfs_api_url="${DEFAULT_LFS_API_URL}"
 lfs_base_url="${DEFAULT_LFS_BASE_URL}"
@@ -209,6 +265,18 @@ while [[ $# -gt 0 ]]; do
       ;;
     --force)
       force=1
+      shift
+      ;;
+    --include-contrib)
+      include_contrib=1
+      shift
+      ;;
+    --include-extras)
+      include_extras=1
+      shift
+      ;;
+    --no-strip)
+      strip_binaries=0
       shift
       ;;
     --lfs-version)
@@ -391,12 +459,20 @@ else
   (cd "${stage_dir}" && tar -cf - .) | (cd "${bundle_dir}" && tar -xpf -)
 fi
 
-if [[ -d "${src_dir}/contrib" ]]; then
+if [[ "${include_contrib}" -eq 1 && -d "${src_dir}/contrib" ]]; then
   rm -rf "${bundle_dir}/contrib"
   cp -R "${src_dir}/contrib" "${bundle_dir}/"
 fi
 
 optimize_git_links "${bundle_dir}"
+
+if [[ "${include_extras}" -eq 0 ]]; then
+  prune_bundle_extras "${bundle_dir}"
+fi
+
+if [[ "${strip_binaries}" -eq 1 ]]; then
+  strip_bundle_binaries "${bundle_dir}"
+fi
 
 if [[ "${skip_lfs}" -eq 0 ]]; then
   if [[ -n "${lfs_version}" ]]; then
