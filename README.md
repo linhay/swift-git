@@ -102,6 +102,7 @@ Embedded git bundle
 - If the bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.
 - Review the generated bundle and replace `Sources/SwiftGit/Resource/git-instance.bundle` if needed.
 - The default bundle is trimmed for size and omits GUI/web/perl tooling and shell completions. Use `--include-extras` to keep them.
+- The update script defaults to the host arch (`uname -m`). Use `--archs arm64,x86_64` for a universal bundle, or `tools/thin-git-bundle.sh` to slim an existing one.
 
 Tests and integration tests
 - Tests live under `Tests/SwiftGitTests/`.

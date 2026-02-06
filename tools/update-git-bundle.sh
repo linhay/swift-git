@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 DEFAULT_BASE_URL="https://mirrors.edge.kernel.org/pub/software/scm/git"
 DEFAULT_OUTPUT="${REPO_ROOT}/tools/git-bundle"
-DEFAULT_ARCHS="arm64,x86_64"
+DEFAULT_ARCHS="$(uname -m 2>/dev/null || echo arm64)"
 DEFAULT_MACOS_DEPLOYMENT_TARGET="12.0"
 DEFAULT_LFS_API_URL="https://api.github.com/repos/git-lfs/git-lfs/releases/latest"
 DEFAULT_LFS_BASE_URL="https://github.com/git-lfs/git-lfs/releases/download"
@@ -29,7 +29,7 @@ Options:
   --version <ver>     Specify the git version to build (e.g. 2.52.0).
   --output <dir>      Output directory (default: tools/git-bundle).
   --base-url <url>    Base URL for git source tarballs (default: kernel.org mirror).
-  --archs <list>      Comma-separated arch list (default: arm64,x86_64).
+  --archs <list>      Comma-separated arch list (default: host arch from uname -m).
   --force             Remove existing output bundle before writing.
   --include-contrib   Include contrib/ in the bundle (default: skip).
   --include-extras    Include optional GUI/web/perl/completion tools (default: skip).
