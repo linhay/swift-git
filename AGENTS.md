@@ -65,6 +65,10 @@ swift test --package-path . --filter <TestName>
   - No Copilot instructions file found at `.github/copilot-instructions.md`.
   - If you add Cursor/Copilot rules, place them in `.cursor/rules/` and reference them here.
 
+- **Skills**
+  - If your agent supports skills, follow the `SKILL.md` instructions for any skill you use.
+  - This repo does not define repo-specific skills; rely on your toolchain's skill list when available.
+
 - **Code style guidelines**
 
 - Imports

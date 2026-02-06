@@ -118,6 +118,7 @@ CI
 
 Contributing and agents
 - There is an `AGENTS.md` file with rules and commands for automated agents and contributors. Agents should follow its guidelines when editing, testing, and committing.
+- Skill guidance for agent-enabled environments is also noted in `AGENTS.md`.
 
 Example usage
 - Simple programmatic example (conceptual):
