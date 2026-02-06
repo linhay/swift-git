@@ -45,6 +45,61 @@ Notes:
 EOF
 }
 
+optimize_git_links() {
+  local bundle_root="$1"
+  local git_core_dir="${bundle_root}/libexec/git-core"
+  local git_bin="${git_core_dir}/git"
+  local relinked=0
+  local bin_relinked=0
+
+  if [[ ! -x "${git_bin}" ]]; then
+    log "Skipping link optimization; missing ${git_bin}"
+    return
+  fi
+
+  if [[ -d "${git_core_dir}" ]]; then
+    while IFS= read -r -d '' candidate; do
+      local name
+      name="$(basename "${candidate}")"
+      if [[ "${name}" == "git" ]]; then
+        continue
+      fi
+      if [[ -L "${candidate}" ]]; then
+        continue
+      fi
+      if cmp -s "${git_bin}" "${candidate}"; then
+        rm -f "${candidate}"
+        ln -s "git" "${git_core_dir}/${name}"
+        relinked=$((relinked + 1))
+      fi
+    done < <(find "${git_core_dir}" -maxdepth 1 -type f -name 'git-*' -print0)
+  fi
+
+  local bin_dir="${bundle_root}/bin"
+  if [[ -d "${bin_dir}" ]]; then
+    while IFS= read -r -d '' candidate; do
+      local name
+      name="$(basename "${candidate}")"
+      if [[ "${name}" == "git" ]]; then
+        continue
+      fi
+      if [[ -L "${candidate}" ]]; then
+        continue
+      fi
+      local core_match="${git_core_dir}/${name}"
+      if [[ -f "${core_match}" ]] && cmp -s "${core_match}" "${candidate}"; then
+        rm -f "${candidate}"
+        ln -s "../libexec/git-core/${name}" "${bin_dir}/${name}"
+        bin_relinked=$((bin_relinked + 1))
+      fi
+    done < <(find "${bin_dir}" -maxdepth 1 -type f -print0)
+  fi
+
+  if [[ "${relinked}" -gt 0 || "${bin_relinked}" -gt 0 ]]; then
+    log "Optimized git links: ${relinked} git-core links, ${bin_relinked} bin links."
+  fi
+}
+
 resolve_lfs_release() {
   local json
   json="$(curl -fsSL "${lfs_api_url}")"
@@ -330,15 +385,18 @@ fi
 mkdir -p "${bundle_dir}"
 
 if command -v rsync >/dev/null 2>&1; then
-  rsync -a "${stage_dir}/" "${bundle_dir}/"
+  rsync -aH "${stage_dir}/" "${bundle_dir}/"
 else
-  cp -R "${stage_dir}/." "${bundle_dir}/"
+  log "rsync not found; using tar to preserve hardlinks."
+  (cd "${stage_dir}" && tar -cf - .) | (cd "${bundle_dir}" && tar -xpf -)
 fi
 
 if [[ -d "${src_dir}/contrib" ]]; then
   rm -rf "${bundle_dir}/contrib"
   cp -R "${src_dir}/contrib" "${bundle_dir}/"
 fi
+
+optimize_git_links "${bundle_dir}"
 
 if [[ "${skip_lfs}" -eq 0 ]]; then
   if [[ -n "${lfs_version}" ]]; then

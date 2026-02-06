@@ -99,6 +99,7 @@ Embedded git bundle
 - `GitEnvironment` will prefer the embedded instance when `Style.embed` is selected or when `Style.auto` finds it.
 - Agents and tests should not modify files under the bundle. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
 - To generate an updated bundle, run `tools/update-git-bundle.sh`. It writes to `tools/git-bundle/git-instance.bundle` by default.
+- If the bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.
 - Review the generated bundle and replace `Sources/SwiftGit/Resource/git-instance.bundle` if needed.
 
 Tests and integration tests
