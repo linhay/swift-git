@@ -69,6 +69,17 @@ Examples (do not auto-run)
 - "Run a single test": use `swift test --filter <TestName>` as shown above.
 - "Check package manifest": open Package.swift at repository root.
 
+Installation (SwiftPM)
+- Base library:
+  - Product: `SwiftGit`
+- Optional embedded git bundles (manual opt-in):
+  - Arm64 bundle product: `SwiftGitArm64`
+  - X86_64 bundle product: `SwiftGitX86_64`
+  - Universal bundle product: `SwiftGitUniversal`
+- Usage pattern (prefer embedded, fallback to system):
+  - `Git(environments: [.embed(.arm64), .system])`
+  - Replace `.arm64` with `.x86_64` or `.universal` when using the corresponding product.
+
 Packaging the skill
 - To package this skill (manual step), follow your environment's packaging script. Example: `scripts/package_skill.py swift-git.skill` (if package exists in your environment).
 

@@ -100,14 +100,13 @@ Embedded git bundle
 - `SwiftGit` (base product) no longer embeds a bundle; `.embed(.arm64/.x86_64/.universal)` works only when the corresponding resource product is linked.
 - `GitEnvironment.Style.auto` now maps to system git only; use `.embed(...)` explicitly when you add a resource product.
 
-Example usage (arm64):
+Example usage (arm64, prefer embedded then system fallback):
 
 ```swift
 import SwiftGit
-import SwiftGitResourcesArm64
+import SwiftGitArm64
 
-let env = try GitEnvironment(type: .embed(.arm64))
-let git = Git(environment: env)
+let git = Git(environments: [.embed(.arm64), .system])
 ```
 - Agents and tests should not modify files under the bundles. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
 - To generate updated bundles, run `tools/update-git-bundle.sh` with the desired `--archs` and copy the result into the corresponding `Sources/SwiftGitResources*/Resource/` directory.
