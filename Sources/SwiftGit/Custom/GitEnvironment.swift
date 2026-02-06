@@ -104,14 +104,7 @@ extension GitEnvironment {
             }
             self.init(resource: resource, variables: variables, triggers: triggers)
         case .auto:
-            if let item = try? GitEnvironment(
-                type: .embed, variables: variables, triggers: triggers)
-            {
-                self.init(
-                    resource: item.resource, variables: item.variables, triggers: item.triggers)
-            } else {
-                try self.init(type: .system, variables: variables, triggers: triggers)
-            }
+            try self.init(type: .system, variables: variables, triggers: triggers)
         }
     }
 

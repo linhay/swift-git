@@ -98,6 +98,7 @@ Embedded git bundle
   - `SwiftGitX86_64` → `Sources/SwiftGitResourcesX86_64/Resource/git-instance.bundle`
   - `SwiftGitUniversal` → `Sources/SwiftGitResourcesUniversal/Resource/git-instance.bundle`
 - `SwiftGit` (base product) no longer embeds a bundle; `GitEnvironment.Style.embed` will only succeed if one of the resource products is linked.
+- `GitEnvironment.Style.auto` now maps to system git only; use `.embed` explicitly when you add a resource product.
 - Agents and tests should not modify files under the bundles. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
 - To generate updated bundles, run `tools/update-git-bundle.sh` with the desired `--archs` and copy the result into the corresponding `Sources/SwiftGitResources*/Resource/` directory.
 - If a bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.
