@@ -92,16 +92,16 @@ Important modules (quick code map)
   - Strongly-typed representations of `git status` output. Parsing code is defensive to avoid crashes on malformed input.
 
 Embedded git bundle
-- This repository includes a pre-packaged git distribution at:
-
-  `Sources/SwiftGit/Resource/git-instance.bundle`
-
-- `GitEnvironment` will prefer the embedded instance when `Style.embed` is selected or when `Style.auto` finds it.
-- Agents and tests should not modify files under the bundle. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
-- To generate an updated bundle, run `tools/update-git-bundle.sh`. It writes to `tools/git-bundle/git-instance.bundle` by default.
-- If the bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.
-- Review the generated bundle and replace `Sources/SwiftGit/Resource/git-instance.bundle` if needed.
-- The default bundle is trimmed for size and omits GUI/web/perl tooling and shell completions. Use `--include-extras` to keep them.
+- Embedded bundles are now split into dedicated resource targets so consumers can opt in by architecture.
+- Products:
+  - `SwiftGitArm64` → `Sources/SwiftGitResourcesArm64/Resource/git-instance.bundle`
+  - `SwiftGitX86_64` → `Sources/SwiftGitResourcesX86_64/Resource/git-instance.bundle`
+  - `SwiftGitUniversal` → `Sources/SwiftGitResourcesUniversal/Resource/git-instance.bundle`
+- `SwiftGit` (base product) no longer embeds a bundle; `GitEnvironment.Style.embed` will only succeed if one of the resource products is linked.
+- Agents and tests should not modify files under the bundles. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
+- To generate updated bundles, run `tools/update-git-bundle.sh` with the desired `--archs` and copy the result into the corresponding `Sources/SwiftGitResources*/Resource/` directory.
+- If a bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.
+- The default build trims optional GUI/web/perl tooling and shell completions. Use `--include-extras` to keep them.
 - The update script defaults to the host arch (`uname -m`). Use `--archs arm64,x86_64` for a universal bundle, or `tools/thin-git-bundle.sh` to slim an existing one.
 
 Tests and integration tests

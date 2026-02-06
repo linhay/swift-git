@@ -7,7 +7,10 @@ let package = Package(
     name: "SwiftGit",
     platforms: [.macOS(.v12)],
     products: [
-        .library(name: "SwiftGit", targets: ["SwiftGit"])
+        .library(name: "SwiftGit", targets: ["SwiftGit"]),
+        .library(name: "SwiftGitArm64", targets: ["SwiftGit", "SwiftGitResourcesArm64"]),
+        .library(name: "SwiftGitX86_64", targets: ["SwiftGit", "SwiftGitResourcesX86_64"]),
+        .library(name: "SwiftGitUniversal", targets: ["SwiftGit", "SwiftGitResourcesUniversal"]),
     ],
     dependencies: [
         .package(url: "https://github.com/linhay/SKProcessRunner.git", from: "0.0.2"),
@@ -19,7 +22,19 @@ let package = Package(
             dependencies: [
                 .product(name: "STFilePath", package: "STFilePath"),
                 .product(name: "SKProcessRunner", package: "SKProcessRunner"),
-            ],
+            ]),
+        .target(
+            name: "SwiftGitResourcesArm64",
+            resources: [
+                .copy("Resource/git-instance.bundle")
+            ]),
+        .target(
+            name: "SwiftGitResourcesX86_64",
+            resources: [
+                .copy("Resource/git-instance.bundle")
+            ]),
+        .target(
+            name: "SwiftGitResourcesUniversal",
             resources: [
                 .copy("Resource/git-instance.bundle")
             ]),

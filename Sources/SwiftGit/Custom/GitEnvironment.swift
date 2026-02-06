@@ -66,13 +66,11 @@ extension GitEnvironment {
         switch type {
         case .embed:
             guard
-                let url = Bundle.module.url(
-                    forAuxiliaryExecutable: "Contents/Resources/git-instance.bundle"),
-                let bundle = Bundle(url: url)
+                let resourceBundle = Self.findEmbeddedResourceBundle(),
+                let embeddedURL = resourceBundle.url(forResource: "git-instance", withExtension: "bundle"),
+                let bundle = Bundle(url: embeddedURL),
+                let resource = Resource(bundle: bundle)
             else {
-                throw GitError.unableLoadEmbeddGitInstance
-            }
-            guard let resource = Resource(bundle: bundle) else {
                 throw GitError.unableLoadEmbeddGitInstance
             }
             var variables = variables
@@ -120,6 +118,27 @@ extension GitEnvironment {
 }
 
 extension GitEnvironment {
+
+    private static func findEmbeddedResourceBundle() -> Bundle? {
+        let candidates = [
+            "SwiftGitResourcesArm64",
+            "SwiftGitResourcesX86_64",
+            "SwiftGitResourcesUniversal",
+            "SwiftGit"
+        ]
+
+        let bundles = Bundle.allBundles + Bundle.allFrameworks
+        for name in candidates {
+            if let url = Bundle.main.url(forResource: name, withExtension: "bundle"),
+               let bundle = Bundle(url: url) {
+                return bundle
+            }
+            if let bundle = bundles.first(where: { $0.bundleURL.lastPathComponent == "\(name).bundle" }) {
+                return bundle
+            }
+        }
+        return nil
+    }
 
     public struct Resource {
 
