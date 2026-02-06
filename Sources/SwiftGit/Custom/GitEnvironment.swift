@@ -120,12 +120,29 @@ extension GitEnvironment {
 extension GitEnvironment {
 
     private static func findEmbeddedResourceBundle() -> Bundle? {
-        let candidates = [
+        let candidates: [String]
+#if arch(arm64)
+        candidates = [
             "SwiftGitResourcesArm64",
-            "SwiftGitResourcesX86_64",
             "SwiftGitResourcesUniversal",
+            "SwiftGitResourcesX86_64",
             "SwiftGit"
         ]
+#elseif arch(x86_64)
+        candidates = [
+            "SwiftGitResourcesX86_64",
+            "SwiftGitResourcesUniversal",
+            "SwiftGitResourcesArm64",
+            "SwiftGit"
+        ]
+#else
+        candidates = [
+            "SwiftGitResourcesUniversal",
+            "SwiftGitResourcesArm64",
+            "SwiftGitResourcesX86_64",
+            "SwiftGit"
+        ]
+#endif
 
         let bundles = Bundle.allBundles + Bundle.allFrameworks
         for name in candidates {
