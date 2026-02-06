@@ -51,6 +51,15 @@ _ = try await git.clone([.progress], repository: url, directory: "/tmp/repo") { 
 }
 ```
 
+Shared fallback configuration (manual)
+```swift
+import SwiftGit
+import SwiftGitArm64
+
+Git.configureShared(environments: [.embed(.arm64), .system])
+let git = try Git.shared
+```
+
 Repository constraints (MUST follow)
 - Do NOT create commits or push to remote on behalf of a user unless explicitly authorized.
 - Do NOT modify the embedded git bundle at Sources/SwiftGit/Resource/git-instance.bundle.

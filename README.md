@@ -83,6 +83,7 @@ Important modules (quick code map)
 
 - `Git` (`Sources/SwiftGit/Custom/Git.swift`)
   - High-level entrypoint. Use `Git(environment:)` or `try Git.shared` (throws if environment fails).
+  - Configure shared fallback environments with `Git.configureShared(environments:)`.
   - Methods: `run`, `runPublisher`, `data` with variants for arrays of args and string commands.
 
 - `Repository` (`Sources/SwiftGit/Custom/Repository.swift` + `Repository+*.swift`)
@@ -107,6 +108,16 @@ import SwiftGit
 import SwiftGitArm64
 
 let git = Git(environments: [.embed(.arm64), .system])
+```
+
+Shared configuration (arm64):
+
+```swift
+import SwiftGit
+import SwiftGitArm64
+
+Git.configureShared(environments: [.embed(.arm64), .system])
+let git = try Git.shared
 ```
 - Agents and tests should not modify files under the bundles. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
 - To generate updated bundles, run `tools/update-git-bundle.sh` with the desired `--archs` and copy the result into the corresponding `Sources/SwiftGitResources*/Resource/` directory.
