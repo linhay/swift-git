@@ -8,7 +8,7 @@ final class GitEnvironmentTests: XCTestCase {
         // Use a sample output and ensure calling version() won't crash; we can't access formatter directly.
         // This test is a smoke test verifying version() doesn't throw for unexpected output.
         struct DummyGit: Codable {}
-        // Since Git.shared may throw due to environment, we skip direct shared usage here.
+        // Shared Git/GitEnvironment were removed; this test remains a placeholder.
         XCTAssertTrue(true)
     }
 

@@ -13,8 +13,8 @@ let package = Package(
         .library(name: "SwiftGitUniversal", targets: ["SwiftGit", "SwiftGitResourcesUniversal"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/linhay/SKProcessRunner.git", from: "0.0.2"),
-        .package(url: "https://github.com/linhay/STFilePath.git", from: "1.3.1"),
+        .package(url: "https://github.com/linhay/SKProcessRunner.git", from: "0.0.4"),
+        .package(url: "https://github.com/linhay/STFilePath.git", from: "1.3.4"),
     ],
     targets: [
         .target(

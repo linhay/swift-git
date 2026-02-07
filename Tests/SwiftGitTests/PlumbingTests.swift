@@ -18,7 +18,7 @@ final class PlumbingTests: XCTestCase {
 
     func test_update_index_add_and_write_tree() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let dir = try makeTempDir()
         try git.run(["init"], context: Shell.Context(at: dir))
         try git.run(["config", "user.name", "P"], context: Shell.Context(at: dir))
@@ -42,7 +42,7 @@ final class PlumbingTests: XCTestCase {
 
     func test_ls_files_ls_tree_rev_list_and_show_ref() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let dir = try makeTempDir()
         try git.run(["init"], context: Shell.Context(at: dir))
         try git.run(["config", "user.name", "Q"], context: Shell.Context(at: dir))
@@ -72,7 +72,7 @@ final class PlumbingTests: XCTestCase {
 
     func test_update_ref_creates_new_ref() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let dir = try makeTempDir()
         try git.run(["init"], context: Shell.Context(at: dir))
         try git.run(["config", "user.name", "U"], context: Shell.Context(at: dir))

@@ -18,7 +18,7 @@ final class IntegrationMoreTests: XCTestCase {
 
     func test_revparse_and_cat_file() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo-rev")
         try git.run(["init"], context: Shell.Context(at: repoDir))
         try git.run(["config", "user.name", "X"], context: Shell.Context(at: repoDir))
@@ -35,7 +35,7 @@ final class IntegrationMoreTests: XCTestCase {
 
     func test_stash_push_and_pop() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo-stash")
         try git.run(["init"], context: Shell.Context(at: repoDir))
         try git.run(["config", "user.name", "S"], context: Shell.Context(at: repoDir))
@@ -60,7 +60,7 @@ final class IntegrationMoreTests: XCTestCase {
 
     func test_hash_object_and_cat_blob() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo-blob")
         try git.run(["init"], context: Shell.Context(at: repoDir))
         let file = repoDir.appendingPathComponent("blob.txt")
@@ -74,7 +74,7 @@ final class IntegrationMoreTests: XCTestCase {
 
     func test_rebase_basic() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo-rebase")
         try git.run(["init"], context: Shell.Context(at: repoDir))
         try git.run(["config", "user.name", "R"], context: Shell.Context(at: repoDir))

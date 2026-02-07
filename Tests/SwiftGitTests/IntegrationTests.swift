@@ -18,7 +18,7 @@ final class IntegrationTests: XCTestCase {
 
     func test_init_add_commit_tag_flow() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo")
 
         // init
@@ -45,7 +45,7 @@ final class IntegrationTests: XCTestCase {
 
     func test_branch_and_checkout() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo-branch")
         try git.run(["init"], context: Shell.Context(at: repoDir))
         try git.run(["config", "user.name", "Test"], context: Shell.Context(at: repoDir))
@@ -61,7 +61,7 @@ final class IntegrationTests: XCTestCase {
 
     func test_status_empty_repo() throws {
         let env = try envOrSkip()
-        let git = try Git(environment: env)
+        let git = Git(environment: env)
         let repoDir = try makeTempDir("repo-empty")
         try git.run(["init"], context: Shell.Context(at: repoDir))
         let status = try git.run(["status", "--porcelain"], context: Shell.Context(at: repoDir))

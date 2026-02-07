@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/linhay/SKProcessRunner.git",
       "state" : {
-        "revision" : "45c921a19f543be7fef0d347b2bc5cd8f825d8da",
-        "version" : "0.0.2"
+        "revision" : "0ef392163302fd413d4826f6495ec71a66959045",
+        "version" : "0.0.4"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/linhay/STFilePath.git",
       "state" : {
-        "revision" : "d91a2a46cf3e2605a80023e594591755ae9ce755",
-        "version" : "1.3.1"
+        "revision" : "3bbcb9ec909e787b473310f17257d1378e1f5b17",
+        "version" : "1.3.4"
       }
     }
   ],

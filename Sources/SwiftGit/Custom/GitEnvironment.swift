@@ -38,18 +38,6 @@ public class GitEnvironment {
 
 extension GitEnvironment {
 
-    private static var _shared: GitEnvironment?
-    public static var shared: GitEnvironment {
-        get throws {
-            if let item = _shared {
-                return item
-            }
-            let item = try GitEnvironment(type: .auto, variables: [], triggers: [])
-            _shared = item
-            return item
-        }
-    }
-
     public enum Style {
         case embed(EmbeddedResource)
         case system

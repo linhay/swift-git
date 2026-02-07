@@ -130,7 +130,7 @@ final class ParseTests: XCTestCase {
     }
 
     func testVariable_configNoSysyem_key_and_value() {
-        let v = GitEnvironment.Variable.configNoSysyem(true)
+        let v = GitEnvironment.Variable.configNoSystem(true)
         XCTAssertEqual(v.key, "GIT_CONFIG_NOSYSTEM")
         XCTAssertEqual(v.value, "true")
     }

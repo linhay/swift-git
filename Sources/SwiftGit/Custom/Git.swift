@@ -10,25 +10,6 @@ import Foundation
 
 public class Git {
 
-    public static var _shared: Git?
-    private static var _sharedEnvironments: [GitEnvironment]?
-
-    public static func configureShared(environments: [GitEnvironment]) {
-        precondition(!environments.isEmpty, "Git.shared requires at least one GitEnvironment")
-        _sharedEnvironments = environments
-        _shared = nil
-    }
-
-    public static var shared: Git {
-        get throws {
-            if let git = _shared { return git }
-            let environments = _sharedEnvironments ?? [try GitEnvironment.shared]
-            let git = Git(environments: environments)
-            _shared = git
-            return git
-        }
-    }
-
     public private(set) var environment: GitEnvironment
     private let environments: [GitEnvironment]
     private var activeEnvironment: GitEnvironment?

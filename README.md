@@ -82,8 +82,7 @@ Important modules (quick code map)
   - Exposes environment variables used to run git (e.g. `GIT_EXEC_PATH`).
 
 - `Git` (`Sources/SwiftGit/Custom/Git.swift`)
-  - High-level entrypoint. Use `Git(environment:)` or `try Git.shared` (throws if environment fails).
-  - Configure shared fallback environments with `Git.configureShared(environments:)`.
+  - High-level entrypoint. Use `Git(environment:)` (throws if environment fails).
   - Methods: `run`, `runPublisher`, `data` with variants for arrays of args and string commands.
 
 - `Repository` (`Sources/SwiftGit/Custom/Repository.swift` + `Repository+*.swift`)
@@ -110,15 +109,18 @@ import SwiftGitArm64
 let git = Git(environments: [.embed(.arm64), .system])
 ```
 
-Shared configuration (arm64):
+Explicit configuration (arm64):
 
 ```swift
 import SwiftGit
 import SwiftGitArm64
 
-Git.configureShared(environments: [.embed(.arm64), .system])
-let git = try Git.shared
+let env = try GitEnvironment(type: .auto)
+let git = Git(environment: env)
 ```
+
+Breaking change note:
+- `Git.shared`, `GitEnvironment.shared`, and `Git.configureShared(...)` were removed. Use explicit initialization instead.
 - Agents and tests should not modify files under the bundles. Use `GitEnvironment.Style.custom(URL)` to point to an alternate git distribution.
 - To generate updated bundles, run `tools/update-git-bundle.sh` with the desired `--archs` and copy the result into the corresponding `Sources/SwiftGitResources*/Resource/` directory.
 - If a bundle looks unusually large, run `tools/fix-git-bundle-links.sh` to relink duplicate `git-*` binaries and shrink the footprint.

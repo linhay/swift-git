@@ -35,6 +35,16 @@
     @available(macOS 11, *)
     extension Shell {
 
+        public struct Configuration {
+            public var timeoutMs: Int
+            public var maxOutputBytes: Int
+
+            public init(timeoutMs: Int = 5 * 60 * 1000, maxOutputBytes: Int = 4 * 1024 * 1024) {
+                self.timeoutMs = timeoutMs
+                self.maxOutputBytes = maxOutputBytes
+            }
+        }
+
         public struct Context {
 
             public var environment: [String: String] = [:]
@@ -168,14 +178,67 @@
         public struct Instance {
 
             public var changedArgsBeforeRun: ((_ args: inout Arguments) -> Void)?
+            public var configuration: Configuration
 
-            public init() {}
+            public init(configuration: Configuration = .init()) {
+                self.configuration = configuration
+            }
         }
 
     }
 
     @available(macOS 11, *)
     extension Shell.Instance {
+        private func makePayload(
+            exec: URL,
+            commands: [String],
+            context: Shell.Context?,
+            stdin: Data?
+        ) -> SKProcessPayload {
+            SKProcessPayload.executableURL(exec)
+                .arguments(commands)
+                .stdin(stdin)
+                .cwd(context?.currentDirectory)
+                .environment(SKProcessEnvironment(context?.environment ?? [:]))
+                .timeoutMs(configuration.timeoutMs)
+                .maxOutputBytes(configuration.maxOutputBytes)
+                .throwOnNonZeroExit(true)
+        }
+
+        private func mapError(_ error: SKProcessRunError) -> Shell.Error {
+            switch error {
+            case .nonZeroExit(let exitCode, let stdoutData, let stderrData):
+                let out = String(data: stdoutData, encoding: .utf8) ?? ""
+                let err = String(data: stderrData, encoding: .utf8) ?? ""
+                let message = err.isEmpty ? out : err
+                return Shell.Error.processFailed(
+                    message: "Process exited with status \(exitCode).\n\(message)",
+                    code: Int32(exitCode)
+                )
+            case .timedOut(let timeoutMs, let stdoutData, let stderrData, _):
+                let seconds = Double(timeoutMs) / 1000.0
+                let out = String(data: stdoutData, encoding: .utf8) ?? ""
+                let err = String(data: stderrData, encoding: .utf8) ?? ""
+                let combined = [out, err].filter { !$0.isEmpty }.joined(separator: "\n")
+                let message = "Timed out after \(Int(seconds))s.\n\(combined)"
+                return Shell.Error.processFailed(message: message, code: -1)
+            case .executableNotFound(let name):
+                return Shell.Error.processFailed(
+                    message: "Executable not found on PATH: \(name)",
+                    code: -1
+                )
+            case .invalidExecutable(let value):
+                return Shell.Error.processFailed(
+                    message: "Invalid executable: \(value)",
+                    code: -1
+                )
+            case .ptyFailed(let message):
+                return Shell.Error.processFailed(
+                    message: "PTY setup failed: \(message)",
+                    code: -1
+                )
+            }
+        }
 
         @discardableResult
         public func shell(_ args: Shell.ShellArguments) throws -> Data {
@@ -206,22 +269,20 @@
             let stderrPublisher = args.context?.standardError
 
             do {
+                let payload = makePayload(
+                    exec: exec,
+                    commands: args.commands,
+                    context: args.context,
+                    stdin: nil
+                )
                 let result = try SKProcessRunner.runSync(
-                    executableURL: exec,
-                    arguments: args.commands,
-                    configuration: .init(
-                        cwd: args.context?.currentDirectory,
-                        environment: args.context?.environment ?? [:],
-                        timeoutMs: 5 * 60 * 1000,
-                        maxOutputBytes: 4 * 1024 * 1024
-                    ),
+                    payload,
                     onStdout: { stdoutPublisher?.send($0) },
-                    onStderr: { stderrPublisher?.send($0) },
-                    throwOnNonZeroExit: true
+                    onStderr: { stderrPublisher?.send($0) }
                 )
                 return result.stdoutData
-            } catch let error as SKProcessRunner.RunError {
-                throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
+            } catch let error as SKProcessRunError {
+                throw mapError(error)
             }
         }
 
@@ -237,23 +298,20 @@
             let stderrPublisher = args.context?.standardError
 
             do {
+                let payload = makePayload(
+                    exec: exec,
+                    commands: args.commands,
+                    context: args.context,
+                    stdin: input
+                )
                 let result = try SKProcessRunner.runSync(
-                    executableURL: exec,
-                    arguments: args.commands,
-                    stdinData: input,
-                    configuration: .init(
-                        cwd: args.context?.currentDirectory,
-                        environment: args.context?.environment ?? [:],
-                        timeoutMs: 5 * 60 * 1000,
-                        maxOutputBytes: 4 * 1024 * 1024
-                    ),
+                    payload,
                     onStdout: { stdoutPublisher?.send($0) },
-                    onStderr: { stderrPublisher?.send($0) },
-                    throwOnNonZeroExit: true
+                    onStderr: { stderrPublisher?.send($0) }
                 )
                 return result.stdoutData
-            } catch let error as SKProcessRunner.RunError {
-                throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
+            } catch let error as SKProcessRunError {
+                throw mapError(error)
             }
         }
 
@@ -415,23 +473,20 @@
             let stderrPublisher = args.context?.standardError
 
             do {
+                let payload = makePayload(
+                    exec: exec,
+                    commands: args.commands,
+                    context: args.context,
+                    stdin: nil
+                )
                 let result = try await SKProcessRunner.run(
-                    executableURL: exec,
-                    arguments: args.commands,
-                    stdinData: nil,
-                    configuration: .init(
-                        cwd: args.context?.currentDirectory,
-                        environment: args.context?.environment ?? [:],
-                        timeoutMs: 5 * 60 * 1000,
-                        maxOutputBytes: 4 * 1024 * 1024
-                    ),
+                    payload,
                     onStdout: { stdoutPublisher?.send($0) },
-                    onStderr: { stderrPublisher?.send($0) },
-                    throwOnNonZeroExit: true
+                    onStderr: { stderrPublisher?.send($0) }
                 )
                 return result.stdoutData
-            } catch let error as SKProcessRunner.RunError {
-                throw Shell.Error.processFailed(message: error.localizedDescription, code: -1)
+            } catch let error as SKProcessRunError {
+                throw mapError(error)
             }
         }
 
